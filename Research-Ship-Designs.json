@@ -1,0 +1,5956 @@
+{
+  "format": "wosb-shipskin-catalog-1",
+  "source": "Reports/Scan1/Catalog/AI-Data/ShipDesingElements.jsonl",
+  "records": [
+    {
+      "SourceRecord": 1,
+      "EnglishName": "Freebooter Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "desing_flag1",
+      "IconName": "",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 2,
+      "EnglishName": "Pirate Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "desing_flag2",
+      "IconName": "",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 3,
+      "EnglishName": "Knight’s Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "desing_flag3",
+      "IconName": "",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 4,
+      "EnglishName": "Red Flagship Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "desing_flag4",
+      "IconName": "",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 5,
+      "EnglishName": "Seeker Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "desing_flag5",
+      "IconName": "",
+      "InShop": "true Tier2",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 6,
+      "EnglishName": "Blue Flagship Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "desing_flag6",
+      "IconName": "",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 7,
+      "EnglishName": "Golden Lantern (+5% to Speed, Defense, and Damage dealt)",
+      "Category": "Satellite",
+      "ShipId": null,
+      "Texture": "",
+      "IconName": "Icons 320 0 64 64",
+      "InShop": "true Tier4",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 8,
+      "EnglishName": "Lilac Lantern (+7% maneuverability)",
+      "Category": "Satellite",
+      "ShipId": null,
+      "Texture": "",
+      "IconName": "Icons 256 0 64 64",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 9,
+      "EnglishName": "White Lantern (+10% XP/loot)",
+      "Category": "Satellite",
+      "ShipId": null,
+      "Texture": "",
+      "IconName": "Icons 0 0 64 64",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 10,
+      "EnglishName": "Blue Lantern (+6% speed)",
+      "Category": "Satellite",
+      "ShipId": null,
+      "Texture": "",
+      "IconName": "Icons 64 0 64 64",
+      "InShop": "true Tier2",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 11,
+      "EnglishName": "Green Lantern (+7% durability)",
+      "Category": "Satellite",
+      "ShipId": null,
+      "Texture": "",
+      "IconName": "Icons 128 0 64 64",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 12,
+      "EnglishName": "Yellow Lantern (+7% damage)",
+      "Category": "Satellite",
+      "ShipId": null,
+      "Texture": "",
+      "IconName": "Icons 192 0 64 64",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 13,
+      "EnglishName": "Death Cross Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "desing_flag7",
+      "IconName": "",
+      "InShop": "true Tier2",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 14,
+      "EnglishName": "Devourer Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "desing_flag8",
+      "IconName": "",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 15,
+      "EnglishName": "Blue Crosses",
+      "Category": "Decal1",
+      "ShipId": null,
+      "Texture": "design_a1",
+      "IconName": "",
+      "InShop": "ByGold 10000",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 16,
+      "EnglishName": "Vertical Stripes",
+      "Category": "Decal1",
+      "ShipId": null,
+      "Texture": "design_a2",
+      "IconName": "",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 17,
+      "EnglishName": "Horizontal Stripes",
+      "Category": "Decal1",
+      "ShipId": null,
+      "Texture": "design_a3",
+      "IconName": "",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 18,
+      "EnglishName": "Black Sail",
+      "Category": "Decal1",
+      "ShipId": null,
+      "Texture": "design_a4",
+      "IconName": "",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 19,
+      "EnglishName": "Cutthroat Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "design_b1",
+      "IconName": "",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 20,
+      "EnglishName": "Triangle Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "design_b2",
+      "IconName": "",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 21,
+      "EnglishName": "Ancient Evil Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "design_b3",
+      "IconName": "",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 22,
+      "EnglishName": "Shepherd Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "design_b4",
+      "IconName": "",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 23,
+      "EnglishName": "Predator Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "design_b5",
+      "IconName": "",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 24,
+      "EnglishName": "Kraken Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "design_b6",
+      "IconName": "",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 25,
+      "EnglishName": "Dragon Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "design_b7",
+      "IconName": "",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 26,
+      "EnglishName": "Crown Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "design_b8",
+      "IconName": "",
+      "InShop": "true Tier4",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 27,
+      "EnglishName": "Order Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "design_b9",
+      "IconName": "",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 28,
+      "EnglishName": "Flying Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "design_b10",
+      "IconName": "",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 29,
+      "EnglishName": "Seal Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "design_b11",
+      "IconName": "",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 30,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "2a41d5e9",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 31,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "b7s01f01",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 32,
+      "EnglishName": "Guild Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "desing_gflag14",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 33,
+      "EnglishName": "Guild Sail",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "desing_gsail21",
+      "IconName": "shareddes",
+      "InShop": "",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 34,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "6e2d943c",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 35,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 36,
+      "EnglishName": "Emperor Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "design_b22",
+      "IconName": "",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 37,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "d46ac4cf",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 38,
+      "EnglishName": "Thunder of War Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "design_b14",
+      "IconName": "",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 39,
+      "EnglishName": "Monogram Pattern",
+      "Category": "Decal1",
+      "ShipId": null,
+      "Texture": "design_a5",
+      "IconName": "",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 40,
+      "EnglishName": "Frame Pattern",
+      "Category": "Decal1",
+      "ShipId": null,
+      "Texture": "design_a6",
+      "IconName": "",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 41,
+      "EnglishName": "Luxor Pattern",
+      "Category": "Decal1",
+      "ShipId": null,
+      "Texture": "design_a7",
+      "IconName": "",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 42,
+      "EnglishName": "Négociant Pattern",
+      "Category": "Decal1",
+      "ShipId": null,
+      "Texture": "design_a8",
+      "IconName": "",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 43,
+      "EnglishName": "Guild Sail",
+      "Category": "Decal1",
+      "ShipId": null,
+      "Texture": "desing_a30",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 44,
+      "EnglishName": "Guild Sail",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "design_a9",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 45,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "01de499f",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 46,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "0c91ac12",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 47,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "c0f14b42",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 48,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "0c91ac12_p2",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 49,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "0c91ac12_p3",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 50,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "0c91ac12_p4",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 51,
+      "EnglishName": "Guild Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "desing_gflag1",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 52,
+      "EnglishName": "Guild Sail",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "desing_gsail23",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 53,
+      "EnglishName": "Inquisition Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "design_b15",
+      "IconName": "",
+      "InShop": "true Tier2",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 54,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "df1e6ffe",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 55,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 56,
+      "EnglishName": "Dynasty Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "design_b16",
+      "IconName": "",
+      "InShop": "true Tier2",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 57,
+      "EnglishName": "Guild Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "desing_gflag2",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 58,
+      "EnglishName": "Custom Design",
+      "Category": "Decal1",
+      "ShipId": null,
+      "Texture": "06606749",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 59,
+      "EnglishName": "Guild Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "desing_gflag3_a",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 60,
+      "EnglishName": "Guild Sail",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "desing_gsail1",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 61,
+      "EnglishName": "Anchor Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "design_b23",
+      "IconName": "",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 62,
+      "EnglishName": "Legion Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "design_b24",
+      "IconName": "",
+      "InShop": "true Tier4",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 63,
+      "EnglishName": "Custom Design",
+      "Category": "Decal1",
+      "ShipId": null,
+      "Texture": "shipsail_gl4_c",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 64,
+      "EnglishName": "Guild Sail",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "desing_gsail2",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 65,
+      "EnglishName": "Custom Paint",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 66,
+      "EnglishName": "Custom Paint",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 67,
+      "EnglishName": "Admiral Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "design_b25",
+      "IconName": "",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 68,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "198babed",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 69,
+      "EnglishName": "Justice Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "design_b17",
+      "IconName": "",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 70,
+      "EnglishName": "Gray Paint",
+      "Category": "Decal1",
+      "ShipId": null,
+      "Texture": "desing_a30",
+      "IconName": "",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 71,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "b33cc88f",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 72,
+      "EnglishName": "Custom Design",
+      "Category": "Decal1",
+      "ShipId": null,
+      "Texture": "24c86565",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 73,
+      "EnglishName": "Guild Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "desing_gflag3",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 74,
+      "EnglishName": "Black Spot Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "design_b26",
+      "IconName": "",
+      "InShop": "true Tier2",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 75,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "f4a981a1",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 76,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "d84df2fd",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 77,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "d46ac4cf_p2",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 78,
+      "EnglishName": "Ship’s Ensign Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "desing_flag16",
+      "IconName": "",
+      "InShop": "true Tier2",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 79,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "d46ac4cf_p3",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 80,
+      "EnglishName": "Custom Paint",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "desing_flag16",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 81,
+      "EnglishName": "Personal Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "navyPrivFlag",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 82,
+      "EnglishName": "Guild Sail",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "desing_gsail3",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 83,
+      "EnglishName": "Guild Sail",
+      "Category": "Decal1",
+      "ShipId": null,
+      "Texture": "design_a4",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 84,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "7a5f1196",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 85,
+      "EnglishName": "Personal Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "7a5f1196_flag",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 86,
+      "EnglishName": "Custom Design",
+      "Category": "Decal1",
+      "ShipId": null,
+      "Texture": "5920edb8_b",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 87,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "5920edb8",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 88,
+      "EnglishName": "Personal Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "5920edb8_flag",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 89,
+      "EnglishName": "Personal Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "5920edb8_flag2",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 90,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "5920edb8_2",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 91,
+      "EnglishName": "Morgan Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "desing_flag9",
+      "IconName": "",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 92,
+      "EnglishName": "Rogue Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "desing_flag10",
+      "IconName": "",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 93,
+      "EnglishName": "Corsair Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "desing_flag11",
+      "IconName": "",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 94,
+      "EnglishName": "Smiter Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "desing_flag12",
+      "IconName": "",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 95,
+      "EnglishName": "Roger Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "desing_flag13",
+      "IconName": "",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 96,
+      "EnglishName": "Convoy Escort Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "desing_flag14",
+      "IconName": "",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 97,
+      "EnglishName": "Nomad Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "desing_flag15",
+      "IconName": "",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 98,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "9bffb845",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 99,
+      "EnglishName": "Personal Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "a3290857_flag",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 100,
+      "EnglishName": "Custom Design",
+      "Category": "Decal1",
+      "ShipId": null,
+      "Texture": "6ab96756",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 101,
+      "EnglishName": "Personal Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "6ab96756_flag",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 102,
+      "EnglishName": "Custom Design",
+      "Category": "Decal1",
+      "ShipId": null,
+      "Texture": "78402040",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 103,
+      "EnglishName": "removed",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 104,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "49b91f02",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 105,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "2e8e68e5",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 106,
+      "EnglishName": "removed",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 107,
+      "EnglishName": "Personal Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "2e8e68e5_flag",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 108,
+      "EnglishName": "Fury Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "desing_flag17",
+      "IconName": "",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 109,
+      "EnglishName": "removed",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 110,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "cc018f89",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 111,
+      "EnglishName": "Seafarer Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "design_b12",
+      "IconName": "",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 112,
+      "EnglishName": "Santisima Black",
+      "Category": "ShipFullDesign",
+      "ShipId": 36,
+      "Texture": "ship_santisima_back:ship_santisima_back_black;ship_santisima_hull2:d112_ship_santisima_hull2;Wood14:Wood16;Wood13:Wood16",
+      "IconName": "design_ship_112_santisima_black",
+      "InShop": "true Tier2",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 113,
+      "EnglishName": "Santisima Yellow",
+      "Category": "ShipFullDesign",
+      "ShipId": 36,
+      "Texture": "ship_santisima_hull2:d113_ship_santisima_hull2;Wood14:Wood17;",
+      "IconName": "design_ship_113_santisima_yellow",
+      "InShop": "true Tier2",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 114,
+      "EnglishName": "Victory Red",
+      "Category": "ShipFullDesign",
+      "ShipId": 31,
+      "Texture": "hmsvictory_hull:d114_hmsvictory_hull;hms_victory_back:d114_hms_victory_back;",
+      "IconName": "design_ship_114_victory_red",
+      "InShop": "true Tier2",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 115,
+      "EnglishName": "Anson White",
+      "Category": "ShipFullDesign",
+      "ShipId": 19,
+      "Texture": "ship_stel_hull:lecfcrt_hull;Mast_1:Wood13;",
+      "IconName": "design_ship_115_anson_white",
+      "InShop": "true Tier2",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 116,
+      "EnglishName": "Firestorm Blaze",
+      "Category": "ShipFullDesign",
+      "ShipId": 28,
+      "Texture": "firestorm_hull_bw:Magma1;firestorm_hull_1:Magma1;firestorm_hull_2:Magma1;firestorm_decor_1:d116_firestorm_decor_1;Metal1:BloodyWood1;",
+      "IconName": "design_ship_116_firestorm_fire",
+      "InShop": "true Tier3",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 117,
+      "EnglishName": "Constitution Red",
+      "Category": "ShipFullDesign",
+      "ShipId": 25,
+      "Texture": "ship_const_hull:Wood14;kaligula_floor_light:lecfcrt_deck;Wood18:Wood14;Vants5:Wood14;Wood19:Wood18;Vants3:Vants3_dark;Vants4:Vants4_dark;",
+      "IconName": "design_ship_117_constitution_red",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 118,
+      "EnglishName": "Guild Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "desing_gflag4",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 119,
+      "EnglishName": "Spanish Ensign Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "desing_flag18",
+      "IconName": "",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 120,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "6ab96756_2",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 121,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "db9ceb9a",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 122,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "2df0d92f",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 123,
+      "EnglishName": "Custom Design",
+      "Category": "Decal1",
+      "ShipId": null,
+      "Texture": "ad3f51ee",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 124,
+      "EnglishName": "Personal Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "db9ceb9a_flag",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 125,
+      "EnglishName": "Personal Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "2df0d92f_flag",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 126,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "5ab04d0e",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 127,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "5ab04d0e_2",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 128,
+      "EnglishName": "Personal Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "5ab04d0e_flag",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 129,
+      "EnglishName": "Custom Design",
+      "Category": "Decal1",
+      "ShipId": null,
+      "Texture": "438d8793",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 130,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "438d8793_2",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 131,
+      "EnglishName": "Fever Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "design_b13",
+      "IconName": "",
+      "InShop": "true Tier2",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 132,
+      "EnglishName": "Scarlet Paint",
+      "Category": "Decal1",
+      "ShipId": null,
+      "Texture": "design_a9",
+      "IconName": "",
+      "InShop": "true Tier2",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 133,
+      "EnglishName": "Blue Paint",
+      "Category": "Decal1",
+      "ShipId": null,
+      "Texture": "design_a10",
+      "IconName": "",
+      "InShop": "true Tier2",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 134,
+      "EnglishName": "Amber Paint",
+      "Category": "Decal1",
+      "ShipId": null,
+      "Texture": "design_a11",
+      "IconName": "",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 135,
+      "EnglishName": "Red Crosses",
+      "Category": "Decal1",
+      "ShipId": null,
+      "Texture": "design_a12",
+      "IconName": "",
+      "InShop": "ByGold 15000",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 136,
+      "EnglishName": "Custom Design",
+      "Category": "Decal1",
+      "ShipId": null,
+      "Texture": "019e0b9a",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 137,
+      "EnglishName": "Personal Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "2b7cb73a_flag",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 138,
+      "EnglishName": "Continental Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "desing_flag19",
+      "IconName": "",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 139,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "8bc141a2",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 140,
+      "EnglishName": "Red Lantern (+5% maneuverability, +5% damage, +7% XP/loot)",
+      "Category": "Satellite",
+      "ShipId": null,
+      "Texture": "",
+      "IconName": "Icons 385 0 64 64",
+      "InShop": "true Tier3",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 141,
+      "EnglishName": "Guild Sail",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "desing_gsail5",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 142,
+      "EnglishName": "Guild Sail",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "desing_gsail6",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 143,
+      "EnglishName": "Guild Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "desing_gflag6",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 144,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "8c949511",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 145,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "d1723958",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 146,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "d85d8173",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 147,
+      "EnglishName": "Red Stripes",
+      "Category": "Decal1",
+      "ShipId": null,
+      "Texture": "design_a13",
+      "IconName": "",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 148,
+      "EnglishName": "Blue Stripes",
+      "Category": "Decal1",
+      "ShipId": null,
+      "Texture": "design_a14",
+      "IconName": "",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 149,
+      "EnglishName": "Black Stripes",
+      "Category": "Decal1",
+      "ShipId": null,
+      "Texture": "design_a15",
+      "IconName": "",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 150,
+      "EnglishName": "Guild Sail",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "desing_gsail7",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 151,
+      "EnglishName": "Guild Sail",
+      "Category": "Decal1",
+      "ShipId": null,
+      "Texture": "desing_gsail7b",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 152,
+      "EnglishName": "Maiden Figurehead",
+      "Category": "BowFigure",
+      "ShipId": null,
+      "Texture": "",
+      "IconName": "Icons 0 66 64 64",
+      "InShop": "ByGold 2000",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 153,
+      "EnglishName": "Commander Figurehead",
+      "Category": "BowFigure",
+      "ShipId": null,
+      "Texture": "",
+      "IconName": "Icons 64 66 64 64",
+      "InShop": "ByGold 2000",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 154,
+      "EnglishName": "Mermaid Figurehead",
+      "Category": "BowFigure",
+      "ShipId": null,
+      "Texture": "",
+      "IconName": "Icons 128 66 64 64",
+      "InShop": "ByGold 3000",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 155,
+      "EnglishName": "Conqueror Figurehead",
+      "Category": "BowFigure",
+      "ShipId": null,
+      "Texture": "",
+      "IconName": "Icons 192 66 64 64",
+      "InShop": "true Tier2",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 156,
+      "EnglishName": "Angel Figurehead",
+      "Category": "BowFigure",
+      "ShipId": null,
+      "Texture": "",
+      "IconName": "Icons 256 66 64 64",
+      "InShop": "true Tier2",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 157,
+      "EnglishName": "Poseidon Figurehead",
+      "Category": "BowFigure",
+      "ShipId": null,
+      "Texture": "",
+      "IconName": "Icons 320 66 64 64",
+      "InShop": "ByGold 6000",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 158,
+      "EnglishName": "Liberty Figurehead",
+      "Category": "BowFigure",
+      "ShipId": null,
+      "Texture": "",
+      "IconName": "Icons 384 66 64 64",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 159,
+      "EnglishName": "Dragon Figurehead",
+      "Category": "BowFigure",
+      "ShipId": null,
+      "Texture": "",
+      "IconName": "Icons 448 66 64 64",
+      "InShop": "ByGold 20000",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 160,
+      "EnglishName": "Coat of Arms Figurehead",
+      "Category": "BowFigure",
+      "ShipId": null,
+      "Texture": "",
+      "IconName": "Icons 512 66 64 64",
+      "InShop": "ByGold 9000",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 161,
+      "EnglishName": "Eye of Chaos Figurehead",
+      "Category": "BowFigure",
+      "ShipId": null,
+      "Texture": "",
+      "IconName": "Icons 576 66 64 64",
+      "InShop": "true Tier2",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 162,
+      "EnglishName": "Warrior Figurehead",
+      "Category": "BowFigure",
+      "ShipId": null,
+      "Texture": "",
+      "IconName": "Icons 640 66 64 64",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 163,
+      "EnglishName": "Shield Figurehead",
+      "Category": "BowFigure",
+      "ShipId": null,
+      "Texture": "",
+      "IconName": "Icons 704 66 64 64",
+      "InShop": "ByGold 10000",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 164,
+      "EnglishName": "Lion Figurehead",
+      "Category": "BowFigure",
+      "ShipId": null,
+      "Texture": "",
+      "IconName": "Icons 768 66 64 64",
+      "InShop": "true Tier2",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 165,
+      "EnglishName": "Squid Figurehead",
+      "Category": "BowFigure",
+      "ShipId": null,
+      "Texture": "",
+      "IconName": "Icons 832 66 64 64",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 166,
+      "EnglishName": "Maiden 2 Figurehead",
+      "Category": "BowFigure",
+      "ShipId": null,
+      "Texture": "",
+      "IconName": "Icons 832 0 64 64",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 167,
+      "EnglishName": "Amphitrite Figurehead",
+      "Category": "BowFigure",
+      "ShipId": null,
+      "Texture": "",
+      "IconName": "Icons 896 66 64 64",
+      "InShop": "ByGold 10000",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 168,
+      "EnglishName": "Skeleton Figurehead",
+      "Category": "BowFigure",
+      "ShipId": null,
+      "Texture": "",
+      "IconName": "Icons 768 0 64 64",
+      "InShop": "ByGold 50000",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 169,
+      "EnglishName": "Entombed Figurehead",
+      "Category": "BowFigure",
+      "ShipId": null,
+      "Texture": "",
+      "IconName": "Icons 704 0 64 64",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 170,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 171,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 172,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 173,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 174,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 175,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 176,
+      "EnglishName": "Personal Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "291850c7_flag",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 177,
+      "EnglishName": "Guild Sail",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "desing_gsail8",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 178,
+      "EnglishName": "Guild Sail",
+      "Category": "Decal1",
+      "ShipId": null,
+      "Texture": "desing_gsail8b",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 179,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "0x16bda23c",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 180,
+      "EnglishName": "Guild Sail",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "desing_gsail9",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 181,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "0xf20d1bd8",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 182,
+      "EnglishName": "Guild Sail",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "desing_gsail10",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 183,
+      "EnglishName": "Guild Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "desing_gflag7",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 184,
+      "EnglishName": "Guild Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "desing_gflag8",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 185,
+      "EnglishName": "Guild Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "desing_gflag9",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 186,
+      "EnglishName": "Guild Sail",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "desing_gsail11",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 187,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "466f0864_1",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 188,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "466f0864_2",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 189,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "466f0864_3",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 190,
+      "EnglishName": "Personal Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "466f0864_1_flag",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 191,
+      "EnglishName": "Personal Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "466f0864_2_flag",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 192,
+      "EnglishName": "Personal Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "466f0864_3_flag",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 193,
+      "EnglishName": "Personal Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "466f0864_4_flag",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 194,
+      "EnglishName": "Guild Sail",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "desing_gsail12",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 195,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "c773e2fd",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 196,
+      "EnglishName": "Personal Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "76ed7eff",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 197,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "3ce203b0",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 198,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "a3b1d2f2",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 199,
+      "EnglishName": "Guild Sail",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "desing_gsail13",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 200,
+      "EnglishName": "Guild Sail",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "desing_gsail14",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 201,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "0f7d542e",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 202,
+      "EnglishName": "Guild Sail",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "desing_gsail15",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 203,
+      "EnglishName": "Guild Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "desing_gflag10",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 204,
+      "EnglishName": "Personal Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "d62c019b",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 205,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "fecf95ba",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 206,
+      "EnglishName": "Guild Sail",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "desing_gsail16",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 207,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "41ea6ee5",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 208,
+      "EnglishName": "Guild Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "desing_gflag11",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 209,
+      "EnglishName": "Guild Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "desing_gflag12",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 210,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "19f896a6",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 211,
+      "EnglishName": "Custom Design",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "19f896a6_flag",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 212,
+      "EnglishName": "Guild Sail",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "desing_gsail17",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 213,
+      "EnglishName": "Guild Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "desing_gflag13",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 214,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "a14538ac",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 215,
+      "EnglishName": "Custom Design",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "981dd6ad_flag",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 216,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "4ef1161b",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 217,
+      "EnglishName": "Custom Design",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "a14538ac_flag",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 218,
+      "EnglishName": "Custom Design",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "b2_1_f",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 219,
+      "EnglishName": "Santa Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "design_b18",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 220,
+      "EnglishName": "Plunderer Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "design_b19",
+      "IconName": "shareddes",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 221,
+      "EnglishName": "Wolf Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "design_b20",
+      "IconName": "shareddes",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 222,
+      "EnglishName": "Gold-Stitched Pattern",
+      "Category": "Decal1",
+      "ShipId": null,
+      "Texture": "design_a16",
+      "IconName": "shareddes",
+      "InShop": "true Tier2",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 223,
+      "EnglishName": "Warrior Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "design_b21",
+      "IconName": "shareddes",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 224,
+      "EnglishName": "Guild Sail",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "desing_gsail4",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 225,
+      "EnglishName": "Guild Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "desing_gflag5",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 226,
+      "EnglishName": "Guild Sail",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "desing_gsail28_b",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 227,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "ba021a61",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 228,
+      "EnglishName": "Custom Design",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "a3b1d2f2_flag",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 229,
+      "EnglishName": "removed",
+      "Category": "ShipFullDesign",
+      "ShipId": null,
+      "Texture": "",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 230,
+      "EnglishName": "removed",
+      "Category": "ShipFullDesign",
+      "ShipId": null,
+      "Texture": "",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 231,
+      "EnglishName": "removed",
+      "Category": "ShipFullDesign",
+      "ShipId": null,
+      "Texture": "",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 232,
+      "EnglishName": "removed",
+      "Category": "ShipFullDesign",
+      "ShipId": null,
+      "Texture": "",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 233,
+      "EnglishName": "removed",
+      "Category": "ShipFullDesign",
+      "ShipId": null,
+      "Texture": "",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 234,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "desing_gsail14",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 235,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "66030364",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 236,
+      "EnglishName": "Custom Design",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "66030364_flag",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 237,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "7600cd15",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 238,
+      "EnglishName": "Custom Design",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "7600cd15_3_flag",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 239,
+      "EnglishName": "Custom Design",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "7600cd15_flag",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 240,
+      "EnglishName": "Custom Design",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "7600cd15_2_flag",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 241,
+      "EnglishName": "Guild Sail",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "desing_gsail22",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 242,
+      "EnglishName": "Guild Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "desing_gflag28",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 243,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "8c81fb9a",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 244,
+      "EnglishName": "Custom Design",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "19f896a6_flag2",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 245,
+      "EnglishName": "Guild Sail",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "desing_gsail20",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 246,
+      "EnglishName": "Guild Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "desing_gflag15",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 247,
+      "EnglishName": "Guild Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "desing_gflag15b",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 248,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "ea5115a9",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 249,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "203463b5",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 250,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "66030364_2",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 251,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "66030364_3",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 252,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "66030364_4",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 253,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "2e5edcff",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 254,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "2e5edcff_2",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 255,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "b1_1",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 256,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "b1_2",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 257,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "b1_3",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 258,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "b1_4",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 259,
+      "EnglishName": "Guild Sail",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "desing_gsail24",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 260,
+      "EnglishName": "Custom Design",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "b1_7_f",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 261,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "b1_8",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 262,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "b1_9",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 263,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "b1_10",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 264,
+      "EnglishName": "Custom Design",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "b1_2",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 265,
+      "EnglishName": "Guild Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "desing_gflag20",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 266,
+      "EnglishName": "Guild Sail",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "desing_gsail25",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 267,
+      "EnglishName": "Guild Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "desing_gflag21",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 268,
+      "EnglishName": "Event Participant Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "event_tourn_gold",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 269,
+      "EnglishName": "Event Participant Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "event_tourn_silver",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 270,
+      "EnglishName": "Event Participant Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "event_tourn_regular",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 271,
+      "EnglishName": "Custom Design",
+      "Category": "ShipFullDesign",
+      "ShipId": null,
+      "Texture": "ship_stel_hull:SnowRock;ship_stel_hull_decor:Wood21;Vants3:SnowGrassLand1;kaligula_floor:SnowGrassLand1;Flagpoll2:EmptyTexture;",
+      "IconName": "shipDesign",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 272,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "85a8b932",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 273,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "41ea6ee5_2",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 274,
+      "EnglishName": "Guild Sail",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "desing_gsail26",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 275,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "b26a5355",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 276,
+      "EnglishName": "Personal Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "b26a5355_flag",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 277,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "3870ba3c",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 278,
+      "EnglishName": "Guild Sail",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "desing_gsail27",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 279,
+      "EnglishName": "Guild Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "desing_gflag22",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 280,
+      "EnglishName": "Guild Sail",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "desing_gsail28",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 281,
+      "EnglishName": "Guild Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "desing_gflag23",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 282,
+      "EnglishName": "Guild Sail",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "desing_gsail29",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 283,
+      "EnglishName": "Black Crosses",
+      "Category": "Decal1",
+      "ShipId": null,
+      "Texture": "design_a17",
+      "IconName": "shareddes",
+      "InShop": "ByGold 5000",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 284,
+      "EnglishName": "Frame Design",
+      "Category": "Decal1",
+      "ShipId": null,
+      "Texture": "design_a18",
+      "IconName": "shareddes",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 285,
+      "EnglishName": "Pitchfork Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "design_b27",
+      "IconName": "shareddes",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 286,
+      "EnglishName": "Prins Willem Black",
+      "Category": "ShipFullDesign",
+      "ShipId": 20,
+      "Texture": "ship_pwilliam:customization_dark_hull;kaligula_floor:Wood6;ship_flute_deck:Wood19;ship_pwilliam_back:Wood19;Mast_1:Wood19",
+      "IconName": "design_ship_286_prins_willem_black",
+      "InShop": "true Tier3",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 287,
+      "EnglishName": "Sovereign Black",
+      "Category": "ShipFullDesign",
+      "ShipId": 46,
+      "Texture": "ship_sov_hull:customization_dark_hull;Mast_1:Wood13;Vants3:Vants3_dark;lecfcrt_deck:gray_deck;Vants4:Vants4_dark",
+      "IconName": "design_ship_287_sovereign_black",
+      "InShop": "true Tier2",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 288,
+      "EnglishName": "Neptuno Misty",
+      "Category": "ShipFullDesign",
+      "ShipId": 39,
+      "Texture": "ship_nep_hull:Wood16;Wood17:Wood12;Vants3:Vants3_dark;Vants4:Vants4_dark",
+      "IconName": "design_ship_288_neptuno_fogy",
+      "InShop": "true Tier2",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 289,
+      "EnglishName": "La Creole Black",
+      "Category": "ShipFullDesign",
+      "ShipId": 24,
+      "Texture": "ship_lacreole_hull:ship_black;Vants2:Wood12;Vants3:Vants3_dark;",
+      "IconName": "design_ship_289_la_creole_black",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 290,
+      "EnglishName": "Ingermanland Light",
+      "Category": "ShipFullDesign",
+      "ShipId": 50,
+      "Texture": "Wood16:Wood19;Wood6:Wood13;Wood18:Wood19;Wood13:Wood19;Vants3:Vants3_dark;Vants4:Vants4_dark;ship_flute_hull_smug:Wood19",
+      "IconName": "design_ship_290_ingermanland_light",
+      "InShop": "true Tier2",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 291,
+      "EnglishName": "Prins Willem Blood-Red",
+      "Category": "ShipFullDesign",
+      "ShipId": 20,
+      "Texture": "ship_pwilliam:des_ship_pwilliam;kaligula_floor:floor_peers;Mast_1:Wood19;Vants3:Vants3_dark;Vants4:Vants4_dark;Gold1:iron_cherepica;",
+      "IconName": "design_ship_291_prins_willem_bloody",
+      "InShop": "true Tier2",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 292,
+      "EnglishName": "Sans Pareil Dark",
+      "Category": "ShipFullDesign",
+      "ShipId": 41,
+      "Texture": "ship_stel_hull:ship_qar_hull;Vants3:Vants3_dark;Vants4:Vants4_dark;",
+      "IconName": "design_ship_292_sans_pareil_dark",
+      "InShop": "true Tier3",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 293,
+      "EnglishName": "Bellona Red",
+      "Category": "ShipFullDesign",
+      "ShipId": 44,
+      "Texture": "ship_stel_hull:ship_santisima_hull2;Wood6:Wood14;Vants3:Vants3_dark;Vants4:Vants4_dark;",
+      "IconName": "design_ship_293_bellona_red",
+      "InShop": "true Tier2",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 294,
+      "EnglishName": "Custom Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "b1_82",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 295,
+      "EnglishName": "Guild Sail",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "2e5edcff_3",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 296,
+      "EnglishName": "Guild Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "desing_gflag24",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 297,
+      "EnglishName": "Guild Sail",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "desing_gsail30",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 298,
+      "EnglishName": "Guild Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "desing_gflag25",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 299,
+      "EnglishName": "Guild Sail",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "desing_gsail31",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 300,
+      "EnglishName": "Guild Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "desing_gflag26",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 301,
+      "EnglishName": "Guild Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "desing_gflag26_b",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 302,
+      "EnglishName": "Guild Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "desing_gflag27",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 303,
+      "EnglishName": "Guild Sail",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "desing_gsail32",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 304,
+      "EnglishName": "Guild Sail",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "desing_gsail33",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 305,
+      "EnglishName": "Guild Sail",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "desing_gsail34",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 306,
+      "EnglishName": "Guild Sail",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "desing_gsail35",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 307,
+      "EnglishName": "Guild Sail",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "desing_gsail36",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 308,
+      "EnglishName": "Guild Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "desing_gflag29",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 309,
+      "EnglishName": "Guild Sail",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "desing_gsail37",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 310,
+      "EnglishName": "Guild Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "desing_gflag30",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 311,
+      "EnglishName": "Guild Sail",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "desing_gsail38",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 312,
+      "EnglishName": "Guild Sail",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "desing_gsail39",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 313,
+      "EnglishName": "Light",
+      "Category": "SailTexture",
+      "ShipId": null,
+      "Texture": "Sail_",
+      "IconName": "",
+      "InShop": "ByGold 2500",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 314,
+      "EnglishName": "Linen",
+      "Category": "SailTexture",
+      "ShipId": null,
+      "Texture": "Sail11_",
+      "IconName": "",
+      "InShop": "ByGold 5000",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 315,
+      "EnglishName": "Dawn",
+      "Category": "SailTexture",
+      "ShipId": null,
+      "Texture": "Sail2_",
+      "IconName": "",
+      "InShop": "ByGold 10000",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 316,
+      "EnglishName": "Kai",
+      "Category": "SailTexture",
+      "ShipId": null,
+      "Texture": "Sail12_",
+      "IconName": "",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 317,
+      "EnglishName": "Tattered",
+      "Category": "SailTexture",
+      "ShipId": null,
+      "Texture": "Sail5_",
+      "IconName": "",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 318,
+      "EnglishName": "Scales",
+      "Category": "SailTexture",
+      "ShipId": null,
+      "Texture": "shipsail_fs4",
+      "IconName": "",
+      "InShop": "true Tier2",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 319,
+      "EnglishName": "Radiant",
+      "Category": "SailTexture",
+      "ShipId": null,
+      "Texture": "Sail9_",
+      "IconName": "",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 320,
+      "EnglishName": "Imperial",
+      "Category": "SailTexture",
+      "ShipId": null,
+      "Texture": "shipsail_gl4_c",
+      "IconName": "",
+      "InShop": "true Tier2",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 321,
+      "EnglishName": "Black",
+      "Category": "SailTexture",
+      "ShipId": null,
+      "Texture": "Sail7_",
+      "IconName": "",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 322,
+      "EnglishName": "Raven",
+      "Category": "SailTexture",
+      "ShipId": null,
+      "Texture": "Sail3_",
+      "IconName": "",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 323,
+      "EnglishName": "Crimson",
+      "Category": "SailTexture",
+      "ShipId": null,
+      "Texture": "Sail8_",
+      "IconName": "",
+      "InShop": "true Tier2",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 324,
+      "EnglishName": "Admiral",
+      "Category": "SailTexture",
+      "ShipId": null,
+      "Texture": "Sail6_",
+      "IconName": "",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 325,
+      "EnglishName": "Pirate",
+      "Category": "SailTexture",
+      "ShipId": null,
+      "Texture": "black_sail",
+      "IconName": "",
+      "InShop": "true Tier2",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 326,
+      "EnglishName": "Ingermanland High Contrast",
+      "Category": "ShipFullDesign",
+      "ShipId": 50,
+      "Texture": "kaligula_floor:gray_deck;Wood13:Wood16;Wood6:Wood19;Vants3:Vants3_dark;Vants4:Vants4_dark;Wood16:Wood13;",
+      "IconName": "design_ship_326_ingermanland_contrast",
+      "InShop": "true Tier2",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 327,
+      "EnglishName": "Ingermanland Blood-Red",
+      "Category": "ShipFullDesign",
+      "ShipId": 50,
+      "Texture": "Wood16:Wood21;Wood6:Wood19;Wood18:Wood19;Wood13:Wood19;Vants3:Vants3_dark;Vants4:Vants4_dark;ship_flute_hull_smug:Wood19;kaligula_floor:Wood12;",
+      "IconName": "design_ship_327_ingermanland_bloody",
+      "InShop": "true Tier2",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 328,
+      "EnglishName": "Black Prince High Contrast",
+      "Category": "ShipFullDesign",
+      "ShipId": 12,
+      "Texture": "ship_black:ship_nep_hull;",
+      "IconName": "design_ship_328_black_prince_contrast",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 329,
+      "EnglishName": "removed",
+      "Category": "ShipFullDesign",
+      "ShipId": 12,
+      "Texture": "ship_black:ship_nep_hull;",
+      "IconName": "shipDesign",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 330,
+      "EnglishName": "Black Prince Burgundy",
+      "Category": "ShipFullDesign",
+      "ShipId": 12,
+      "Texture": "ship_black:ship_qar_hull;Vants3:Vants3_dark;Vants4:Vants4_dark;",
+      "IconName": "design_ship_330_black_prince_burgundy",
+      "InShop": "true Tier2",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 331,
+      "EnglishName": "Black Prince Light",
+      "Category": "ShipFullDesign",
+      "ShipId": 12,
+      "Texture": "ship_black:lecfcrt_hull;",
+      "IconName": "design_ship_331_black_prince_light",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 332,
+      "EnglishName": "12 Apostolov Wood",
+      "Category": "ShipFullDesign",
+      "ShipId": 55,
+      "Texture": "ship_stel_hull:Shen;",
+      "IconName": "design_ship_332_apostolov_wood",
+      "InShop": "true Tier2",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 333,
+      "EnglishName": "12 Apostolov Dark",
+      "Category": "ShipFullDesign",
+      "ShipId": 55,
+      "Texture": "ship_stel_hull:Wood16;Vants3:Vants3_dark;Vants4:Vants4_dark;kaligula_floor:hmsvictory_deck;Wood13:Wood16;",
+      "IconName": "design_ship_333_apostolov_dark",
+      "InShop": "true Tier3",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 334,
+      "EnglishName": "Firestorm Ash",
+      "Category": "ShipFullDesign",
+      "ShipId": 28,
+      "Texture": "firestorm_hull_bw:Wood10;firestorm_hull_1:Wood10;firestorm_hull_2:Wood10;Vants3_dark:Vants3;",
+      "IconName": "design_ship_334_firestorm_ashen",
+      "InShop": "true Tier2",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 335,
+      "EnglishName": "Mordaunt Burgundy",
+      "Category": "ShipFullDesign",
+      "ShipId": 53,
+      "Texture": "ship_fr_hull:Wood14;kaligula_floor:lecfcrt_deck;Wood7:Wood14;Wood12:Wood16;Vants3:Vants3_dark;Vants4:Vants4_dark;",
+      "IconName": "design_ship_335_mordaunt_burgundy",
+      "InShop": "true Tier3",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 336,
+      "EnglishName": "Mordaunt Light",
+      "Category": "ShipFullDesign",
+      "ShipId": 53,
+      "Texture": "Wood7:Wood12;Wood12:lecfcrt_hull;kaligula_floor:Wood12;ship_fr_hull:Wood13;",
+      "IconName": "design_ship_336_mordaunt_light",
+      "InShop": "true Tier2",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 337,
+      "EnglishName": "Sans Pareil Wood",
+      "Category": "ShipFullDesign",
+      "ShipId": 41,
+      "Texture": "ship_stel_hull:ship_lacreole_hull;Vants3:Vants3_dark;Vants4:Vants4_dark;kaligula_floor:floor_peers;",
+      "IconName": "design_ship_337_sans_pareil_wood",
+      "InShop": "true Tier2",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 338,
+      "EnglishName": "Sans Pareil Light",
+      "Category": "ShipFullDesign",
+      "ShipId": 41,
+      "Texture": "ship_stel_hull:lecfcrt_hull;BoatTex:BoatTexWhite;kaligula_floor:kaligula_floor_light;ship_kech_kab:Wood13;",
+      "IconName": "design_ship_338_sans_pareil_light",
+      "InShop": "true Tier2",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 339,
+      "EnglishName": "Sparrow Red",
+      "Category": "ShipFullDesign",
+      "ShipId": 13,
+      "Texture": "ship_flute_deck:Wood14;ship_flute_hull_smug:Wood12;Vants3:Vants3_dark;kaligula_floor:hmsvictory_deck;Mast_1:Wood14;",
+      "IconName": "design_ship_339_sparrow_red",
+      "InShop": "true Tier2",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 340,
+      "EnglishName": "La Couronne Ashen",
+      "Category": "ShipFullDesign",
+      "ShipId": 49,
+      "Texture": "lacor_hull:Shen;kaligula_floor:gray_deck;",
+      "IconName": "design_ship_340_la_couronne_ashen",
+      "InShop": "true Tier3",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 341,
+      "EnglishName": "Bellona Wood",
+      "Category": "ShipFullDesign",
+      "ShipId": 44,
+      "Texture": "ship_stel_hull:Shen;",
+      "IconName": "design_ship_341_bellona_wood",
+      "InShop": "true Tier2",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 342,
+      "EnglishName": "Redoutable Dark",
+      "Category": "ShipFullDesign",
+      "ShipId": 52,
+      "Texture": "Wood17:Wood19;ship_nep_hull:ship_qar_hull;Wood16:Wood12;Vants3:Vants3_dark;Vants4:Vants4_dark;Wood6:Wood21;BoatTex:Wood21;Vants:Vants_dark;kaligula_floor:Wood8",
+      "IconName": "design_ship_342_redoutable_dark",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 343,
+      "EnglishName": "Anson Burgundy",
+      "Category": "ShipFullDesign",
+      "ShipId": 19,
+      "Texture": "ship_stel_hull:ship_qar_hull;Vants3:Vants3_dark;Vants4:Vants4_dark;Mast_1:Wood8;kaligula_floor:lecfcrt_deck;BoatTex:Wood10;",
+      "IconName": "design_ship_343_anson_burgundy",
+      "InShop": "true Tier3",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 344,
+      "EnglishName": "Anson Wood",
+      "Category": "ShipFullDesign",
+      "ShipId": 19,
+      "Texture": "BoatTex:Shen;Mast_1:Wood13;Wood7:Wood22;ship_stel_hull:Shen;",
+      "IconName": "design_ship_343_anson_wood",
+      "InShop": "true Tier2",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 345,
+      "EnglishName": "Eagle Dark",
+      "Category": "ShipFullDesign",
+      "ShipId": 18,
+      "Texture": "ship_flute_deck:dfish_hull;Vants3:Vants3_dark;Vants4:Vants4_dark;Mast_1:Wood19;hmsvictory_deck:gray_deck;",
+      "IconName": "design_ship_345_eagle_dark",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 346,
+      "EnglishName": "12 Apostolov White",
+      "Category": "ShipFullDesign",
+      "ShipId": 55,
+      "Texture": "ship_stel_hull:lecfcrt_hull;Wood18:Wood13;",
+      "IconName": "design_ship_346_apostolov_white",
+      "InShop": "true Tier2",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 347,
+      "EnglishName": "Deadfish Blood-Red",
+      "Category": "ShipFullDesign",
+      "ShipId": 35,
+      "Texture": "dfish_mast:Wood12;dfish_hull:Wood10;dfish_decor:Wood21;",
+      "IconName": "design_ship_347_deadfish_bloody",
+      "InShop": "true Tier3",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 348,
+      "EnglishName": "Deadfish White",
+      "Category": "ShipFullDesign",
+      "ShipId": 35,
+      "Texture": "dfish_mast:Wood13;dfish_hull:Wood12;dfish_decor:Wood8;",
+      "IconName": "design_ship_348_deadfish_white",
+      "InShop": "true Tier2",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 349,
+      "EnglishName": "Flying Cloud Wood",
+      "Category": "ShipFullDesign",
+      "ShipId": 34,
+      "Texture": "fc_hull:ship_kech_hull;Wood7:Wood17;",
+      "IconName": "design_ship_349_flying_cloud_wood",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 350,
+      "EnglishName": "Flying Cloud Dark",
+      "Category": "ShipFullDesign",
+      "ShipId": 34,
+      "Texture": "fc_hull:customization_dark_hull;Wood7:Wood16;Mast_1:Wood16;",
+      "IconName": "design_ship_350_flying_cloud_dark",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 351,
+      "EnglishName": "Flying Cloud Light",
+      "Category": "ShipFullDesign",
+      "ShipId": 34,
+      "Texture": "kaligula_floor:gray_deck;Vants3:Vants3_dark;Vants4:Vants4_dark;fc_hull:lecfcrt_hull;Mast_1:Wood16;",
+      "IconName": "design_ship_351_flying_cloud_light",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 352,
+      "EnglishName": "Essex Wenge",
+      "Category": "ShipFullDesign",
+      "ShipId": 11,
+      "Texture": "ship_essex_hull:firestorm_hull_bw;kaligula_floor_light:lecfcrt_deck",
+      "IconName": "design_ship_352_essex_wenge",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 353,
+      "EnglishName": "Kobukson Gray",
+      "Category": "ShipFullDesign",
+      "ShipId": 40,
+      "Texture": "ship_kbk_hull:Octo;ship_kbk_roof:Wood20;kaligula_floor:Wood21",
+      "IconName": "design_ship_353_kobukson_gray",
+      "InShop": "true Tier2",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 354,
+      "EnglishName": "La Couronne Contrast",
+      "Category": "ShipFullDesign",
+      "ShipId": 49,
+      "Texture": "kaligula_floor:firestorm_hull_2;lacor_hull:ship_kech_hull;",
+      "IconName": "design_ship_354_la_couronne_contrast",
+      "InShop": "true Tier3",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 355,
+      "EnglishName": "La Couronne Burgundy",
+      "Category": "ShipFullDesign",
+      "ShipId": 49,
+      "Texture": "lacor_hull:firestorm_hull_bw;Vants3:Vants3_dark;Vants4:Vants4_dark;",
+      "IconName": "design_ship_355_la_couronne_burgundy",
+      "InShop": "true Tier2",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 356,
+      "EnglishName": "Shen Red",
+      "Category": "ShipFullDesign",
+      "ShipId": 26,
+      "Texture": "Wood7:d114_hmsvictory_hull;Shen:d114_hmsvictory_hull;",
+      "IconName": "design_ship_356_shen_red",
+      "InShop": "true Tier3",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 357,
+      "EnglishName": "Shunsen Black and White",
+      "Category": "ShipFullDesign",
+      "ShipId": 3,
+      "Texture": "ship_redsail_hull:des_hull;kaligula_floor:gray_deck;VantsRedsail:Vants3_dark;",
+      "IconName": "design_ship_357_shunsen_black_and_white",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 358,
+      "EnglishName": "Russia Amber",
+      "Category": "ShipFullDesign",
+      "ShipId": 10,
+      "Texture": "ship_fr_hull:ship_kech_hull;Wood7:Wood22;Mast_1:Wood22;ship_fr_decor3:WhiteWood2;",
+      "IconName": "design_ship_358_russia_amber",
+      "InShop": "true Tier2",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 359,
+      "EnglishName": "Le Requin Black and White",
+      "Category": "ShipFullDesign",
+      "ShipId": 47,
+      "Texture": "ship_lacreole_hull:des_hull;Vants3:Vants3_dark;",
+      "IconName": "design_ship_359_le_requin_black_and_white",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 360,
+      "EnglishName": "Black Wind Oak",
+      "Category": "ShipFullDesign",
+      "ShipId": 22,
+      "Texture": "ship_blackw_hull:ship_nep_hull;Wood8:Wood16;hmsvictory_deck:Wood12;",
+      "IconName": "design_ship_360_black_wind_oak",
+      "InShop": "true Tier2",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 361,
+      "EnglishName": "Falmouth Dark",
+      "Category": "ShipFullDesign",
+      "ShipId": 17,
+      "Texture": "ship_falmouthtrader_hull:des_ship_stel_hull;Wood13:Wood11;Mast_1:Wood11;ship_falmouth_decor2:dfish_hull;kaligula_floor:Wood20;BoatTexWhite:BoatTex",
+      "IconName": "design_ship_361_falmouth_dark",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 362,
+      "EnglishName": "Guild Sail",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "desing_gsail40",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 363,
+      "EnglishName": "La Sirene Burgundy",
+      "Category": "ShipFullDesign",
+      "ShipId": 32,
+      "Texture": "ship_sirena_hull:firestorm_hull_bw;Mast_1:Wood21;Wood17:Wood21;Wood7:Wood21;Vants3:Vants3_dark;Vants4:Vants4_dark",
+      "IconName": "design_ship_363_la_sirene_burgundy",
+      "InShop": "true Tier2",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 364,
+      "EnglishName": "Personal Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "event_wmfflag_23",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 365,
+      "EnglishName": "Winged Crown Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "design_b28",
+      "IconName": "shareddes",
+      "InShop": "true Tier2",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 366,
+      "EnglishName": "La Creole Sky",
+      "Category": "ShipFullDesign",
+      "ShipId": 24,
+      "Texture": "ship_lacreole_hull:La_royale_HULL;brig_hull:Wood14;Vants3:Vants3_dark",
+      "IconName": "design_ship_366_la_creole_skyey",
+      "InShop": "true Tier2",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 367,
+      "EnglishName": "La Creole Amber",
+      "Category": "ShipFullDesign",
+      "ShipId": 24,
+      "Texture": "Vants3:Vants3_dark;BoatTexWhite:ship_santisima_hull2;ship_lacreole_hull:ship_santisima_hull2;kaligula_floor_light:kaligula_floor;brig_hull:Wood19;Vants2:Wood19",
+      "IconName": "design_ship_367_la_creole_amber",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 368,
+      "EnglishName": "Essex Sky",
+      "Category": "ShipFullDesign",
+      "ShipId": 11,
+      "Texture": "Wood7:WhiteWood2;Mast_1:Wood19;ship_essex_hull:La_royale_HULL",
+      "IconName": "design_ship_368_essex_skyey",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 369,
+      "EnglishName": "Essex Amber",
+      "Category": "ShipFullDesign",
+      "ShipId": 11,
+      "Texture": "kaligula_floor_light:Wood22;Wood7:Wood19;Mast_1:Wood19;ship_essex_hull:d114_hmsvictory_hull",
+      "IconName": "design_ship_369_essex_amber",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 370,
+      "EnglishName": "Essex Ghostly",
+      "Category": "ShipFullDesign",
+      "ShipId": 11,
+      "Texture": "kaligula_floor_light:Wood8;Wood7:Wood19;BoatTex:Wood10;Mast_1:Wood19;ship_essex_hull:Octo;Vants3:Vants3_dark;Vants4:Vants4_dark;",
+      "IconName": "design_ship_370_essex_ghost",
+      "InShop": "true Tier2",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 371,
+      "EnglishName": "Russia Wood",
+      "Category": "ShipFullDesign",
+      "ShipId": 10,
+      "Texture": "ship_fr_hull:ship_nep_hull;Mast_1:ship_nep_hull;kaligula_floor:Wood22",
+      "IconName": "design_ship_371_russia_wood",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 372,
+      "EnglishName": "Russia Dark",
+      "Category": "ShipFullDesign",
+      "ShipId": 10,
+      "Texture": "kaligula_floor:kaligula_floor_light;Vants3:Vants3_dark;ship_fr_hull:customization_dark_hull;Wood7:Wood10;BoatTex:customization_dark_hull;ship_fr_decor3:Wood10;ship_fr_decor:Wood10;Mast_1:Wood19;sirena_bronze:Octo",
+      "IconName": "design_ship_372_russia_dark",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 373,
+      "EnglishName": "Black Wind Light",
+      "Category": "ShipFullDesign",
+      "ShipId": 22,
+      "Texture": "ship_blackw_hull:La_royale_HULL;Mast_1:La_royale_HULL;BoatTex:La_royale_HULL;hmsvictory_deck:gray_deck",
+      "IconName": "design_ship_373_black_wind_skyey",
+      "InShop": "true Tier2",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 374,
+      "EnglishName": "De Zeven Provincien Amber",
+      "Category": "ShipFullDesign",
+      "ShipId": 61,
+      "Texture": "7prov:d114_hmsvictory_hull;Vants3:Vants3_dark;BoatTex:d114_hmsvictory_hull;kaligula_floor:dfish_hull;Vants4:Vants4_dark",
+      "IconName": "design_ship_374_de_zeven_provincien_amber",
+      "InShop": "true Tier3",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 375,
+      "EnglishName": "De Zeven Provincien Cherry",
+      "Category": "ShipFullDesign",
+      "ShipId": 61,
+      "Texture": "7prov:ship_qar_hull;Vants3:Vants3_dark;BoatTex:ship_qar_hull;kaligula_floor:dfish_hull;Vants4:Vants4_dark",
+      "IconName": "design_ship_375_de_zeven_provincien_cherry",
+      "InShop": "true Tier3",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 376,
+      "EnglishName": "De Zeven Provincien High Contrast",
+      "Category": "ShipFullDesign",
+      "ShipId": 61,
+      "Texture": "7prov:ship_kech_hull;Vants3:Vants3_dark;BoatTex:ship_const_hull2;kaligula_floor:dfish_hull;Vants4:Vants4_dark",
+      "IconName": "design_ship_376_de_zeven_provincien_contrast",
+      "InShop": "true Tier4",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 377,
+      "EnglishName": "Shen Light",
+      "Category": "ShipFullDesign",
+      "ShipId": 26,
+      "Texture": "Shen:Octo;Wood7:des_ship_stel_hull",
+      "IconName": "design_ship_377_shen_light",
+      "InShop": "true Tier2",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 378,
+      "EnglishName": "La Royale Regal",
+      "Category": "ShipFullDesign",
+      "ShipId": 60,
+      "Texture": "La_royale_HULL:des_ship_santisima_hull2;Shen:Wood19;Wood8:Wood19;kaligula_floor:Wood16;Vants3:Vants3_dark;Wood7:Wood16",
+      "IconName": "design_ship_378_la_royale_royal",
+      "InShop": "true Tier3",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 379,
+      "EnglishName": "Sans Pareil Blaze",
+      "Category": "ShipFullDesign",
+      "ShipId": 41,
+      "Texture": "kaligula_floor:Wood19;ship_stel_hull:Wood12;hmsvictory_gunport:Wood19;ship_sanspariel_decor2:design_a9;brig_hull:design_a9;BoatTex:firestorm_hull_bw;Vants3:Vants3_dark;Vants4:Vants4_dark;ship_kech_kab:design_a9",
+      "IconName": "design_ship_379_sans_pareil_fire",
+      "InShop": "true Tier4",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 380,
+      "EnglishName": "Neptuno Burgundy",
+      "Category": "ShipFullDesign",
+      "ShipId": 39,
+      "Texture": "Wood17:Wood18;Wood16:Wood18;Vants3:Vants3_dark;Vants4:Vants4_dark;ship_black_gunport:Wood19;ship_nep_hull:firestorm_hull_bw",
+      "IconName": "design_ship_380_neptuno_burgundy",
+      "InShop": "true Tier2",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 381,
+      "EnglishName": "Redoutable Light",
+      "Category": "ShipFullDesign",
+      "ShipId": 52,
+      "Texture": "Wood17:Wood13;ship_nep_hull:Wood19;Wood16:Wood19;Vants3:Vants3_dark;Vants4:Vants4_dark;Wood6:Wood19;BoatTex:Wood19;Vants:Vants_dark",
+      "IconName": "design_ship_381_redoutable_light",
+      "InShop": "true Tier2",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 382,
+      "EnglishName": "Redoutable High Contrast",
+      "Category": "ShipFullDesign",
+      "ShipId": 52,
+      "Texture": "Wood17:Wood19;ship_nep_hull:Wood19;Wood16:Wood14;Vants3:Vants3_dark;Vants4:Vants4_dark;Wood6:Wood19;BoatTex:Wood21;Vants:Vants_dark",
+      "IconName": "design_ship_382_redoutable_contrast",
+      "InShop": "true Tier2",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 383,
+      "EnglishName": "Sovereign Misty",
+      "Category": "ShipFullDesign",
+      "ShipId": 46,
+      "Texture": "ship_sov_hull:Octo;Vants2:Wood10;Vants3:Vants3_dark;Vants4:Vants4_dark",
+      "IconName": "design_ship_383_sovereign_fogy",
+      "InShop": "true Tier3",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 384,
+      "EnglishName": "Kobukson High Contrast",
+      "Category": "ShipFullDesign",
+      "ShipId": 40,
+      "Texture": "ship_kbk_hull:ship_kech_hull;kaligula_floor:Wood19",
+      "IconName": "design_ship_384_kobukson_contrast",
+      "InShop": "true Tier2",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 385,
+      "EnglishName": "La Sirene Gold",
+      "Category": "ShipFullDesign",
+      "ShipId": 32,
+      "Texture": "ship_sirena_hull:ship_nep_hull;sirena_decor:Wood19;Wood7:Wood19;Mast_1:Wood19;Wood17:gold_roof;lecfcrt_deck:Wood17;Vants3:Vants3_dark;Vants4:Vants4_dark;BoatTex:d114_hmsvictory_hull;sirena_bronze:gold_roof",
+      "IconName": "design_ship_385_la_sirene_gold",
+      "InShop": "true Tier3",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 386,
+      "EnglishName": "Le Requin Ghostly",
+      "Category": "ShipFullDesign",
+      "ShipId": 47,
+      "Texture": "ship_lacreole_hull:Octo;Wood16:Wood11;lecfcrt_deck:floor_peers;Vants3:Vants3_dark",
+      "IconName": "design_ship_386_le_requin_ghost",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 387,
+      "EnglishName": "Poltava Oak",
+      "Category": "ShipFullDesign",
+      "ShipId": 57,
+      "Texture": "Poltava:d114_hmsvictory_hull;ship_kech_hull:Wood19;Vants3:Vants3_dark;Vants4:Vants4_dark;ship_stel_hull:Wood19",
+      "IconName": "design_ship_387_poltava_oak",
+      "InShop": "true Tier2",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 388,
+      "EnglishName": "Poltava Dark",
+      "Category": "ShipFullDesign",
+      "ShipId": 57,
+      "Texture": "ship_kech_hull:Wood16;Poltava:d113_ship_santisima_hull2;Vants3:Vants3_dark;Vants4:Vants4_dark;ship_stel_hull:Wood19;kaligula_floor_light:Wood7",
+      "IconName": "design_ship_388_poltava_dark",
+      "InShop": "true Tier2",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 389,
+      "EnglishName": "San Martin High Contrast",
+      "Category": "ShipFullDesign",
+      "ShipId": 59,
+      "Texture": "ship_falmouthtrader_hull:La_royale_HULL;lecfcrt_deck:Wood11;Vants3:Vants3_dark;Vants4:Vants4_dark;Wood11:Wood19;ship_stel_hull:Wood13;Wood7:Wood19;iron_cherepica:Octo;hmsvictory_gunport:Wood19",
+      "IconName": "design_ship_389_san_martin_contrast",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 390,
+      "EnglishName": "Ingermanland Black",
+      "Category": "ShipFullDesign",
+      "ShipId": 50,
+      "Texture": "Wood13:Wood16;Wood6:Wood19;Vants3:Vants3_dark;Vants4:Vants4_dark;kaligula_floor:gray_deck",
+      "IconName": "design_ship_390_ingermanland_black",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 391,
+      "EnglishName": "Victory White",
+      "Category": "ShipFullDesign",
+      "ShipId": 31,
+      "Texture": "hms_victory_back:hms_victory_back_white;hmsvictory_deck:lecfcrt_deck;Vants2:Wood16;hmsvictory_hull:lecfcrt_hull",
+      "IconName": "design_ship_391_victory_white",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 392,
+      "EnglishName": "Kwee Song Regal",
+      "Category": "ShipFullDesign",
+      "ShipId": 23,
+      "Texture": "Vants3:Vants3_dark;Wood6:Wood22;Mast_1:Wood19;Wood20:Wood19;ship_kbk_roof2:Wood13;ship_redsail_hull:des_ship_redsail_hull_white;lecfcrt_deck:Wood17",
+      "IconName": "design_ship_392_kwee_song_royal",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 393,
+      "EnglishName": "Devourer Dark",
+      "Category": "ShipFullDesign",
+      "ShipId": 14,
+      "Texture": "ship_essex_hull:Wood19;Wood7:Wood14;Wood11:Wood19;Vants3:Vants3_dark;lecfcrt_deck:kaligula_floor;Wood8:Wood14;ship_devouer_hull:brig_hull",
+      "IconName": "design_ship_393_devourer_dark",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 394,
+      "EnglishName": "Devourer Blood-Red",
+      "Category": "ShipFullDesign",
+      "ShipId": 14,
+      "Texture": "ship_essex_hull:Wood19;Wood7:Wood19;Wood11:Wood19;Vants3:Vants3_dark;Wood8:Wood21;ship_devouer_hull:des_ship_devouer_hull_red",
+      "IconName": "design_ship_394_devourer_bloody",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 395,
+      "EnglishName": "Constitution Swift",
+      "Category": "ShipFullDesign",
+      "ShipId": 25,
+      "Texture": "WhiteWood2:Wood17;ship_const_hull2:des_ship_const_hull2_striped;ship_const_hull:des_ship_const_hull_orange;Vants3:Vants3_dark;Vants4:Vants4_dark;Metal1:Wood19;kaligula_floor_light:Wood18",
+      "IconName": "design_ship_395_constitution_swift",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 396,
+      "EnglishName": "Balloon Regal",
+      "Category": "ShipFullDesign",
+      "ShipId": 56,
+      "Texture": "unique_sail_balloon:unique_sail_1;Vants3:Vants3_dark;",
+      "IconName": "design_ship_396_balloon_royal",
+      "InShop": "true",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 397,
+      "EnglishName": "Balloon Unique",
+      "Category": "ShipFullDesign",
+      "ShipId": 56,
+      "Texture": "unique_sail_balloon:Balloon_1;Vants3:Vants3_dark;",
+      "IconName": "design_ship_397_balloon_unique",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 398,
+      "EnglishName": "Jolliest Roger Sail",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "event_ny2024_1",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 399,
+      "EnglishName": "Starfall Sail",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "event_ny2024_2",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 400,
+      "EnglishName": "Santa Sail",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "event_ny2024_3",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 401,
+      "EnglishName": "WOSB 24 Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "event_ny2024_flag",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 402,
+      "EnglishName": "Stag Figurehead",
+      "Category": "BowFigure",
+      "ShipId": null,
+      "Texture": "",
+      "IconName": "Icons 640 0 64 64",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 403,
+      "EnglishName": "Dragon 24 Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "event_ny2024_flag2",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 404,
+      "EnglishName": "Ice Lantern (+5% speed, hold, and durability)",
+      "Category": "Satellite",
+      "ShipId": null,
+      "Texture": "",
+      "IconName": "Icons 515 0 64 64",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 405,
+      "EnglishName": "100k WOSB Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "event_100k_flag",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 406,
+      "EnglishName": "100k WOSB Flag",
+      "Category": "Decal1",
+      "ShipId": null,
+      "Texture": "event_100k_sail",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 407,
+      "EnglishName": "Poltava WOSB 24",
+      "Category": "ShipFullDesign",
+      "ShipId": 57,
+      "Texture": "Poltava:Poltava2",
+      "IconName": "design_ship_407_poltava_anniversary",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 408,
+      "EnglishName": "Mordaunt WOSB 24",
+      "Category": "ShipFullDesign",
+      "ShipId": 53,
+      "Texture": "Wood12:Word1;Wood16:Wood21;Wood7:Wood21;Wood14:Wood21",
+      "IconName": "design_ship_408_mord_anniversary",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 409,
+      "EnglishName": "Sovereign WOSB 24",
+      "Category": "ShipFullDesign",
+      "ShipId": 46,
+      "Texture": "ship_sov_hull:Sov1",
+      "IconName": "design_ship_409_sovereign_anniversary",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 410,
+      "EnglishName": "WOSB 24 Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "event_wosb24_flag",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 411,
+      "EnglishName": "WOSB 24 Sail",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "event_wosb24_sail",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 412,
+      "EnglishName": "WOSB 2024 Tournament",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "event_wosb_tourn24",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 413,
+      "EnglishName": "West India Company Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "desing_flag413",
+      "IconName": "",
+      "InShop": "true Tier2",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 414,
+      "EnglishName": "Republic of Venice Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "desing_flag414",
+      "IconName": "",
+      "InShop": "true Tier2",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 415,
+      "EnglishName": "Burgundian Cross Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "desing_flag415",
+      "IconName": "",
+      "InShop": "true Tier2",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 416,
+      "EnglishName": "King of France Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "desing_flag416",
+      "IconName": "",
+      "InShop": "true Tier2",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 417,
+      "EnglishName": "USA 1776 Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "desing_flag417",
+      "IconName": "",
+      "InShop": "true Tier2",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 418,
+      "EnglishName": "Ingame Empire Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "orden_flag",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 419,
+      "EnglishName": "WOSB Honor Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "referal_bonus_flag",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 420,
+      "EnglishName": "Golden Elephant Figurehead",
+      "Category": "BowFigure",
+      "ShipId": null,
+      "Texture": "",
+      "IconName": "Icons 0 261 128 128",
+      "InShop": "true Tier3",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 421,
+      "EnglishName": "Merchant Figurehead",
+      "Category": "BowFigure",
+      "ShipId": null,
+      "Texture": "",
+      "IconName": "Icons 129 261 128 128",
+      "InShop": "ByGold 20000",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 422,
+      "EnglishName": "Protector Figurehead",
+      "Category": "BowFigure",
+      "ShipId": null,
+      "Texture": "",
+      "IconName": "Icons 258 261 128 128",
+      "InShop": "ByGold 50000",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 423,
+      "EnglishName": "Bright Lantern (+12% hold)",
+      "Category": "Satellite",
+      "ShipId": null,
+      "Texture": "",
+      "IconName": "Icons 387 261 128 128",
+      "InShop": "ByGold 200000",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 424,
+      "EnglishName": "removed",
+      "Category": "ShipFullDesign",
+      "ShipId": null,
+      "Texture": "",
+      "IconName": "shareddes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 425,
+      "EnglishName": "Santisima Imperial",
+      "Category": "ShipFullDesign",
+      "ShipId": 36,
+      "Texture": "Wood18:Wood19;Wood14:Wood19;Wood13:Wood19;ship_qar_decor:ship_qar_decor_2;Vants2:Vants2_dark;kaligula_floor:hmsvictory_deck;ship_santisima_hull2:ship_santisima_hull3;ship_santisima_back:ship_santisima_back2;ship_santisima_deck:ship_santisima_deck2;santisima_deck:santisima_deck2;Sail6_main:Santa_Unic2_main;Sail6_side:Santa_Unic2_side;Sail6_triangle:Santa_Unic2_triangle;Sail6_mini:Santa_Unic2_mini;Vants4:Vants4_dark",
+      "IconName": "design_ship_425_santisima",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 426,
+      "EnglishName": "San Martin VKPlay",
+      "Category": "ShipFullDesign",
+      "ShipId": 59,
+      "Texture": "ship_falmouthtrader_hull:ship_falmouthtrader_hull2;San_martin_decor:San_martin_decor2;ship_stel_hull:ship_devouer_hull",
+      "IconName": "design_ship_426_sanmartin",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 427,
+      "EnglishName": "Poltava VKPlay",
+      "Category": "ShipFullDesign",
+      "ShipId": 57,
+      "Texture": "Poltava:Poltava3;kaligula_floor_light:lecfcrt_deck",
+      "IconName": "design_ship_427_poltava",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 428,
+      "EnglishName": "La Couronne VKPlay",
+      "Category": "ShipFullDesign",
+      "ShipId": 49,
+      "Texture": "lacor_hull:lacor_hull2;kaligula_floor:hmsvictory_deck",
+      "IconName": "design_ship_428_lacouronne",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 429,
+      "EnglishName": "VKPlay Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "vkplay_flag",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 430,
+      "EnglishName": "Halloween 24 Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "halloween24_flag",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 431,
+      "EnglishName": "Halloween 24 Sail",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "halloween24_sail",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 432,
+      "EnglishName": "Sans Pareil Halloween",
+      "Category": "ShipFullDesign",
+      "ShipId": 41,
+      "Texture": "ship_const_hull2:ship_const_hull2_orange;ship_stel_hull:ship_stel_hull_helloween;brig_hull:brig_hull_helloween",
+      "IconName": "design_ship_432_sans_halloween",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 433,
+      "EnglishName": "EVENT technical design for event",
+      "Category": "ShipFullDesign",
+      "ShipId": 51,
+      "Texture": "ship_stel_hull:ship_stel_hull_Empire;ship_stpav_hull_decor:ship_stel_hull_decor_Empire;kaligula_floor:gray_deck",
+      "IconName": "design_ship_432_sans_halloween",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 434,
+      "EnglishName": "Amway921 Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "amvay_flag",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 435,
+      "EnglishName": "Boarding Cup Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "turnir_flag",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 436,
+      "EnglishName": "Amway921 Sail",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "amvay_sail",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 437,
+      "EnglishName": "Faction Heraldry",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "Espaniol_Flag",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 438,
+      "EnglishName": "Faction Heraldry",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "Espaniol_Sail",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 439,
+      "EnglishName": "Faction Heraldry",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "Severia_Flag",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 440,
+      "EnglishName": "Faction Heraldry",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "Severia_Sail",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 441,
+      "EnglishName": "Faction Heraldry",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "Antilia_Flag",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 442,
+      "EnglishName": "Faction Heraldry",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "Antilia_Sail",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 443,
+      "EnglishName": "Faction Heraldry",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "Traders_Flag",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 444,
+      "EnglishName": "Faction Heraldry",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "Traders_Sail",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 445,
+      "EnglishName": "Imperial Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "Empire_Flag",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 446,
+      "EnglishName": "Adventure Red",
+      "Category": "ShipFullDesign",
+      "ShipId": 54,
+      "Texture": "ship_sov_hull:ship_qar_hull;Vants3:Vants3_dark;Wood18:Wood21;kaligula_floor:firestorm_hull_1;Vants2:Vants2_red;Vants4:Vants4_dark;adventure_decor:adventure_decor_red",
+      "IconName": "design_ship_446_adventure_red",
+      "InShop": "true Tier3",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 447,
+      "EnglishName": "Sparrow Red Skull",
+      "Category": "ShipFullDesign",
+      "ShipId": 13,
+      "Texture": "Mast_1:Mast_1_red;ship_flute_deck:ship_flute_deck_red;ship_flute_hull_smug:ship_flute_hull_red;kaligula_floor:gray_deck",
+      "IconName": "design_ship_447_sparrow_red_skull",
+      "InShop": "true Tier3",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 448,
+      "EnglishName": "Christmas Octopus",
+      "Category": "ShipFullDesign",
+      "ShipId": 62,
+      "Texture": "Octo:Octo_dark;Octo_2:Octo_decor_brass;Decals_Ships:Decals_Ships_Dark",
+      "IconName": "design_ship_448_octopus",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 449,
+      "EnglishName": "Christmas La Royale",
+      "Category": "ShipFullDesign",
+      "ShipId": 60,
+      "Texture": "Wood8:Wood8_pink;Shen:Shen_white;La_royale_HULL:La_royale_HULL_pink;LaRoyal_decor:LaRoyal_dec_white;Wood7:WhiteWood333",
+      "IconName": "design_ship_449_la_royale",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 450,
+      "EnglishName": "Christmas Shen",
+      "Category": "ShipFullDesign",
+      "ShipId": 26,
+      "Texture": "Wood18:Wood8_green;Shen:Shen_green;figures2:Figures-2_desighn",
+      "IconName": "design_ship_450_shen",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 451,
+      "EnglishName": "Blood-Red Octopus",
+      "Category": "ShipFullDesign",
+      "ShipId": 62,
+      "Texture": "Octo:Octo_hull_blood;Octo_2:Octo_blood;Decals_Ships:Decals_Ships_red;Wood19:Wood21",
+      "IconName": "design_ship_451_octopus_bloody",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 452,
+      "EnglishName": "2025 Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "Flag_NY2025",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 453,
+      "EnglishName": "2025 Sail",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "Sail_NY_2025",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 454,
+      "EnglishName": "Sovereign Imperial Chest",
+      "Category": "ShipFullDesign",
+      "ShipId": 46,
+      "Texture": "ship_sov_hull_alpha:ship_sov_hull_alpha2;ship_sov_hull:ship_sov2;Vants2:Vants2_grey;lecfcrt_deck:hmsvictory_deck;Vants3:Vants3_dark;Vants4:Vants4_dark",
+      "IconName": "design_ship_454_sover",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 455,
+      "EnglishName": "De Zeven Provincien Imperial Chest",
+      "Category": "ShipFullDesign",
+      "ShipId": 61,
+      "Texture": "7prov:7prov2;7_prov_decor:7_prov_decor_silver;kaligula_floor:gray_deck",
+      "IconName": "design_ship_455_7_provin",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 456,
+      "EnglishName": "Griffin Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "desing_flag_griffon",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 457,
+      "EnglishName": "Rackham Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "desing_flag_reckhem",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 458,
+      "EnglishName": "Swedish Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "desing_flag_swed",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 459,
+      "EnglishName": "Maya Sail",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "Maya_sail",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 460,
+      "EnglishName": "Seams Sail",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "Stitches",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 461,
+      "EnglishName": "removed",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "orden_sail",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 462,
+      "EnglishName": "Pirate Baron Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "rare_flag1",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 463,
+      "EnglishName": "Pirate Baron Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "rare_flag2",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 464,
+      "EnglishName": "removed",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "fanatics_flag",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 465,
+      "EnglishName": "removed",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "fanatics_sail",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 466,
+      "EnglishName": "Vasa Museum",
+      "Category": "ShipFullDesign",
+      "ShipId": 70,
+      "Texture": "Wood7:Wood8;Vants3:Vants3_dark;Vants4:Vants4_dark;Vasa_hull:Vasa_hull_hist;Vasa_decor:Vasa_decor_hist;lecfcrt_deck:hmsvictory_deck;Vasa_alpha:Vasa_alpha_hist;Mast_1:Wood8;windows:windows_dark",
+      "IconName": "design_ship_466_vasa",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 467,
+      "EnglishName": "Firestorm Frostbound",
+      "Category": "ShipFullDesign",
+      "ShipId": 28,
+      "Texture": "firestorm_decor_1:firestorm_decor_3;firestorm_hull_bw:firestorm_hull_bw_Wice;firestorm_hull_2:firestorm_hull_2_Wice;firestorm_hull_1:firestorm_hull_1_Wice;Wood12:Wood24;Wood21:WhiteWood333;windows:windows_dark;BoatTex:BoatTex_gray",
+      "IconName": "design_ship_467_firestorm_white_icy",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 468,
+      "EnglishName": "Firestorm Ice",
+      "Category": "ShipFullDesign",
+      "ShipId": 28,
+      "Texture": "firestorm_decor_1:firestorm_decor_4;ship_kech_kab:ship_kech_kab_ice;firestorm_hull_bw:firestorm_hull_bw_Bice;firestorm_hull_2:firestorm_hull_2_Bice;firestorm_hull_1:firestorm_hull_1_Bice;Wood12:Wood24;Wood21:Wood24;windows:windows_dark;Vants3:Vants3_dark;Vants4:Vants4_dark;BoatTex:BoatTex_gray",
+      "IconName": "design_ship_468_firestorm_blue_icy",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 469,
+      "EnglishName": "St. Pavel Dragon",
+      "Category": "ShipFullDesign",
+      "ShipId": 38,
+      "Texture": "ship_stel_hull:ship_stel_hull_Dragon;ship_stpav_hull_decor:ship_stpav_hull_decor_Dragon;kaligula_floor:lecfcrt_deck;Vants3:Vants3_dark;Vants4:Vants4_dark",
+      "IconName": "design_ship_469_pavel_red",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 470,
+      "EnglishName": "St. Pavel Green",
+      "Category": "ShipFullDesign",
+      "ShipId": 38,
+      "Texture": "ship_stel_hull:ship_stel_hull_Empire_Color;ship_stpav_hull_decor:ship_stpav_hull_decor_Color;kaligula_floor:lecfcrt_deck",
+      "IconName": "design_ship_470_pavel_green",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 471,
+      "EnglishName": "St. Pavel Severia",
+      "Category": "ShipFullDesign",
+      "ShipId": 38,
+      "Texture": "ship_stel_hull:ship_stel_hull_Sev;ship_stpav_hull_decor:ship_stpav_hull_decor_Sev;kaligula_floor:hmsvictory_deck;Vants3:Vants3_dark;BoatTex:BoatTex_gray;Vants4:Vants4_dark",
+      "IconName": "design_ship_471_pavel_blue",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 472,
+      "EnglishName": "Shek’Tun Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "gorgone_flag3s",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 473,
+      "EnglishName": "Shek’Tun Sail",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "gorgone_sail",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 474,
+      "EnglishName": "Shek’Tun Dark Sail",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "gorgone_sail_dark",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 475,
+      "EnglishName": "Shek’Tun Dark Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "gorgone_flag5",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 476,
+      "EnglishName": "Anchor Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "Anchor",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 477,
+      "EnglishName": "Hammerhead Sharks and Skull Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "BrownSkull",
+      "IconName": "",
+      "InShop": "true Tier2",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 478,
+      "EnglishName": "Shamrock Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "Clever",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 479,
+      "EnglishName": "Greek Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "grecebw",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 480,
+      "EnglishName": "Maori Turtle Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "maori",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 481,
+      "EnglishName": "Two Palms Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "Palm",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 482,
+      "EnglishName": "Chieftain’s Son Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "RBW",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 483,
+      "EnglishName": "Two Carps Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "RFishes",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 484,
+      "EnglishName": "Huracan’s Gold Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "UDragon",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 485,
+      "EnglishName": "Red Fish Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "UFish",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 486,
+      "EnglishName": "Supay’s Seal Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "USkull",
+      "IconName": "",
+      "InShop": "true Tier2",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 487,
+      "EnglishName": "Cross of Lagonaf Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "WB",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 488,
+      "EnglishName": "Harvest Festival Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "YR",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 489,
+      "EnglishName": "Maori Turtle",
+      "Category": "SailTexture",
+      "ShipId": null,
+      "Texture": "Sail_maori_",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 490,
+      "EnglishName": "Shamrock",
+      "Category": "SailTexture",
+      "ShipId": null,
+      "Texture": "Sail_Clever_",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 491,
+      "EnglishName": "Hammerhead Sharks and Skull",
+      "Category": "SailTexture",
+      "ShipId": null,
+      "Texture": "Sail_BrownSkull_",
+      "IconName": "",
+      "InShop": "true Tier3",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 492,
+      "EnglishName": "Two Palms",
+      "Category": "SailTexture",
+      "ShipId": null,
+      "Texture": "Sail_Palm_",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 493,
+      "EnglishName": "Huracan’s Gold",
+      "Category": "SailTexture",
+      "ShipId": null,
+      "Texture": "Sail_UDragon_",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 494,
+      "EnglishName": "Red Fish",
+      "Category": "SailTexture",
+      "ShipId": null,
+      "Texture": "Sail_UFish_",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 495,
+      "EnglishName": "Supay’s Seal",
+      "Category": "SailTexture",
+      "ShipId": null,
+      "Texture": "Sail_USkull_",
+      "IconName": "",
+      "InShop": "true Tier3",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 496,
+      "EnglishName": "Harvest Festival",
+      "Category": "SailTexture",
+      "ShipId": null,
+      "Texture": "Sail_YR_",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 497,
+      "EnglishName": "Anchor",
+      "Category": "SailTexture",
+      "ShipId": null,
+      "Texture": "Sail_Anchor_",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 498,
+      "EnglishName": "Greek",
+      "Category": "SailTexture",
+      "ShipId": null,
+      "Texture": "Sail_grecebw_",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 499,
+      "EnglishName": "Two Carps",
+      "Category": "SailTexture",
+      "ShipId": null,
+      "Texture": "Sail_RFishes_",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 500,
+      "EnglishName": "Chieftain’s Son",
+      "Category": "SailTexture",
+      "ShipId": null,
+      "Texture": "Sail_RBW_",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 501,
+      "EnglishName": "Cross of Lagonaf",
+      "Category": "SailTexture",
+      "ShipId": null,
+      "Texture": "Sail_WB_",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 502,
+      "EnglishName": "Azov Maori Turtle",
+      "Category": "ShipFullDesign",
+      "ShipId": 69,
+      "Texture": "Azov_decor:Azov_decor_1;ship_stel_hull:ship_stel_hull_1;Wood23:Wood28;kaligula_floor:Empire_floor_2;Wood14:Wood22;Wood21:Wood22;",
+      "IconName": "design_ship_502_azov_maori",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 503,
+      "EnglishName": "Azov Shamrock",
+      "Category": "ShipFullDesign",
+      "ShipId": 69,
+      "Texture": "ship_stel_hull:ship_stel_hull_2;kaligula_floor:Empire_floor;Wood14:Wood20;Wood21:Wood20;",
+      "IconName": "design_ship_503_azov_clover",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 504,
+      "EnglishName": "Azov Hammerhead Sharks and Skull",
+      "Category": "ShipFullDesign",
+      "ShipId": 69,
+      "Texture": "ship_stel_hull:ship_stel_hull_3;Wood23:Wood27;kaligula_floor:lecfcrt_deck;Wood21:Wood7;Wood14:Wood7;",
+      "IconName": "design_ship_504_azov_brown_skull",
+      "InShop": "true Tier4",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 505,
+      "EnglishName": "Azov Two Palms",
+      "Category": "ShipFullDesign",
+      "ShipId": 69,
+      "Texture": "Wood19:Wood20;ship_stel_hull:ship_stel_hull_4;Wood23:kaligula_floor_light;kaligula_floor:kaligula_floor_light;Wood21:Wood13;Wood14:Wood13;Azov_decor:Azov_decor_silver;",
+      "IconName": "design_ship_505_azov_palm",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 506,
+      "EnglishName": "Huracan Huracan’s Gold",
+      "Category": "ShipFullDesign",
+      "ShipId": 65,
+      "Texture": "Empire_1_hull:Empire_2_hull;Empire_1_Decor:Empire_2_Decor;Empire_floor:lecfcrt_deck;Wood19:Wood6;",
+      "IconName": "design_ship_506_huracan_gold",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 507,
+      "EnglishName": "Huracan Red Fish",
+      "Category": "ShipFullDesign",
+      "ShipId": 65,
+      "Texture": "Empire_1_hull:Empire_3_hull;Empire_1_Decor:Empire_3_Decor;Empire_floor:Empire_floor_2;Wood19:Wood21;",
+      "IconName": "design_ship_507_huracan_red_fish",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 508,
+      "EnglishName": "Huracan Supay’s Seal",
+      "Category": "ShipFullDesign",
+      "ShipId": 65,
+      "Texture": "Empire_1_hull:Empire_4_hull;Empire_1_Decor:Empire_4_Decor;",
+      "IconName": "design_ship_508_huracan_u_skull",
+      "InShop": "true Tier5",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 509,
+      "EnglishName": "12 Apostolov Harvest Festival",
+      "Category": "ShipFullDesign",
+      "ShipId": 55,
+      "Texture": "kaligula_floor:lecfcrt_deck;ship_stel_hull:ship_stel_hull_Dragon;hmsvictory_hull:hmsvictory_hull_12_decor1;12apostle_decor:12apostle_decor1;12_Korma_Decor:12_Korma_Decor1;Wood13:Wood25;Vants3:Vants3_dark;Vants4:Vants4_dark;",
+      "IconName": "design_ship_509_12_apostles_yr",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 510,
+      "EnglishName": "12 Apostolov Anchor",
+      "Category": "ShipFullDesign",
+      "ShipId": 55,
+      "Texture": "hmsvictory_hull:hmsvictory_hull_6;ship_stel_hull:ship_stel_hull_6;12apostle_decor:12apostle_decor_blue;kaligula_floor:hmsvictory_deck;Wood13:Wood20;Wood18:Wood19;Vants3:Vants3_dark;Vants4:Vants4_dark;",
+      "IconName": "design_ship_510_12_apostles_anchor",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 511,
+      "EnglishName": "12 Apostolov Greek",
+      "Category": "ShipFullDesign",
+      "ShipId": 55,
+      "Texture": "kaligula_floor:kaligula_floor_light;ship_stel_hull:ship_stel_hull_4;hmsvictory_hull:hmsvictory_hull_5;Wood18:Wood19;Wood13:WhiteWood2;12apostle_decor:12apostle_decor_blue;Vants3:Vants3_dark;Vants4:Vants4_dark;",
+      "IconName": "design_ship_511_12_apostles_greece",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 512,
+      "EnglishName": "Axel Thorsen Two Carps",
+      "Category": "ShipFullDesign",
+      "ShipId": 71,
+      "Texture": "Wood22:Wood22_turq;ship_kech_hull:ship_kech_hull_White;brig_hull:brig_hull_Blue;kaligula_floor:hmsvictory_deck;Wood6:Wood21;",
+      "IconName": "design_ship_512_axel_thorsen_fishes",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 513,
+      "EnglishName": "Axel Thorsen Chieftain’s Son",
+      "Category": "ShipFullDesign",
+      "ShipId": 71,
+      "Texture": "Wood22:Wood22_Blue;ship_kech_hull:ship_kech_hull_Brown;Wood6:Wood7;brig_hull:brig_hull_Brown;kaligula_floor:lecfcrt_deck;Vants3:Vants3_dark;",
+      "IconName": "design_ship_513_axel_thorsen_rbw",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 514,
+      "EnglishName": "Axel Thorsen Cross of Lagonaf",
+      "Category": "ShipFullDesign",
+      "ShipId": 71,
+      "Texture": "ship_kech_hull:ship_kech_hull_Red;Wood22:Wood22_White;brig_hull:brig_hull_Red;Wood6:Wood14;",
+      "IconName": "design_ship_514_axel_thorsen_wb",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 515,
+      "EnglishName": "Steam Flag Blue",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "steam_flag_blue",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 516,
+      "EnglishName": "Steam Flag Blue 2",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "steam_flag_blue_2",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 517,
+      "EnglishName": "Steam Flag Black",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "steam_flag_black",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 518,
+      "EnglishName": "Steam Flag Black 2",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "steam_flag_black_2",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 519,
+      "EnglishName": "Halloween ’25",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "Flag_halloween_25",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 520,
+      "EnglishName": "Halloween ’25",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "Decal_halloween_25",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 521,
+      "EnglishName": "Cutlass and Skull",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "Decal_swords_skull",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 522,
+      "EnglishName": "Adventure Dark Oak",
+      "Category": "ShipFullDesign",
+      "ShipId": 54,
+      "Texture": "ship_sov_hull:ship_sov_hull_adventure_decor_1;Vants3:Vants3_dark;Wood18:Wood19;kaligula_floor:Empire_floor;windows:windows_dark;Wood21:Wood27;Vants2:Vants2_dark;adventure_decor:adventure_decor_silver;Vants4:Vants4_dark",
+      "IconName": "design_ship_522_adventure_halloween",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 523,
+      "EnglishName": "Victory Teak Wood",
+      "Category": "ShipFullDesign",
+      "ShipId": 31,
+      "Texture": "hmsvictory_hull:hmsvictory_hull_darkblue;Vants3:Vants3_dark;Vants:Vants_dark;Vants2:Vants2_dark;hmsvictory_deck:kaligula_floor_light;hms_victory_back:hms_victory_back_darkblue;Vants4:Vants4_dark;Wood7:Wood19;windows:windows_dark",
+      "IconName": "design_ship_523_victory_halloween",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 524,
+      "EnglishName": "Christmas Blue Sail",
+      "Category": "SailTexture",
+      "ShipId": null,
+      "Texture": "event_ny2025_1",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 525,
+      "EnglishName": "Christmas Yellow Sail",
+      "Category": "SailTexture",
+      "ShipId": null,
+      "Texture": "event_ny2025_2",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 526,
+      "EnglishName": "Christmas Cannons Pattern",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "Decal_gerb_guns",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 527,
+      "EnglishName": "Christmas Blue Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "NY_Flag2026_1",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 528,
+      "EnglishName": "Christmas Yellow Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "NY_Flag2026_2",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 529,
+      "EnglishName": "Christmas Cannons Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "Flag_gerb_gun",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 530,
+      "EnglishName": "Christmas Figurehead",
+      "Category": "BowFigure",
+      "ShipId": null,
+      "Texture": "",
+      "IconName": "Icons 515 260 128 128",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 531,
+      "EnglishName": "Christmas Santisima",
+      "Category": "ShipFullDesign",
+      "ShipId": 36,
+      "Texture": "Wood14:Wood25;ship_santisima_back:ship_santisima_back5;ship_santisima_hull2:ship_santisima_hull5;ship_qar_decor:ship_qar_decor_4;kaligula_floor:hmsvictory_deck;Wood13:Wood25;Vants4:Vants4_dark",
+      "IconName": "design_ship_531_ny_26_santisima",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 532,
+      "EnglishName": "Christmas La Creole",
+      "Category": "ShipFullDesign",
+      "ShipId": 24,
+      "Texture": "ship_lacreole_hull:ship_lacreole_hull_WGray;ship_kech_kab:ship_kech_kab_grey;kaligula_floor_light:hmsvictory_deck;brig_hull:brig_hull_Brown;Vants2:Vants2_grey;BoatTexWhite:BoatTex_gray;Vants3:Vants3_dark;Vants4:Vants4_dark;windows:windows_dark",
+      "IconName": "design_ship_532_ny_26_la_creole",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 533,
+      "EnglishName": "Christmas Anson",
+      "Category": "ShipFullDesign",
+      "ShipId": 19,
+      "Texture": "anson_detail_2:anson_detail_2_emp;anson_detail:anson_detail_emp;ship_stel_hull:ship_stel_hull_Empire;Mast_1:Mast_1_emp;WhiteWood2:Wood24;Wood11:Wood19;Wood7:Wood24;kaligula_floor:Empire_floor;Vants4:Vants4_dark;Vants3:Vants3_dark;BoatTex:BoatTex_gray;windows:windows_dark",
+      "IconName": "design_ship_533_ny_26_anson",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 534,
+      "EnglishName": "Christmas Prince Willem",
+      "Category": "ShipFullDesign",
+      "ShipId": 20,
+      "Texture": "ship_pwilliam:ship_pwilliam_Yellow;ship_pwilliam_back:ship_pwilliam_back_Yellow;ship_flute_deck:ship_flute_deck_red;Vants3:Vants3_dark;Wood6:Wood8;Vants4:Vants4_dark;kaligula_floor:Empire_floor;Mast_1:Mast_1_emp",
+      "IconName": "design_ship_534_ny_26_prince_willem",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 535,
+      "EnglishName": "Christmas San Martin",
+      "Category": "ShipFullDesign",
+      "ShipId": 59,
+      "Texture": "ship_falmouthtrader_hull:ship_falmouthtrader_hull_3;lecfcrt_deck:kaligula_floor_light;Vants3:Vants3_dark;Vants4:Vants4_dark;ship_stel_hull:ship_stel_hull_bone;San_martin_decor:San_martin_decor3;Wood7:Wood11",
+      "IconName": "design_ship_535_ny_26_san_martin",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 536,
+      "EnglishName": "Octopus Bone",
+      "Category": "ShipFullDesign",
+      "ShipId": 62,
+      "Texture": "Octo:Octo_bone;Octo_2:Octo_2_bone;Vants3_dark:Vants3;Wood19:Wood13;gray_deck:kaligula_floor",
+      "IconName": "design_ship_536_ny_26_octopus_bone_light",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 537,
+      "EnglishName": "Octopus Ice",
+      "Category": "ShipFullDesign",
+      "ShipId": 62,
+      "Texture": "Octo:Octo_blue;Octo_2:Octo_2_blue;Decals_Ships:Decals2_Ships;gray_deck:hmsvictory_deck;Wood19:WhiteWood333",
+      "IconName": "design_ship_537_ny_26_octopus_iced",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 538,
+      "EnglishName": "Archon Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "Hierarhs",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 539,
+      "EnglishName": "Squid Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "Sprut",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 540,
+      "EnglishName": "Seahorse Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "Seahorse",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 541,
+      "EnglishName": "Manta Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "Manta",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 542,
+      "EnglishName": "Lion Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "Lion",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 543,
+      "EnglishName": "Emerald Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "Izumrud",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 544,
+      "EnglishName": "Horse Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "Horse",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 545,
+      "EnglishName": "Swords Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "swords",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 546,
+      "EnglishName": "Archon",
+      "Category": "SailTexture",
+      "ShipId": null,
+      "Texture": "Sail_spb_1_",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 547,
+      "EnglishName": "Squid",
+      "Category": "SailTexture",
+      "ShipId": null,
+      "Texture": "Sail_sprut_",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 548,
+      "EnglishName": "Seahorse",
+      "Category": "SailTexture",
+      "ShipId": null,
+      "Texture": "Sail_seahorse_",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 549,
+      "EnglishName": "Manta",
+      "Category": "SailTexture",
+      "ShipId": null,
+      "Texture": "Sail_manta_",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 550,
+      "EnglishName": "Lion",
+      "Category": "SailTexture",
+      "ShipId": null,
+      "Texture": "Sail_wlion_",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 551,
+      "EnglishName": "Emerald",
+      "Category": "SailTexture",
+      "ShipId": null,
+      "Texture": "Sail_izumrud_",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 552,
+      "EnglishName": "Horse",
+      "Category": "SailTexture",
+      "ShipId": null,
+      "Texture": "Sail_Horse_",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 553,
+      "EnglishName": "Swords",
+      "Category": "SailTexture",
+      "ShipId": null,
+      "Texture": "Sail_swords_",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 554,
+      "EnglishName": "Deadfish Squid",
+      "Category": "ShipFullDesign",
+      "ShipId": 35,
+      "Texture": "dfish_hull:dfish_hull_sprut;dfish_mast:dfish_mast_sprut;dfish_decor:dfish_decor_sprut;hmsvictory_deck:gray_deck;Vants4:Vants4_dark;windows:windows_dark",
+      "IconName": "design_ship_554_deadfish_sprut",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 555,
+      "EnglishName": "Essex Lion",
+      "Category": "ShipFullDesign",
+      "ShipId": 11,
+      "Texture": "ship_essex_hull:ship_essex_hull_lwood;kaligula_floor_light:kaligula_floor",
+      "IconName": "design_ship_555_essex_wlion",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 556,
+      "EnglishName": "Victory Horse",
+      "Category": "ShipFullDesign",
+      "ShipId": 31,
+      "Texture": "hms_victory_back:hms_victory_back_blue;hmsvictory_hull:hmsvictory_hull_blue;Vants2:Vants2_dark;BoatTex:BoatTex_gray",
+      "IconName": "design_ship_523_victory_halloween",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 557,
+      "EnglishName": "Sans Pareil Manta",
+      "Category": "ShipFullDesign",
+      "ShipId": 41,
+      "Texture": "ship_stel_hull:ship_stel_hull_pariel;hmsvictory_gunport:hmsvictory_gunport_dark;ship_sanspariel_decor2:ship_sanspariel_decor3;ship_kech_kab:ship_kech_kab_grey;brig_hull:brig_hull_Iberia_2",
+      "IconName": "design_ship_557_sans_pareil_manta",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 558,
+      "EnglishName": "Southampton Emerald",
+      "Category": "ShipFullDesign",
+      "ShipId": 72,
+      "Texture": "Unite_hull:Unite_hull_izumrud;Wood25:Wood23;ship_stel_hull:Empire_1_hull;Decor_southamption:Decor_thouthamption_izumrud;kaligula_floor:Empire_floor;Wood6:Wood20",
+      "IconName": "design_ship_558_southampton_izumrud",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 559,
+      "EnglishName": "Iberia Swords",
+      "Category": "ShipFullDesign",
+      "ShipId": 73,
+      "Texture": "Wood29:Wood31;brig_hull:brig_hull_Iberia_2;Wood28:Wood27;kaligula_floor:Empire_floor_2;Vants2:Vants2_dark;Mast_1:Mast_1_red;Wood19:Wood18;Vants3:Vants3_dark;Vants4:Vants4_dark",
+      "IconName": "design_ship_559_iberia_swords",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 560,
+      "EnglishName": "Three Hierarchs Archon",
+      "Category": "ShipFullDesign",
+      "ShipId": 74,
+      "Texture": "ship_stel_hull:ship_stel_hull_3hier_1;brig_hull:brig_hull_Iberia_2;kaligula_floor_light:lecfcrt_deck;WhiteWood2:Wood10;Vants3:Vants3_dark;3Hier_Decor:3Hier_Decor_silver;Vants4:Vants4_dark",
+      "IconName": "design_ship_560_three_hierarchs_spb_1",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 561,
+      "EnglishName": "Montanes Lion",
+      "Category": "ShipFullDesign",
+      "ShipId": 75,
+      "Texture": "Wood30:Wood32;hmsvictory_hull:hmsvictory_hull_Barco;brig_hull:brig_hull_Iberia_2;kaligula_floor:lecfcrt_deck;windows:windows_dark;Wood6:Wood7;Wood7:Wood11",
+      "IconName": "design_ship_561_barco_montanes_wlion",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 562,
+      "EnglishName": "Christmas Le Requin",
+      "Category": "ShipFullDesign",
+      "ShipId": 47,
+      "Texture": "ship_lacreole_hull:ship_lacreole_hull_Yellow;requin:requin_Yellow;Wood16:Wood25;lecfcrt_deck:kaligula_floor",
+      "IconName": "design_ship_562_ny_26_le_requin",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 563,
+      "EnglishName": "Spring Figurehead",
+      "Category": "BowFigure",
+      "ShipId": null,
+      "Texture": "",
+      "IconName": "Icons 643 260 128 128",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 564,
+      "EnglishName": "Firestorm Merchant",
+      "Category": "ShipFullDesign",
+      "ShipId": 28,
+      "Texture": "firestorm_hull_1:firestorm_hull_q1;firestorm_hull_2:firestorm_hull_2_q1;Wood21:Wood6;lecfcrt_deck:kaligula_floor;ship_kech_kab:ship_kech_kab_ice;Vants3_dark:Vants3;Wood12:Wood24;windows:windows_dark;firestorm_decor_1:firestorm_decor_5;",
+      "IconName": "design_ship_564_firestorm",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 565,
+      "EnglishName": "Azov Golden Sunset",
+      "Category": "ShipFullDesign",
+      "ShipId": 69,
+      "Texture": "Wood14:Wood19;Vants3:Vants3_dark;Wood21:Wood7;Vants4:Vants4_dark;kaligula_floor:hmsvictory_deck_black;ship_stel_hull:ship_stel_hull_8;Azov_decor:Azov_decor_silver;Wood23:hmsvictory_deck_black;windows:windows_dark;BoatTex:BoatTex_gray",
+      "IconName": "design_ship_565_azov",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 566,
+      "EnglishName": "Adventure Ceremonial",
+      "Category": "ShipFullDesign",
+      "ShipId": 54,
+      "Texture": "ship_sov_hull:ship_sov_hull_adventure_decor_2;Wood21:Wood28;kaligula_floor:Empire_floor_2;Wood18:Wood22;Vants2:Vants2_grey;adventure_decor:adventure_decor_brass",
+      "IconName": "design_ship_566_adventure_brass",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 567,
+      "EnglishName": "Amber Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "Q1_Flag_Amber",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 568,
+      "EnglishName": "Sakura Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "Q1_Flag_sakura",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 569,
+      "EnglishName": "Beer Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "Q1_Flag_Beer",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 570,
+      "EnglishName": "Luxurious Anchor",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "event_Q1_wosb26_anchor",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 571,
+      "EnglishName": "Cultist",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "event_Q1_wosb26_kultist_5",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 572,
+      "EnglishName": "Le Saint Louis Sun",
+      "Category": "ShipFullDesign",
+      "ShipId": 68,
+      "Texture": "StLouisHull:StLouisHull_Q1_26;StLouisDecor:StLouisDecor_Q1_26;Wood21:Wood14;Wood18:Wood22_Blue;Wood7:Wood14;lecfcrt_deck:kaligula_floor",
+      "IconName": "design_ship_572_stlouis",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 573,
+      "EnglishName": "Sun Sail",
+      "Category": "SailTexture",
+      "ShipId": null,
+      "Texture": "Sail_Sun_",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 574,
+      "EnglishName": "Sun Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "Flag_Sun",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 575,
+      "EnglishName": "Friedrich Wilhelm Blood Moon",
+      "Category": "ShipFullDesign",
+      "ShipId": 67,
+      "Texture": "Wood17:Wood27;FW_decor:FW_decor_red;lecfcrt_hull:ship_falmouthtrader_hull_3;kaligula_floor:Empire_floor_2;ship_flute_deck:ship_flute_deck_red;Vants4:Vants4_dark;Vants3:Vants3_dark",
+      "IconName": "design_ship_575_FWilgelm",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 576,
+      "EnglishName": "Blood Moon Sail",
+      "Category": "SailTexture",
+      "ShipId": null,
+      "Texture": "Sail_Redmoon_",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 577,
+      "EnglishName": "Blood Moon Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "Flag_Redmoon",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 578,
+      "EnglishName": "Leopard Northern Cedar",
+      "Category": "ShipFullDesign",
+      "ShipId": 77,
+      "Texture": "surprise_hull_darkblue:surprise_hull_wood;Wood30:Wood35;Wood34:Wood12;kaligula_floor_light:kaligula_floor_2;Vants2:Vants2_grey;Wood6:Wood7;Decor_Leopard:Decor_Leopard_oldsilver;BoatTexWhite:BoatTex;Vants3_dark:Vants3;StLouisHull:StLouisHull_Wood",
+      "IconName": "design_ship_576_leo",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 579,
+      "EnglishName": "Unity Sapphire and Sun",
+      "Category": "ShipFullDesign",
+      "ShipId": 58,
+      "Texture": "ship_lacreole_hull:ship_lacreole_hull_WGray;surprise_hull:surprise_hull_wood;kaligula_floor:Empire_floor;Wood19:Wood17;Vants3:Vants3_dark;Vants4:Vants4_dark;BoatTex:BoatTex_gray;Wood18:Wood20",
+      "IconName": "design_ship_581_surprise",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 580,
+      "EnglishName": "Mordaunt Blood-Red Juniper",
+      "Category": "ShipFullDesign",
+      "ShipId": 53,
+      "Texture": "Vants3:Vants3_dark;Vants4:Vants4_dark;Wood12:Wood23;kaligula_floor:lecfcrt_deck;mordaunt_Decor:mordaunt_Decor_copper;Wood16:Wood23;ship_fr_hull:ship_fr_hull_green;Wood7:Wood21;ship_sov_hull:Wood21;Wood14:Wood23",
+      "IconName": "design_ship_580_Mord",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 581,
+      "EnglishName": "Neptuno Midnight Gold",
+      "Category": "ShipFullDesign",
+      "ShipId": 39,
+      "Texture": "Wood18:Wood6;ship_nep_hull:ship_nep_hull_Gray;Wood17:Wood30;ship_nep_decor:ship_nep_decor_2;Wood16:Wood30;BoatTex:BoatTexWhite",
+      "IconName": "design_ship_559_Neptuno",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 582,
+      "EnglishName": "Banner of the Iron Belts",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "Q2_Flag_1",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 583,
+      "EnglishName": "Neptune’s Triumph Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "Flag2_Q2_Event",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 584,
+      "EnglishName": "Lucky Catch Design",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "Sail_Q2_Event",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 585,
+      "EnglishName": "Red Ribbon",
+      "Category": "SailTexture",
+      "ShipId": null,
+      "Texture": "Sail_redline_",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 586,
+      "EnglishName": "Jolly Quartet Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "Q3_26_flag1",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 587,
+      "EnglishName": "Ghost Pirate Decal",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "Q3_26_Decal1",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 588,
+      "EnglishName": "Halloween 2026 Decal",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "Q3_26_Decal2",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 589,
+      "EnglishName": "Basilisk’s Trident Flag",
+      "Category": "Flag",
+      "ShipId": null,
+      "Texture": "Q3_26_flag2",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 590,
+      "EnglishName": "Buen Viento (Crimson Boreas)",
+      "Category": "ShipFullDesign",
+      "ShipId": 84,
+      "Texture": "FGaleon_Hull:FGaleon_Hull_2;FGaleon_Decor:FGaleon_Decor_2;FGaleon_Decor2:FGaleon_Decor2_2;Vants3:Vants3_dark;kaligula_floor:hmsvictory_deck;Vasa_hull:Vasa_hull_hist;brig_hull:brig_hull_Iberia_2;Shen_white:Shen;Wood6:Wood8",
+      "IconName": "design_ship_582_FGaleon",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 591,
+      "EnglishName": "Diana (Ceremonial White)",
+      "Category": "ShipFullDesign",
+      "ShipId": 83,
+      "Texture": "kaligula_floor:lecfcrt_deck;Wood19:Wood4;Wood6:WhiteWood333;Vants3:Vants3_dark;Vants2:Vants2_dark;surprise_hull_darkblue:surprise_hull_red;hmsvictory_hull:hmsvictory_hull_8;ship_essex_hull_lwood:ship_essex_hull_light;Vants4:Vants4_dark;Vants:Vants_dark;Wood7:Wood21;BoatTex:BoatTex_gray;Diana_decor:Diana_decor_silver;windows:windows_dark",
+      "IconName": "design_ship_584_Diana",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 592,
+      "EnglishName": "Rota (Azure Corsair)",
+      "Category": "ShipFullDesign",
+      "ShipId": 86,
+      "Texture": "Wood30:Wood22_Blue;Wood19:Wood24;ship_santisima_deck:Wood5;lecfcrt_deck:kaligula_floor_light;Wood27:kaligula_floor_light;Vants2:Vants2_grey;Vants2_dark:Vants2_grey;Wood7:Wood3;Wood6:Wood24;Vants3:Vants3_dark;Vants4:Vants4_dark;ship_const_hull:ship_const_hull_light_blue;ship_const_hull2:ship_const_hull2_BW;Rota_decor:Rota_decor_silver",
+      "IconName": "design_ship_585_Rota",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 593,
+      "EnglishName": "Georgy Pobedonosec (Dark Cardinal)",
+      "Category": "ShipFullDesign",
+      "ShipId": 82,
+      "Texture": "BoatTex_gray:BoatTex;brig_hull_Iberia_2:brig_hull_Brown;surprise_hull:surprise_hull_amber;Vants3_dark:Vants3;kaligula_floor_light:kaligula_floor_2;Wood19:Wood5;Mast_1:Mast_1_grey;Wood27:Wood26;Wood17:Wood34;Vants_dark:Vants;Vants4_dark:Vants4;StGeorgeDecor:StGeorgeDecor_2",
+      "IconName": "design_ship_583_Pobeda",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 594,
+      "EnglishName": "Narwhal Figurehead",
+      "Category": "BowFigure",
+      "ShipId": null,
+      "Texture": "",
+      "IconName": "Icons 771 260 128 128",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    },
+    {
+      "SourceRecord": 595,
+      "EnglishName": "",
+      "Category": "Decal2",
+      "ShipId": null,
+      "Texture": "Decal_kraken",
+      "IconName": "",
+      "InShop": "false",
+      "Source": "_lzcommon.wosb/ShipDesingElements_j.xnb"
+    }
+  ]
+}

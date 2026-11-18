@@ -1,0 +1,9 @@
+0001 ldarg.0 
+0002 ldfld Common.Resources.PlayerShipDynamicInfo::CraftFrom token(0x04000809)
+0007 callvirt Common.Resources.PlayerShipInfo::get_PatArmor token(0x06001DA1)
+000c ldc.r4 1.0
+0011 ldarg.0 
+0012 call Common.Resources.PlayerShipDynamicInfo::get_AllStatFine token(0x06001EF5)
+0017 sub 
+0018 mul 
+0019 ret 

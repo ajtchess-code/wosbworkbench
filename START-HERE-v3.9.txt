@@ -1,0 +1,20 @@
+WoSB Workbench v3.9 — Ship Appearance and Calibrated Damage Research
+
+1. Extract the full source ZIP to a local folder.
+2. Run Build-Windows.cmd on Windows (Python 3.13 required; Inno Setup 6 optional).
+3. Open the Ship 3D viewer, select a ship, recover the matching ship XNB again
+   so its tagged material names are preserved, and set Installed game Data folder.
+4. The viewer now lists actual ShipFullDesign names and material replacement maps.
+   Compatible local Texture2D XNB images are decoded read-only and embedded
+   into the exported offline HTML when exact asset filenames are found.
+5. For Huracan and other very large ships, the viewer samples display triangles
+   uniformly per part. The original source OBJ remains full resolution; point
+   targeting is on sampled triangles, so don't claim sub-mesh hitbox precision.
+6. Optional: record actual in-game single-shot damage in a combat_trials CSV,
+   using engine/combat_trials.py template; select CSV in viewer and open.
+   Only matching observed shots can yield empirical HP averages.
+
+IMPORTANT: the original game texture atlases often live in assets not present
+in the research ZIP. You must use the installed game Data folder. Skin replacement
+maps do not by themselves establish the complete in-game rendering shader.
+No authoritative server-side damage formula has been recovered. No gameplay hooks.

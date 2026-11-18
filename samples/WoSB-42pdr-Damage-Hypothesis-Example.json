@@ -1,0 +1,44 @@
+{
+  "format": "wosb-damage-hypothesis-v1",
+  "weapon": "42-pdr Carronade",
+  "ammo": "Round Shot",
+  "inputs": {
+    "target_basic_armor": 12.0,
+    "angle_deg": 60.0,
+    "armor_percent_bonus": 0,
+    "armor_flat_bonus": 0,
+    "penetration_bonus": 0,
+    "damage_percent_bonus": 0,
+    "direction": "side",
+    "bow_protection_percent": 0,
+    "hit_count": 1
+  },
+  "client_facts": {
+    "weapon_penetration": 26.5,
+    "weapon_poundage": 42,
+    "weapon_range_stat": "115",
+    "ammo_penetration": 0,
+    "ammo_damage_factor": 1,
+    "armor_expression": "BasicArmor * (1 + GetBonus(5,1)) + GetBonus(13,1)"
+  },
+  "hypotheses": {
+    "effective_armor_cosine": 23.999999999999996,
+    "total_penetration_additive": 26.5,
+    "penetration_to_armor_ratio": 1.1041666666666667,
+    "threshold_penetration_gate": 1.0,
+    "smooth_penetration_factor": 1.0,
+    "relative_poundage_damage_index": 42.0,
+    "index_if_threshold_model": 42.0,
+    "index_if_smooth_model": 42.0
+  },
+  "confidence": {
+    "armor_expression": "direct client IL",
+    "cannon_and_ammo_values": "client static catalog",
+    "obliquity_penetration_laws": "speculative — both alternatives unvalidated",
+    "poundage_to_HP": "unknown",
+    "range_falloff": "unknown; deliberately not inferred",
+    "bow_percent_interpretation": "assumption, not recovered multiplier",
+    "damage_hp": "not predicted without measured calibration"
+  },
+  "warning": "Neither candidate model is confirmed WoSB server logic. No claimed exact damage or hitbox."
+}

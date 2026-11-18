@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>WoSB Workbench v4.3.3 — Geometry, Angles &amp; Ship Visualizer</title>
+<style>
+:root{font:14px/1.45 system-ui,Segoe UI,Arial,sans-serif;color:#e8f2fd;background:#0b1625;color-scheme:dark}
+*{box-sizing:border-box}body{margin:0;display:grid;grid-template-columns:minmax(0,1fr) 392px;min-height:100vh}
+.viewer{display:flex;flex-direction:column;min-width:0}.stage{position:relative;flex:1;min-height:680px;overflow:hidden;background:#091322}
+header{padding:11px 18px;background:#12243a;border-bottom:1px solid #29445a}h1{font-size:18px;margin:0}h2{font-size:16px;margin:0 0 9px}h3{font-size:13px;margin:12px 0 5px;color:#86d7ec}
+p{color:#aec4da;margin:6px 0 10px}small,.sub{color:#a9c0d7}canvas{width:100%;height:100%;display:block;cursor:crosshair}
+aside{padding:13px;background:#14263c;border-left:1px solid #30495d;max-height:100vh;overflow:auto}
+.panel{background:#1b3046;border:1px solid #344e66;border-radius:9px;padding:12px;margin-bottom:12px}
+label{display:block;margin:7px 0}input,select{font:inherit;color:#f4fcff}input[type=checkbox]{accent-color:#49c2d2}
+input[type=number],select{width:100%;background:#0b192a;border:1px solid #426079;border-radius:5px;padding:6px}
+input[type=range]{width:100%;accent-color:#49c2d2}button{background:#23798a;color:#fff;border:0;border-radius:7px;padding:8px 12px;cursor:pointer;font:inherit}button:hover{background:#3099ab}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:9px}.btnrow{display:flex;gap:7px;flex-wrap:wrap}
+.overlay{position:absolute;left:15px;right:15px;bottom:15px;pointer-events:none;background:#10243ce8;border:1px solid #38516b;border-radius:8px;padding:9px 12px;font-size:13px}
+#inspect{white-space:pre-wrap;font:12px/1.6 Consolas,monospace;color:#bde7ed}#results{white-space:pre-wrap;font:12px/1.6 Consolas,monospace;color:#e3f3ff;max-height:320px;overflow:auto}
+.list{max-height:200px;overflow:auto}.part{display:flex;gap:6px;align-items:center;font-size:12px;padding:4px 0;border-bottom:1px solid #35516a}
+.part button{padding:1px 6px;font-size:11px;background:#304e65}.part span{flex:1;overflow-wrap:anywhere}.note{background:#15243a;padding:8px;border-left:3px solid #b9a967;margin-top:8px;font-size:12px}
+.badge{font-size:10px;padding:2px 5px;border:1px solid #567287;border-radius:4px;margin-right:4px}.good{color:#92e6b7}.warn{color:#f4c27e}
+@media(max-width:1000px){body{grid-template-columns:1fr}.stage{min-height:520px}aside{max-height:none}}
+</style></head><body>
+<div class="viewer"><header><h1>⚓ <span id="shipName">Ship</span> · Ballistics &amp; Visual Research</h1>
+<small>v4.3.3 · no triangle sampling · in-game material matching · camera-directed angle maps · evidence-aware shots</small></header>
+<div class="stage"><canvas id="scene" aria-label="3D ship: click a visible surface to select impact point"></canvas>
+<div class="overlay" id="sceneHelp">Drag to orbit · wheel to zoom · click on a visible mesh triangle to aim · double-click to reset camera</div></div></div>
+<aside>
+<div class="panel"><h2>Scene &amp; appearance</h2><div id="status">Reading mesh…</div>
+<div class="btnrow"><button id="reset">Reset camera</button><button id="clear">Clear impact</button></div>
+<label><input type="checkbox" id="showHull" checked> Full-resolution hull &amp; deck</label>
+<label><input type="checkbox" id="showSails" checked> Sails &amp; flags</label>
+<label><input type="checkbox" id="showRigging" checked> Masts &amp; rigging</label>
+<label><input type="checkbox" id="showHelpers"> Candidate hitbox/helper meshes <span class="warn">(off by default)</span></label>
+<label><input type="checkbox" id="showLOD"> Duplicate low-detail meshes <span class="warn">(off by default)</span></label>
+<label><input type="checkbox" id="showZones" checked> Imported research hitbox volumes</label>
+<label><input type="checkbox" id="showTexture" checked> Game material textures (when available)</label>
+<label><input type="checkbox" id="showAngleMap"> Camera-directed impact-angle heatmap <span class="good">(geometry only)</span></label>
+<label><input type="checkbox" id="forceSolid"> Solid-surface diagnostics (ignore texture alpha)</label>
+<div class="note" id="angleLegend">Angle map: <span style="color:#6bd5dc">teal = grazing approach</span> · <span style="color:#f47b65">red = near perpendicular</span>. The camera sets the incoming direction. Back-facing normals show as unexposed; incorrect mesh winding requires inspection. This does not predict HP damage.</div>
+<label><input type="checkbox" id="showMaterial" checked> Material-colored visual layer (approximation)</label>
+<label>Ship design (actual extracted catalog)<select id="skinSelect"><option value="">Default material set</option></select></label>
+<p id="skinStatus" class="sub"></p><p id="textureStatus" class="sub"></p>
+<div id="materialLinks" class="sub" style="max-height:120px;overflow:auto;white-space:pre-wrap"></div><div class="note">Mesh labels such as “Hitbox” and “AverageBox” are leads, not proof of server collision or damage multipliers. A texture is rendered only if the OBJ has UVs and a matching local game image is located. The XNB must be re-recovered with v3.9 or later so its material IDs are preserved.</div></div>
+<div class="panel"><h2>Mesh quality</h2><p id="meshQuality" class="sub">Checking recovered geometry…</p><div class="note">An open boundary edge is not by itself a missing face: real sails, gunports and deck openings may be open. Compare to the game client before classifying a hole.</div></div>
+<div class="panel"><h2>Mesh component inspector</h2><p>Toggle individual parts or select Inspect to highlight them. Helpers and duplicate LOD meshes are excluded from the visual layer by default.</p>
+<div class="row"><select id="partCategory"><option value="all">All categories</option><option value="hull">Hull/deck</option><option value="sails">Sails</option><option value="rigging">Rigging</option><option value="helper">Possible helpers/hitboxes</option><option value="lod">Low-detail duplicates</option></select><button id="resetParts">Reset part visibility</button></div>
+<div class="list" id="parts"></div></div>
+<div class="panel"><h2>Single-shot ballistics research</h2>
+<p>All cannon, ammunition and armor stats are read from the supplied extracted client catalog. The actual game damage formula and deflection thresholds remain unverified.</p>
+<label>Cannon<select id="cannon"></select></label><label>Ammunition<select id="ammo"></select></label>
+<div class="row"><label>Distance (game scale)<input id="distance" type="number" min="0" max="10000" value="100"></label>
+<label>Forward axis for bow identification<select id="bowAxis"><option value="xp">+X (tentative Vasa forward)</option><option value="xm">−X</option><option value="zp">+Z</option><option value="zm">−Z</option></select></label></div>
+<label>Ship upgrade (catalog effect shown, not automatically applied)<select id="upgrade"></select></label>
+<label>Captain skill (catalog effect shown, not automatically applied)<select id="skill"></select></label>
+<div class="note" id="effects">Equip an upgrade or skill to inspect its recorded effect.</div>
+<label><input type="checkbox" id="trialUpgrade">Experimentally interpret certain armor/bow upgrade values (NOT verified stacking)</label>
+<label>Consumable or temporary effect (manual research note)<input type="text" id="consumable" maxlength="120" placeholder="not identified from catalog"></label>
+<h3>Recovered client armor formula</h3>
+<p>Verified client IL: <code>BasicArmor = PatArmor × (1 − AllStatFine)</code> and <code>Armor = BasicArmor × (1 + GetBonus(5)) + GetBonus(13)</code>. Enter <strong>raw fractional</strong> GetBonus values, not percentage-point numbers. Catalog Armor may differ from PatArmor.</p>
+<div class="row"><label>PatArmor override (optional)<input id="patArmor" type="number" min="0" step="any" placeholder="use catalog Armor as proxy"></label>
+<label>AllStatFine fraction<input id="allStatFine" type="number" min="0" max="1" step="any" value="0"></label></div>
+<div class="row"><label>GetBonus(5) PArmor fraction<input id="pArmor" type="number" step="any" value="0"></label>
+<label>GetBonus(13) MArmor flat<input id="mArmor" type="number" step="any" value="0"></label></div>
+<div class="note">Verified getter formulas: Common.dll methods 0x06001ee8 and 0x06001f6f. This is client-property evaluation, <strong>not</strong> verified damage or ricochet simulation. Bonus(18) bow reduction and Bonus(54) penetration are recovered accessors, but their downstream damage application remains unresolved.</div>
+<h3>Observed in-game shots</h3><p id="trialStatus">No measured shots imported.</p>
+<h3>Optional measured-shot calibration</h3>
+<p>Supply in-game measured damage at perpendicular broadside under the same cannon/ammo/loadout. Leave blank to avoid fictional HP predictions.</p>
+<div class="row"><label>Measured broadside HP<input type="number" id="measuredHP" min="0" placeholder="not calibrated"></label>
+<label>Measured regional ratio<input id="regionRatio" type="number" min="0" step="0.01" placeholder="unknown"></label></div>
+<div class="row"><label>Manual bonus (%)<input id="manualBonus" type="number" value="0"></label>
+<label><input id="hypotheticalAngle" type="checkbox"> Experimental cosine angle attenuation</label></div>
+<div class="btnrow"><button id="fire">Evaluate selected impact</button><button id="save">Export shot report JSON</button><button id="trialTemplate">Export observed-shot CSV template</button></div>
+<div id="results">Click a visible surface to select a shot location.</div></div>
+<div class="panel"><h2>Impact inspector</h2><div id="inspect">No impact selected.</div><div id="zones"></div></div>
+<div class="panel"><h2>Data provenance &amp; limitations</h2><p id="provenance"></p>
+<p>“Relative shot index” = cannon poundage × ammunition damage factor, an illustrative comparison only. Geometric effective armor = catalog armor ÷ cos(impact obliquity). Neither is proven to be WoSB's server formula.</p>
+<p>Port/starboard equality and the bow &lt; side &lt; stern damage ordering are user observations. No numeric regional multipliers are assigned without measurements. This tool does not inject packets or interact with the game client.</p></div>
+</aside>
+<script>
+'use strict';
+const DATA=/*__MODEL_DATA__*/;
+const $=id=>document.getElementById(id), mesh=DATA.mesh, catalog=DATA.ballistics?.datasets||{}, appearance=DATA.appearance||{}, observations=DATA.observations||[];
+$('shipName').textContent=DATA.ship?.EnglishName||DATA.ship?.Name||'Unidentified ship';
+$('provenance').textContent=(DATA.ballistics?.provenance||'No extracted catalog available')+' · game authority of formulas: unknown';
+let yaw=-.42,pitch=.23,zoom=4.2,drag=false,down=null,last=[0,0],impact=null,shotReport=null,highlight=null;
+const canvas=$('scene'),gl=canvas.getContext('webgl',{alpha:false,antialias:true});
+let program,attrs={},uni={},bufs={},bounds={center:[0,0,0],scale:1},glTexture=null,textureLoaded=false;
+const materialTextures={},textureErrors={},pendingMaterialTextures={},pendingMaterialScripts={};let projectedCache=null;
+const vert=`attribute vec3 p;attribute vec3 n;attribute vec2 uv;uniform vec3 center;uniform float scale,cy,sy,cp,sp,zoom,aspect;varying float l;varying vec2 vt;varying vec3 wn;void main(){wn=n;vec3 v=(p-center)*scale;float x=cy*v.x+sy*v.z;float z=-sy*v.x+cy*v.z;float y=cp*v.y-sp*z;float zr=sp*v.y+cp*z;float d=zoom+zr;gl_Position=vec4(1.7*x/aspect,1.7*y,d*1.03-.25,d);gl_PointSize=10.;l=.32+.68*max(dot(normalize(n),normalize(vec3(.35,.8,.5))),0.);vt=uv;}`;
+const frag=`precision mediump float;uniform vec4 color;uniform float textured;uniform sampler2D sampler;uniform float unlit;uniform float angleHeat,forceOpaque;uniform vec3 incoming;varying float l;varying vec2 vt;varying vec3 wn;void main(){vec4 col=color;if(textured>.5){vec4 tex=texture2D(sampler,vec2(fract(vt.x),fract(1.-vt.y)));col.rgb*=tex.rgb;col.a*=tex.a;}if(angleHeat>.5){float perpendicular=clamp(dot(normalize(wn),normalize(incoming)),0.,1.);col.rgb=mix(vec3(.13,.72,.80),vec3(.96,.26,.20),perpendicular);col.a=1.;}else{col.rgb*=mix(l,1.,unlit);if(forceOpaque>.5)col.a=1.;}if(col.a<.018)discard;gl_FragColor=col;}`;
+function shader(kind,src){const s=gl.createShader(kind);gl.shaderSource(s,src);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw Error(gl.getShaderInfoLog(s));return s;}
+function initGL(){program=gl.createProgram();gl.attachShader(program,shader(gl.VERTEX_SHADER,vert));gl.attachShader(program,shader(gl.FRAGMENT_SHADER,frag));gl.linkProgram(program);if(!gl.getProgramParameter(program,gl.LINK_STATUS))throw Error(gl.getProgramInfoLog(program));gl.useProgram(program);
+ for(const n of ['p','n','uv'])attrs[n]=gl.getAttribLocation(program,n);
+ for(const n of ['center','scale','cy','sy','cp','sp','zoom','aspect','color','textured','sampler','unlit','angleHeat','forceOpaque','incoming'])uni[n]=gl.getUniformLocation(program,n);
+ gl.enable(gl.DEPTH_TEST);gl.enable(gl.BLEND);gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);}
+function buffer(name,coords,normals,uv,mode){const b={count:coords.length/3,mode};for(const [k,a] of [['p',coords],['n',normals],['uv',uv]]){let h=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,h);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(a),gl.STATIC_DRAW);b[k]=h;}bufs[name]=b;}
+const sub=(a,b)=>[a[0]-b[0],a[1]-b[1],a[2]-b[2]],cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]],dot=(a,b)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2],length=a=>Math.hypot(...a),unit=a=>{let l=length(a)||1;return a.map(x=>x/l);};
+const groups=mesh?.groups||[];const disabled=new Set();
+function showGroup(g){const k=g.category||'hull',id={hull:'showHull',sails:'showSails',rigging:'showRigging',helper:'showHelpers',lod:'showLOD'}[k]||'showHull';return $(id).checked&&!disabled.has(g.name);}
+function groupColor(g){switch(g.category){case 'helper':return [1,.58,.25,.7];case 'lod':return [.65,.47,.85,.65];case 'sails':return [.91,.87,.71,1];case 'rigging':return [.57,.43,.28,1];default:return [.64,.68,.65,1];}}
+function createGeometry(){if(!mesh||!mesh.vertices?.length||!mesh.triangles?.length){$('status').textContent='No model geometry loaded';return;}
+ const lo=[Infinity,Infinity,Infinity],hi=[-Infinity,-Infinity,-Infinity];for(const v of mesh.vertices)for(let k=0;k<3;k++){lo[k]=Math.min(lo[k],v[k]);hi[k]=Math.max(hi[k],v[k]);}
+ bounds.lo=lo;bounds.hi=hi;bounds.center=lo.map((n,i)=>(n+hi[i])/2);bounds.scale=2.25/(Math.max(...hi.map((n,i)=>n-lo[i]))||1);
+ const coords=[],normals=[],uv=[];
+ for(let i=0;i<mesh.triangles.length;i+=3){const face=mesh.triangles.slice(i,i+3),a=mesh.vertices[face[0]],b=mesh.vertices[face[1]],c=mesh.vertices[face[2]];
+  const n=unit(cross(sub(b,a),sub(c,a)));coords.push(...a,...b,...c);normals.push(...n,...n,...n);
+  for(let j=0;j<3;j++){const ti=mesh.triangle_uvs?.[i+j]??-1,t=ti>=0?mesh.uvs?.[ti]:null;uv.push(...(t||[0,0]));}}
+ buffer('mesh',coords,normals,uv,gl.TRIANGLES);
+ // True per-component bounding centers for transparent draw ordering.
+ for(const g of groups){let a=[Infinity,Infinity,Infinity],b=[-Infinity,-Infinity,-Infinity];
+  for(let k=g.first_triangle*3;k<(g.first_triangle+g.triangle_count)*3;k++){
+   let v=mesh.vertices[mesh.triangles[k]];for(let j=0;j<3;j++){a[j]=Math.min(a[j],v[j]);b[j]=Math.max(b[j],v[j]);}}
+  g._center=a.map((v,j)=>Number.isFinite(v)?(v+b[j])/2:bounds.center[j]);}
+ for(let i=0;i<(DATA.zones||[]).length;i++){const z=DATA.zones[i],c=z.center,s=z.size.map(x=>x/2),corners=[];
+ for(const x of [-1,1])for(const y of [-1,1])for(const w of [-1,1])corners.push([c[0]+x*s[0],c[1]+y*s[1],c[2]+w*s[2]]);
+ const lines=[];for(let j=0;j<8;j++)for(const bit of [1,2,4])if(j<(j^bit))lines.push(...corners[j],...corners[j^bit]);
+ buffer('zone'+i,lines,new Array(lines.length).fill(0),new Array(lines.length/3*2).fill(0),gl.LINES);}
+ $('status').textContent=`${mesh.triangles_count.toLocaleString()} displayed triangles / ${(mesh.original_triangles_count||mesh.triangles_count).toLocaleString()} in source · ${groups.length} components · ${mesh.uvs?.length||0} texture UVs`;
+ if(mesh.sampling_status==='full_resolution')$('status').textContent+=' · all source triangles retained (no sampling)';
+ const helpers=groups.filter(g=>g.category==='helper');if(helpers.length)$('status').textContent+=' · '+helpers.map(g=>g.name).join(', ')+' hidden as possible helpers';
+ }
+function useBuffers(b){for(const [attr,size] of [['p',3],['n',3],['uv',2]]){gl.bindBuffer(gl.ARRAY_BUFFER,b[attr]);gl.enableVertexAttribArray(attrs[attr]);gl.vertexAttribPointer(attrs[attr],size,gl.FLOAT,false,0,0);}}
+function draw(b,color,unlit=0,textured=false,first=0,count=null,heat=false,opaque=false){
+ if(!b)return;useBuffers(b);gl.uniform4fv(uni.color,color);gl.uniform1f(uni.unlit,unlit);
+ gl.uniform1f(uni.textured,textured?1:0);gl.uniform1f(uni.angleHeat,heat?1:0);
+ gl.uniform1f(uni.forceOpaque,opaque?1:0);gl.drawArrays(b.mode,first,count??b.count);}
+function frame(){if(!gl)return;const ratio=Math.min(window.devicePixelRatio||1,2),w=Math.max(1,Math.round(canvas.clientWidth*ratio)),h=Math.max(1,Math.round(canvas.clientHeight*ratio));if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h;gl.viewport(0,0,w,h);}
+ gl.clearColor(.035,.068,.112,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.useProgram(program);gl.uniform3fv(uni.center,bounds.center);gl.uniform1f(uni.scale,bounds.scale);gl.uniform1f(uni.cy,Math.cos(yaw));gl.uniform1f(uni.sy,Math.sin(yaw));gl.uniform1f(uni.cp,Math.cos(pitch));gl.uniform1f(uni.sp,Math.sin(pitch));gl.uniform1f(uni.zoom,zoom);gl.uniform1f(uni.aspect,w/h);
+ gl.activeTexture(gl.TEXTURE0);gl.uniform1i(uni.sampler,0);gl.uniform3fv(uni.incoming,unrotate([0,0,1]));
+ // Transparent textured sails/alpha decals render after solid hulls without writing depth.
+ // Sorting these drawing groups reduces alpha-overlap artifacts on complex ships.
+ // It does NOT reproduce WoSB's original shader and cannot sort triangles within a group.
+ const translucent=g=>!$('showAngleMap').checked&&!$('forceSolid').checked &&
+     (g.category==='sails'||/alpha|transparent|flag|decal/i.test(g.material||''));
+ const opaque=groups.filter(g=>!translucent(g)),transparent=groups.filter(translucent)
+      .sort((a,b)=>cameraView(b._center||bounds.center)[2]-cameraView(a._center||bounds.center)[2]);
+ const ordered=opaque.concat(transparent);
+ for(const g of ordered){
+ gl.depthMask(!translucent(g));if(!showGroup(g))continue;let color=$('showMaterial').checked?groupColor(g):[.57,.72,.77,1];if(highlight===g.name)color=[1,.80,.23,1];
+ const design=appearance.designs?.[Number($('skinSelect').value)-1],original=g.material||'',mapped=resolveDesignMaterial(original,design);
+ const matTexture=materialTextures[assetLabel(mapped)]||materialTextures[assetLabel(original)],selectedTexture=matTexture||glTexture;
+ const textured=Boolean(selectedTexture&&$('showTexture').checked&&mesh.uvs?.length&&g.category!=='helper'&&g.category!=='lod');
+ if(textured){gl.bindTexture(gl.TEXTURE_2D,selectedTexture);if(highlight!==g.name)color=[1,1,1,1];}
+ draw(bufs.mesh,color,0,textured,g.first_triangle*3,g.triangle_count*3,
+   $('showAngleMap').checked && g.category!=='helper' && g.category!=='lod',
+   $('forceSolid').checked || g.category==='hull');}
+ gl.depthMask(true);
+ if($('showZones').checked)(DATA.zones||[]).forEach((z,i)=>draw(bufs['zone'+i],z.evidence_status==='verified'?[.3,1,.6,.95]:[1,.77,.3,.9],1));
+ if(bufs.marker)draw(bufs.marker,[1,.28,.22,1],1);
+ requestAnimationFrame(frame);}
+function cameraView(v){const s=bounds.scale,c=bounds.center,px=(v[0]-c[0])*s,py=(v[1]-c[1])*s,pz=(v[2]-c[2])*s;
+ const x=Math.cos(yaw)*px+Math.sin(yaw)*pz,z=-Math.sin(yaw)*px+Math.cos(yaw)*pz;
+ return [x,Math.cos(pitch)*py-Math.sin(pitch)*z,Math.sin(pitch)*py+Math.cos(pitch)*z];}
+function project(v,w,h){const [x,y,z]=cameraView(v),d=zoom+z;if(d<=.1)return null;return [w*(1+1.7*x/((w/h)*d))/2,h*(1-1.7*y/d)/2,d];}
+function unrotate(v){let z=-Math.sin(pitch)*v[1]+Math.cos(pitch)*v[2],y=Math.cos(pitch)*v[1]+Math.sin(pitch)*v[2];return [Math.cos(yaw)*v[0]-Math.sin(yaw)*z,y,Math.sin(yaw)*v[0]+Math.cos(yaw)*z];}
+function pick(x,y){if(!mesh)return null;let nearest=null,best=Infinity,w=canvas.clientWidth,h=canvas.clientHeight;
+ const viewKey=[yaw,pitch,zoom,w,h].join('|');
+ if(!projectedCache||projectedCache.key!==viewKey)projectedCache={key:viewKey,points:mesh.vertices.map(v=>project(v,w,h))};
+ const projected=projectedCache.points;
+ for(const g of groups){if(!showGroup(g))continue;const start=g.first_triangle*3,end=start+g.triangle_count*3;
+ for(let k=start;k<end;k+=3){let ia=mesh.triangles[k],ib=mesh.triangles[k+1],ic=mesh.triangles[k+2],a=mesh.vertices[ia],b=mesh.vertices[ib],c=mesh.vertices[ic];
+ let pa=projected[ia],pb=projected[ib],pc=projected[ic];if(!pa||!pb||!pc)continue;
+ if(x<Math.min(pa[0],pb[0],pc[0])-1||x>Math.max(pa[0],pb[0],pc[0])+1||y<Math.min(pa[1],pb[1],pc[1])-1||y>Math.max(pa[1],pb[1],pc[1])+1)continue;
+ const den=(pb[1]-pc[1])*(pa[0]-pc[0])+(pc[0]-pb[0])*(pa[1]-pc[1]);if(Math.abs(den)<1e-8)continue;
+ const u=((pb[1]-pc[1])*(x-pc[0])+(pc[0]-pb[0])*(y-pc[1]))/den,v=((pc[1]-pa[1])*(x-pc[0])+(pa[0]-pc[0])*(y-pc[1]))/den,t=1-u-v;
+ if(u<-.0001||v<-.0001||t<-.0001)continue;
+ const depth=1/(u/pa[2]+v/pb[2]+t/pc[2]);if(depth>=best)continue;best=depth;
+ const weights=[u/pa[2]*depth,v/pb[2]*depth,t/pc[2]*depth];const pos=a.map((n,j)=>n*weights[0]+b[j]*weights[1]+c[j]*weights[2]);
+ const normal=unit(cross(sub(b,a),sub(c,a)));
+ const rayView=unit([(2*x/w-1)*(w/h)/1.7,(1-2*y/h)/1.7,1]);const ray=unit(unrotate(rayView));
+ const alignment=dot(normal,ray),obliquity=Math.acos(Math.max(0,Math.min(1,alignment)))*180/Math.PI;
+ nearest={group:g.name,category:g.category,triangle:k/3,pos,normal,ray,obliquity,backface:alignment<0,material:g.material};}}
+ return nearest;}
+function regionFor(hit){let axis=$('bowAxis').value,idx=axis[0]==='x'?0:2,sign=axis[1]==='m'?-1:1;
+ const approach=-hit.ray[idx]*sign;const sideIdx=idx===0?2:0,side=-hit.ray[sideIdx];
+ if(Math.abs(approach)>Math.abs(side)*1.25)return approach>0?'bow':'stern';
+ return side>=0?'starboard':'port'; // Port/starboard sign still unverified.
+}
+function mark(hit){if(!gl||!hit)return;const r=Math.max(...bounds.hi.map((v,i)=>v-bounds.lo[i]))*.012,p=hit.pos;
+ const a=[p[0]-r,p[1],p[2],p[0]+r,p[1],p[2],p[0],p[1]-r,p[2],p[0],p[1]+r,p[2],p[0],p[1],p[2]-r,p[0],p[1],p[2]+r];
+ buffer('marker',a,new Array(a.length).fill(0),new Array(a.length/3*2).fill(0),gl.LINES);}
+function setImpact(h){impact=h;mark(h);if(!h){$('inspect').textContent='No impact selected.';$('results').textContent='Click a visible surface to select a shot location.';shotReport=null;return;}
+ const reg=regionFor(h);$('inspect').textContent='Mesh: '+h.group+'\nCategory: '+h.category+' (name-inferred)\nTriangle: '+h.triangle+'\nPosition: '+h.pos.map(n=>n.toFixed(2)).join(', ')+'\nNormal: '+h.normal.map(n=>n.toFixed(3)).join(', ')+'\nImpact obliquity: '+h.obliquity.toFixed(1)+'°\nDirection estimate: '+reg+' (axis and side convention tentative)';
+ if(h.category==='helper'||h.category==='lod'){$('results').textContent='Helper/LOD geometry selected: this is NOT a validated damage surface. Turn off the helper/LOD layer and target the visual hull.';return;}
+ evaluate();}
+function populate(id,rows,getName){const sel=$(id);sel.replaceChildren();(rows||[]).forEach((r,i)=>sel.add(new Option(getName(r),i.toString())));}
+function initializeCatalog(){populate('cannon',catalog.Cannons,r=>r.EnglishName||r.ID||'Cannon');populate('ammo',catalog.CannonBalls,r=>r.EnglishName||r.ID||'Shot');
+ populate('upgrade',[{EnglishName:'No upgrade'}].concat(catalog.ShipUpgradesNew||[]),r=>r.EnglishName||r.NameEnglish||'Upgrade');
+ populate('skill',[{EnglishName:'No captain skill'}].concat(catalog.CaptainSkills||[]),r=>r.EnglishName||r.Name||'Skill');
+ $('effects').textContent='Select an upgrade/skill to inspect their mined effect strings. No automatic bonus will be applied without verified formula.';
+ for(const id of ['upgrade','skill'])$(id).addEventListener('change',()=>{let a=catalog.ShipUpgradesNew?.[Number($('upgrade').value)-1],b=catalog.CaptainSkills?.[Number($('skill').value)-1];$('effects').textContent=[a?.EffectsBoost&&('Upgrade: '+a.EffectsBoost),b?.Effect&&('Skill: '+b.Effect)].filter(Boolean).join(' · ')||'No effects selected';evaluate();});
+ for(const id of ['cannon','ammo','distance','measuredHP','regionRatio','manualBonus','hypotheticalAngle','bowAxis','trialUpgrade','consumable','patArmor','allStatFine','pArmor','mArmor'])$(id).addEventListener('change',()=>{if(impact&&id==='bowAxis')setImpact(impact);else evaluate();});}
+function selectedShipStats(){let all=catalog.ShipsToPlay||[],id=String(DATA.ship?.ID??'');return all.find(s=>String(s.ID)===id)||DATA.ship||{};}
+function finiteInput(id){const s=$(id).value.trim();if(s==='')return null;let n=Number(s);return Number.isFinite(n)?n:null;}
+function evaluate(){if(!impact){$('results').textContent='Click the visible model to choose a point. Actual game HP damage cannot be calculated until a formula or measured calibration exists.';return;}
+ let gun=catalog.Cannons?.[Number($('cannon').value)],ammo=catalog.CannonBalls?.[Number($('ammo').value)],ship=selectedShipStats();if(!gun||!ammo){$('results').textContent='Import a WoSB catalog with Cannons and CannonBalls records.';return;}
+ const region=regionFor(impact),armor=Number(ship.Armor||0),poundage=Number(gun.Poundage||0),factor=Number(ammo.DamageFactor??1),angle=impact.obliquity;
+ let armorExperimental=armor,bowReductionExperimental=0;
+ const selectedUpgrade=catalog.ShipUpgradesNew?.[Number($('upgrade').value)-1];
+ if($('trialUpgrade').checked&&selectedUpgrade?.EffectsBoost){
+  const tokens=selectedUpgrade.EffectsBoost;
+  const percent=/\bPArmor\s+([-+]?\d+(?:\.\d+)?)/.exec(tokens);
+  const flat=/\bMArmor\s+([-+]?\d+(?:\.\d+)?)/.exec(tokens);
+  const nose=/\bPReduceDamageToNose\s+([-+]?\d+(?:\.\d+)?)/.exec(tokens);
+  if(percent)armorExperimental*=1+Number(percent[1])/100;
+  if(flat)armorExperimental+=Number(flat[1]);
+  if(nose&&region==='bow')bowReductionExperimental=Math.max(0,Math.min(1,Number(nose[1])/100));
+ }
+ const patArmor=finiteInput('patArmor')??armor, fine=finiteInput('allStatFine')??0,
+   rawPArmor=finiteInput('pArmor')??0,rawMArmor=finiteInput('mArmor')??0;
+ const armorInputsValid=patArmor>=0&&fine>=0&&fine<=1;
+ const clientBasicArmor=armorInputsValid?patArmor*(1-fine):null;
+ const clientArmor=armorInputsValid?clientBasicArmor*(1+rawPArmor)+rawMArmor:null;
+ const effective=Math.max(0,armorExperimental)/Math.max(.001,Math.cos(angle*Math.PI/180)),proxy=poundage*factor;
+ const measured=finiteInput('measuredHP'),ratio=finiteInput('regionRatio'),bonus=finiteInput('manualBonus')??0;
+ const comparable=observations.filter(o=>o.weapon.toLowerCase()===String(gun.EnglishName||'').toLowerCase()&&o.ammo.toLowerCase()===String(ammo.EnglishName||'').toLowerCase()&&o.target_ship.toLowerCase()===String(ship.EnglishName||'').toLowerCase()&&o.zone===region&&Math.abs(o.angle-angle)<=12&&Math.abs(o.distance-(finiteInput('distance')??100))<=Math.max(20,(finiteInput('distance')??100)*.2));
+ const observedHP=comparable.length>=3?+(comparable.reduce((sum,o)=>sum+o.damage,0)/comparable.length).toFixed(2):null;
+ let hp=null;if(measured!=null&&ratio!=null&&measured>=0&&ratio>=0&&bonus>=-100){hp=measured*ratio*(1+bonus/100);if($('hypotheticalAngle').checked)hp*=Math.cos(angle*Math.PI/180);if($('trialUpgrade').checked)hp*=1-bowReductionExperimental;}
+ const s={status:'illustrative, NOT verified game simulation',ship:ship.EnglishName||ship.ID,cannon:gun.EnglishName,ammo:ammo.EnglishName,zone:region,mesh:impact.group,
+ impact_point:impact.pos.map(n=>+n.toFixed(5)),surface_normal:impact.normal.map(n=>+n.toFixed(5)),obliquity_deg:+angle.toFixed(2),distance:finiteInput('distance'),
+ extracted:{poundage:gun.Poundage,cannon_penetration:gun.Penetration,ammo_penetration:ammo.Penetration,ammo_damage_factor:ammo.DamageFactor,
+ ammo_crew_damage:ammo.CrewDamage,ammo_sail_damage:ammo.DamageToSailes,ship_armor:ship.Armor,ship_health:ship.Health,cannon_max_range:gun.Distance},
+ verified_client_properties:{basic_armor:clientBasicArmor,armor:clientArmor,
+ pat_armor_input:patArmor,pat_armor_input_source:finiteInput('patArmor')==null?'ShipsToPlay.Armor used as assumed proxy':'user override',
+ all_stat_fine:fine,bonus5:rawPArmor,bonus13:rawMArmor,
+ evidence:['Common.dll::0x06001ee8','Common.dll::0x06001f6f'],
+ limitation:'Client getter only; does not calculate server hit damage'},
+ research_proxies:{relative_damage_index:+proxy.toFixed(3),geometric_effective_armor:+effective.toFixed(3),experimental_upgrade_armor:armorExperimental,experimental_bow_damage_reduction:bowReductionExperimental,penetration_outcome:'unknown: server formula not recovered',deflection_probability:'unknown'},
+ calibration:{measured_broadside_hp:measured,manually_entered_zone_ratio:ratio,manually_entered_bonus_pct:bonus,hypothetical_cosine_attenuation:$('hypotheticalAngle').checked,
+ estimated_hp:hp==null?null:+hp.toFixed(2),observed_matching_trials:comparable.length,empirical_mean_hp:observedHP},
+ selected_effects:{upgrade:catalog.ShipUpgradesNew?.[Number($('upgrade').value)-1]?.EffectsBoost||null,skill:catalog.CaptainSkills?.[Number($('skill').value)-1]?.Effect||null,consumable_manual:$('consumable').value.trim().slice(0,120),experimental_upgrade_interpretation:$('trialUpgrade').checked},
+ evidence:'Static mined client records; UV/mesh source; user-supplied calibration. No verified authoritative damage formula.'};
+ shotReport=s;
+ let lines=[`TARGET: ${s.ship||'Unknown'} / ${region.toUpperCase()}`,`Mesh: ${impact.group}`,`Obliquity: ${angle.toFixed(1)}° | Range: ${s.distance??'?'} (game scale)`,
+ `Cannon: ${gun.EnglishName} | ${gun.Poundage} poundage | penetration ${gun.Penetration}`,`Ammo: ${ammo.EnglishName} | damage factor ${factor} | penetration ${ammo.Penetration}`,
+ `Ship: ${ship.Health??'?'} HP max | armor ${ship.Armor??'?'}`,
+ clientArmor==null?'Recovered armor formula: invalid inputs':`Recovered CLIENT armor getter: ${clientArmor.toFixed(3)} (BasicArmor ${clientBasicArmor.toFixed(3)}; ${finiteInput('patArmor')==null?'assuming catalog Armor = PatArmor':'PatArmor explicitly entered'})`,`Relative index (poundage × ammo factor): ${proxy.toFixed(2)} — NOT HP`,
+ `Geometric armor proxy: ${effective.toFixed(2)} vs base ${armor.toFixed(2)}`,(armorExperimental!==armor||bowReductionExperimental>0)?`EXPERIMENTAL upgrade proxy: armor ${armorExperimental.toFixed(2)}, bow reduction ${(100*bowReductionExperimental).toFixed(0)}% (unverified)`:null,
+ 'Deflection / exact damage: UNKNOWN (no recovered authoritative formula)',
+ observedHP==null?`Measured trials: ${comparable.length} comparable; need ≥3 for empirical HP average`:`EMPIRICAL matching-hit HP: ${observedHP.toFixed(2)} mean across ${comparable.length} observations — NOT a deterministic game formula`,
+ hp==null?'Calibrated HP estimate: UNAVAILABLE — add measured values':`USER-CALIBRATED ESTIMATE: ${hp.toFixed(1)} HP (NOT GAME-VERIFIED)`,
+ s.calibration.hypothetical_cosine_attenuation?'Experimental cosine attenuation is ENABLED, not game-verified':'Angle attenuation not applied to HP estimate',
+ s.selected_effects.upgrade||s.selected_effects.skill?'Upgrade/skill chosen; no automatic modifiers applied':'No effects selected'];
+ let gunRange=Number(gun.Distance);if(Number.isFinite(gunRange)&&gunRange>0&&s.distance>gunRange)lines.push('Range exceeds catalog cannon distance; exact falloff unknown');
+ $('results').textContent=lines.filter(Boolean).join('\n');}
+function components(){const target=$('parts');target.replaceChildren();let filter=$('partCategory').value;
+ for(const g of groups){if(filter!=='all'&&g.category!==filter)continue;let row=document.createElement('div');row.className='part';let cb=document.createElement('input');cb.type='checkbox';cb.checked=!disabled.has(g.name);cb.title='Show/hide this part';cb.onchange=()=>{if(cb.checked)disabled.delete(g.name);else disabled.add(g.name);};
+ let label=document.createElement('span');label.textContent=g.name+' · '+g.triangle_count.toLocaleString()+' triangles · '+g.category;
+ let inspect=document.createElement('button');inspect.textContent='Inspect';inspect.onclick=()=>{highlight=highlight===g.name?null:g.name;$('inspect').textContent='Selected part: '+g.name+'\nCategory: '+g.category+'\nSource material label: '+(g.material||'none')+'\nThis category is name-inferred, NOT a damage vulnerability.';};
+ row.append(cb,label,inspect);target.append(row);} }
+function matKey(label){return String(label||'').replace(/\\/g,'/').split('/').pop().trim().replace(/\.(material\.xnb|xnb|png|jpg|jpeg|webp)$/i,'').toLowerCase();}
+function resolveDesignMaterial(original,design){
+ if(!design?.swaps)return original;
+ const wanted=matKey(original);
+ const entry=Object.entries(design.swaps).find(([src])=>matKey(src)===wanted);
+ return entry?entry[1]:original;
+}
+const textureNameIndex=new Map(Object.keys(appearance.textures||{}).map(name=>[matKey(name),name]));
+function assetLabel(name){return textureNameIndex.get(matKey(name))||'';}
+function matchedMaterials(design){return Object.keys(design?.swaps||{}).filter(k=>groups.some(g=>matKey(g.material)===matKey(k)&&g.category!=='helper'&&g.category!=='lod'));}
+function initAppearances(){
+ const select=$('skinSelect');let designs=appearance.designs||[];
+ for(const [i,d] of designs.entries()){const option=document.createElement('option');option.value=String(i+1);option.textContent=d.name;select.append(option);}
+ function update(){const d=designs[Number(select.value)-1];if(!d){$('skinStatus').textContent=`Default ship · ${designs.length} extracted full-design variants listed`;}
+ else{const matched=matchedMaterials(d);const targets=matched.map(k=>d.swaps[k]);
+  const loaded=targets.filter(t=>Boolean(assetLabel(t)));
+  $('skinStatus').textContent=`${d.name} · ${matched.length}/${Object.keys(d.swaps).length} mesh links matched · ${loaded.length} replacement images found`+
+   (matched.length===0?' · NOT APPLIED: material labels do not match':loaded.length===0?' · NOT APPLIED: replacement textures missing':' · image loading/appearance depends on materials');}
+ $('materialLinks').textContent=Object.entries(d?.swaps||{}).map(([base,to])=>`${base} → ${to}${materialTextures[assetLabel(to)]?' ✓ texture loaded':' · texture missing'}${(appearance.expected_texture_paths?.[to]||[]).length?' ('+appearance.expected_texture_paths[to][0]+')':''}`).join('\n')||'Material IDs: '+(appearance.mesh_materials||[]).slice(0,18).join(', ');
+ }
+ select.addEventListener('change',()=>{update();syncMaterialTextures();});update();
+ $('trialStatus').textContent=`${observations.length} valid measured shots imported. Matching loadouts, regions, distance and angle require ≥3 observations for empirical HP means.`;
+}
+function activeMaterialLabels(){
+ const chosen=appearance.designs?.[Number($('skinSelect').value)-1],needed=new Set();
+ for(const g of groups){if(g.category==='helper'||g.category==='lod')continue;
+   let source=g.material||'',mapped=resolveDesignMaterial(source,chosen);
+   // Keep the default material resident so a failed variant never makes the
+   // ship lose its original texture. A design counts as active only when the
+   // replacement image, not this fallback, has actually reached the GPU.
+   const replacement=assetLabel(mapped),base=assetLabel(source);
+   if(base)needed.add(base);if(replacement)needed.add(replacement);
+ }
+ return needed;
+}
+function refreshMaterialLinks(){
+ const chosen=appearance.designs?.[Number($('skinSelect').value)-1];
+ $('materialLinks').textContent=Object.entries(chosen?.swaps||{}).map(([base,to])=>
+   `${base} → ${to}${materialTextures[assetLabel(to)]?' ✓ loaded':textureErrors[assetLabel(to)]?' · failed':' · pending / missing'}`+
+   `${(appearance.expected_texture_paths?.[to]||[]).length?' ('+appearance.expected_texture_paths[to][0]+')':''}`)
+   .join('\n')||'Materials: '+(appearance.mesh_materials||[]).slice(0,18).join(', ');
+}
+function syncMaterialTextures(){
+ if(!gl)return;
+ const needed=activeMaterialLabels(),assets=appearance.textures||{};
+ for(const [label,texture] of Object.entries(materialTextures)){
+   if(!needed.has(label)){gl.deleteTexture(texture);delete materialTextures[label];}
+ }
+ for(const label of needed){
+   if(materialTextures[label]||pendingMaterialTextures[label]||pendingMaterialScripts[label])continue;
+   const res=assets[label];if(!res)continue;
+   const img=new Image();pendingMaterialTextures[label]=img;
+   img.onload=()=>{
+     delete pendingMaterialTextures[label];
+     if(!activeMaterialLabels().has(label))return;
+     try{
+       const texture=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,texture);
+       gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,false);
+       gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,img);
+       gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);
+       gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
+       gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);
+       gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+       materialTextures[label]=texture;delete textureErrors[label];
+     }catch(err){textureErrors[label]=String(err);}
+     refreshMaterialLinks();updateAppearanceHealth();
+   };
+   img.onerror=()=>{delete pendingMaterialTextures[label];textureErrors[label]='Browser image failed to load';refreshMaterialLinks();updateAppearanceHealth();};
+   const startImage=(uri)=>{if(!uri){delete pendingMaterialTextures[label];textureErrors[label]='Offline sidecar data unavailable';updateAppearanceHealth();return;}img.src=uri;};
+   if(res.browser_loader){
+     const cached=window.__WOSB_LOCAL_TEXTURES__?.[label];
+     if(cached){startImage(cached);continue;}
+     const script=document.createElement('script');pendingMaterialScripts[label]=script;
+     script.src=res.browser_loader;
+     script.onload=()=>{delete pendingMaterialScripts[label];script.remove();startImage(window.__WOSB_LOCAL_TEXTURES__?.[label]);};
+     script.onerror=()=>{delete pendingMaterialScripts[label];script.remove();startImage(null);};
+     document.head.append(script);
+   }else{startImage(res.data_uri);}
+ }
+ refreshMaterialLinks();updateAppearanceHealth();
+}
+function updateAppearanceHealth(){
+ const chosen=appearance.designs?.[Number($('skinSelect').value)-1],visible=groups.filter(g=>showGroup(g)&&g.category!=='helper'&&g.category!=='lod');
+ const ready=visible.filter(g=>Boolean(materialTextures[assetLabel(resolveDesignMaterial(g.material,chosen))]));
+ const total=visible.reduce((a,g)=>a+g.triangle_count,0),textured=ready.reduce((a,g)=>a+g.triangle_count,0);
+ const matched=chosen?matchedMaterials(chosen):[],replacements=matched.filter(key=>Boolean(materialTextures[assetLabel(chosen.swaps[key])]));
+ $('textureStatus').textContent=`${textured.toLocaleString()}/${total.toLocaleString()} visible triangles have loaded client texture candidates · ${Object.keys(textureErrors).length} image load errors`+
+   (appearance.asset_directory_provided?' · local assets selected':' · no local game texture directory selected');
+ if(chosen)$('skinStatus').textContent=`${chosen.name}: ${replacements.length}/${matched.length} matching replacement materials loaded on GPU · `+
+   (replacements.length===matched.length&&matched.length>0?'all matched swaps active':replacements.length?'PARTIAL design only':'DESIGN NOT VISUALLY APPLIED');
+ else $('skinStatus').textContent=`Default ship · ${ready.length}/${visible.length} visible mesh groups textured · ${(appearance.designs||[]).length} design variants`;
+}
+
+function initMaterialTextures(){
+ const assets=appearance.textures||{},missing=appearance.unresolved||[];
+ const suffix=appearance.asset_directory_provided?' from local game assets / research ZIP files':' — choose asset source in Workbench';
+ $('textureStatus').textContent=`${Object.keys(assets).length} exact texture candidate(s) · ${missing.length} unresolved${suffix} · only active skin loaded to GPU`;
+ syncMaterialTextures();
+}
+function initTexture(){const tex=DATA.texture;if(!tex){if(!Object.keys(appearance.textures||{}).length)$('textureStatus').textContent='No client texture candidates loaded; choose an installed game Data folder.';return;}
+ if(!mesh?.uvs?.length){$('textureStatus').textContent='Image supplied ('+tex.source_name+') but this OBJ has no UVs. Re-recover from the XNB using v3.9 to preserve UVs.';return;}
+ $('textureStatus').textContent='Loading user-selected image: '+tex.source_name+' (actual game material association not verified)';
+ const img=new Image();img.onload=()=>{glTexture=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,glTexture);gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,false);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,img);
+ gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);textureLoaded=true;$('textureStatus').textContent='Loaded '+tex.source_name+' · '+img.width+'×'+img.height+' · UV texture layer available';};
+ img.onerror=()=>{$('textureStatus').textContent='Texture failed to decode in browser';};img.src=tex.data_uri;}
+function reset(){yaw=-.42;pitch=.23;zoom=4.2;}
+$('reset').onclick=reset;$('clear').onclick=()=>{impact=null;delete bufs.marker;highlight=null;setImpact(null);};$('resetParts').onclick=()=>{disabled.clear();highlight=null;components();};
+$('partCategory').onchange=components;canvas.ondblclick=reset;
+canvas.onpointerdown=e=>{drag=true;down=[e.clientX,e.clientY];last=[e.clientX,e.clientY];canvas.setPointerCapture(e.pointerId);};
+canvas.onpointercancel=()=>{drag=false;down=null;};canvas.onpointerup=e=>{if(!drag)return;drag=false;if(!down||Math.hypot(e.clientX-down[0],e.clientY-down[1])>5)return;const rect=canvas.getBoundingClientRect();const h=pick(e.clientX-rect.left,e.clientY-rect.top);if(h)setImpact(h);else $('sceneHelp').textContent='No visible triangle at that point. Rotate the ship and click again.';};
+canvas.onpointermove=e=>{if(!drag)return;if(Math.hypot(e.clientX-(down?.[0]??e.clientX),e.clientY-(down?.[1]??e.clientY))>3){yaw+=(e.clientX-last[0])*.008;pitch=Math.max(-1.3,Math.min(1.3,pitch+(e.clientY-last[1])*.008));}last=[e.clientX,e.clientY];};
+canvas.addEventListener('wheel',e=>{e.preventDefault();zoom=Math.max(2.7,Math.min(16,zoom*(e.deltaY>0?1.08:.92)));},{passive:false});
+$('fire').onclick=evaluate;
+$('trialTemplate').onclick=()=>{
+ if(!shotReport){$('results').textContent='Click a ship surface and evaluate a shot before recording an observation.';return;}
+ const cols=['trial_id','session','timestamp_utc','weapon','ammo','shooter_ship','target_ship','range_m','impact_angle_deg','armor_rating','target_armor_region','weapon_buff','crew_buffs','raw_damage_if_known','observed_hp_damage','normal_fire','large_fire','fire_duration_s','damage_over_time','flooding','target_hp_before','target_hp_after','game_version','notes'];
+ const value={trial_id:'',session:'',timestamp_utc:new Date().toISOString(),weapon:shotReport.cannon,ammo:shotReport.ammo,
+   target_ship:shotReport.ship,range_m:shotReport.distance,impact_angle_deg:shotReport.obliquity_deg,
+   armor_rating:shotReport.extracted.ship_armor,target_armor_region:shotReport.zone,
+   observed_hp_damage:'',notes:'Record the actual in-game HP change; unmodified trial template'};
+ const csv=v=>{let text=String(v??'');if(/^[=+\-@]/.test(text))text="'"+text;return '"'+text.replaceAll('"','""')+'"';};
+ const data=cols.join(',')+'\r\n'+cols.map(k=>csv(value[k])).join(',')+'\r\n';
+ const blob=new Blob([data],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='wosb-observed-shot-template.csv';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+};
+$('save').onclick=()=>{if(!shotReport){$('results').textContent='Select a visible hull point before exporting.';return;}const blob=new Blob([JSON.stringify(shotReport,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='wosb-research-shot.json';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);};
+function showZones(){let target=$('zones');target.replaceChildren();for(const z of DATA.zones||[]){const p=document.createElement('p');p.textContent=`${z.name}: ${z.evidence_status||'unknown'} · ${z.source||'no source'} · damage multiplier ${z.damage_multiplier??'not verified'}`;target.append(p);}}
+components();initializeCatalog();showZones();initAppearances();
+const quality=DATA.mesh_quality;const qualityNode=$('meshQuality');
+if(quality&&qualityNode){qualityNode.textContent=`${quality.decoded_triangles.toLocaleString()} source triangles retained · ${quality.degenerate_triangles} degenerate faces · ${quality.invalid_indices} invalid indices · ${quality.groups.length} draw groups · ${quality.uv_coordinates.toLocaleString()} UVs`+(quality.warnings.length?' · Review: '+quality.warnings.join('; '):' · No structural warnings');}else if(qualityNode)qualityNode.textContent='No mesh quality report; use the OBJ audit export.';if(!gl){$('status').textContent='WebGL unavailable in this browser.';}else{try{initGL();createGeometry();initMaterialTextures();initTexture();requestAnimationFrame(frame);}catch(err){$('status').textContent='Viewer failed: '+err.message;console.error(err);}}
+</script></body></html>

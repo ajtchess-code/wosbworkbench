@@ -1,0 +1,32 @@
+WoSB Workbench 4.3.6 — START HERE
+=================================
+
+BUILD (Windows, Python 3.13 with tkinter)
+  1. Optional, once: py -3.13 packaging\Make-Signing-Key.py --secret C:\Keys\wosb-update-secret.txt
+     (keep the secret file private; builds then require signed updates)
+  2. Optional: set WOSB_SIGNING_KEY=C:\Keys\wosb-update-secret.txt
+     Optional: set WOSB_PREVIOUS_DIR=<previous dist\WoSBWorkbench> to remove stale files via the update ZIP
+  3. Run Build-Update.cmd. It runs the tests, builds the exe, self-tests it, and creates:
+       dist\WoSBWorkbench\WoSBWorkbench.exe          portable app
+       dist\WoSBWorkbench-<ver>-Portable.zip
+       dist\WoSBWorkbench-<ver>-Update.zip           for Updates → Choose update ZIP
+       dist\Installer\WoSBWorkbench-<ver>-Setup.exe  needs Inno Setup 6.3+
+
+FIRST LAUNCH
+  The setup wizard finds your Standalone, Steam and launcher installs and checks helper tools.
+  Rerun it any time from Settings → Run setup wizard.
+
+DAILY USE
+  Ctrl+K       search everything (wiki, catalog, combat methods, protocol, decompiled source)
+  Activity     progress, cancel and logs for every background job (title bar button)
+  Recover →    Full Recovery, then Datamining (coverage report, ILSpy decompile, version tracking)
+  Capture →    Network Research Lab → Protocol Lab (catalog, message browser, exports)
+  Settings →   Automatic capture: record and analyze your game traffic while the game is connected
+
+OPTIONAL HELPER TOOLS
+  FFmpeg (video), Wireshark/TShark + Npcap (capture), .NET SDK + "dotnet tool install --global ilspycmd"
+
+LOGS
+  %LOCALAPPDATA%\WoSBWorkbench\Logs — attach the newest crash-*.txt when reporting a problem.
+
+See RELEASE-NOTES-v4.3.6.md for everything that changed and what is not yet verified.

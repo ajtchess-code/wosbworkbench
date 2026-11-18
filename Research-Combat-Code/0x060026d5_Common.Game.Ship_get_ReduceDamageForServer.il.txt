@@ -1,0 +1,13 @@
+0001 ldarg.0 
+0002 ldfld Common.Game.Ship::UsedShip token(0x04000FAE)
+0007 callvirt Common.Resources.ShipDynamicInfo::B token(0x06001F8A)
+000c ldarg.0 
+000d call Common.Game.Ship::a token(0x060026EC)
+0012 brtrue.s 27
+0014 ldc.r4 0.0
+0019 br.s 38
+001b ldarg.0 
+001c ldfld Common.Game.Ship::UsedShip token(0x04000FAE)
+0021 callvirt Common.Resources.ShipDynamicInfo::get_ReduceDamageWhenZeroSpeed token(0x06001FEF)
+0026 add 
+0027 ret 

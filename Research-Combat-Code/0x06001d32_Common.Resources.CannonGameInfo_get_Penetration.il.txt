@@ -1,0 +1,12 @@
+000c ldarg.0 
+000d ldfld Common.Resources.CannonGameInfo::Editor_Penetration token(0x04000613)
+0012 stloc.0 
+0013 ldloca.s local(0x0000)
+0015 call System.Nullable`1::get_HasValue token(0x0A000418)
+001a brtrue.s 35
+001c ldarg.0 
+001d ldfld Common.Resources.CannonGameInfo::A token(0x0400062C)
+0022 ret 
+0023 ldloca.s local(0x0000)
+0025 call System.Nullable`1::GetValueOrDefault token(0x0A000419)
+002a ret 

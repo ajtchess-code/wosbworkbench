@@ -1,0 +1,38 @@
+WoSB Workbench v4.0 — complete Windows-buildable source, local Codex, full recovery, and Mechanics Lab
+
+WHAT THIS VERSION DOES
+- Preserves every recovered OBJ triangle up to an explicit resource limit. There is no more random triangle dropping.
+- Correctly keeps separate material spans inside a named mesh object.
+- Loads WoSB ship appearances from local game assets and WOSB-Research-Part-*.zip files.
+- Diagnoses whether a selected ship design matches actual model materials and replacement textures.
+- Lets you inspect candidate collision helpers independently from the visual hull. They are not proven damage zones.
+- Adds camera-directed angle exposure coloring over the real visible triangles. It is not a verified HP-damage heatmap.
+- Keeps the recovered client armor getter and measured-shot research tools separated from hypothetical damage outputs.
+- Hosts a local-only Web Codex with game artwork, shipyard browse, ship pages, charts, wiki articles and Mechanics Lab.
+- Full Recovery scans a selected client and produces resume checkpoints plus 45 MB or smaller review-only ZIPs.
+- Keeps a targeted index of candidate combat, sailing and protocol methods for future code research.
+
+QUICK USE
+1. Extract the complete source ZIP in a normal folder outside the game install.
+2. Run Build-Windows.cmd to build the desktop .exe on Windows (Python 3.13; Inno Setup 6 optional).
+3. Launch dist\WoSBWorkbench\WoSBWorkbench.exe. Press 'Recover Everything' in Full Recovery.
+4. Open Ship 3D, select a recovered full-resolution OBJ, and point the game asset selector to your local game Data directory or to the folder holding the 36 research ZIPs.
+5. Use 'Open local Web Wiki & Shipyard' on the Overview screen to open the local Codex in your browser.
+6. You may run Open-Local-WoSB-Codex.cmd without compiling the desktop app if Python 3.13 is installed. It uses your saved catalog when available, or the bundled starter catalog.
+7. When the recovery finishes, look under Review-For-Analysis for small WoSB-Review-Part-*.zip files with decoder failures and missing associations. Send those for investigation; don't re-upload the full recovered textures.
+
+IMPORTANT EVIDENCE BOUNDARIES
+- A visual mesh, an AverageBox mesh or an XNB 'Hitbox' label is not proof of the game's authoritative projectile collision volume.
+- Static client-code getters establish some input calculations, such as armor; they do not establish final server-authoritative HP damage or ricochet.
+- The shipyard uses actual recovered game artwork but unlock connections and numeric ship icon associations are not verified as the exact in-game tree.
+- The camera-directed map shows geometry exposure; directional hull HP multipliers and mortar/barrel outcomes remain unknown.
+- Gameplay protocol and the future server emulator remain research-stage. No official authentication, encrypted server data, or game-server behavior is emulated.
+- Full Recovery is read-only against the installed game and should be run with enough free disk space to retain optional raw assets.
+
+TESTING PERFORMED
+- Python unit tests including geometry, material changes, wiki page generation, review ZIPs, and evidence registry.
+- 8 uploaded original XNB samples decompressed, decoded to OBJ, and reimported without triangle loss.
+- Local wiki routes and APIs served over HTTP loopback in this environment.
+- The Windows PyInstaller/Inno executable and full client scan were not run in this Linux environment.
+
+For a complete change list, read RELEASE-NOTES-v4.0.md.

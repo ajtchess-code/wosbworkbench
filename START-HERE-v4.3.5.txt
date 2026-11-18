@@ -1,0 +1,31 @@
+WoSB Workbench v4.3.5 — COMPLETE SOURCE + WINDOWS BUILDER
+========================================================
+
+This source update builds on v4.3.4 (which already included v4.3.2 and v4.3.3).
+The ZIP is not a precompiled Windows installer or Workbench updater.
+
+FIRST: Read RELEASE-NOTES-v4.3.5.md and FEATURE-STATUS-50-v4.3.5.md.
+
+WINDOWS INSTALL/UPDATE
+  1. Unzip this complete source archive to a normal writable directory.
+  2. Install Python 3.13 (including tkinter) if not already installed.
+  3. Double-click Build-Update.cmd (compiles executable and updater ZIP).
+  4. From an installed Workbench, use Updates -> Choose update ZIP and select
+     dist\WoSBWorkbench-4.3.5-Update.zip (NOT this source ZIP).
+  5. Alternatively run the produced portable executable; install Inno Setup 6
+     before building if you want Setup.exe.
+
+NEW GUI
+  Advanced Research -> audit recovered OBJ, recovery ledger, PCAP, catalog;
+  create measured HP trials; export experiment evidence. Evidence confidence
+  remains visible; the project does not claim official damage formulas.
+
+COMMAND LINE
+  py -3.13 advanced_research_cli.py --help
+  py -3.13 -m unittest discover -s tests -q
+
+SYSTEM SAFETY
+  Original game installation is read only, local research is opt-in.
+  Release source does not include compiled game effects or packet payloads.
+  Source tree has been checked on Linux/Python 3.13. Windows build and live
+  game GPU parity/capture tests are still needed before broad release.

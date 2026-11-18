@@ -1,0 +1,26 @@
+{
+  "title": "Vasa XNB recovered geometry \u2014 v3.6 proof of concept",
+  "source": "User-uploaded WoSB-Ship-Model-Debug-Samples.zip / Ship_62_Vasa.xnb",
+  "model_sha256": "ac892c5186354a2d7c12cb28ffad604e32c813f82ad89886d5345d5e26a550c0",
+  "payload_bytes": 5004353,
+  "model": "Ship_62_Vasa",
+  "linked_catalog": {
+    "ShipsToPlay.ID": 70,
+    "ShipsToPlay.StaticInfoID": 62,
+    "ShipsBasics.ID": 62,
+    "ShipsBasics.ModelName": "Ship_62_Vasa"
+  },
+  "bones": 40,
+  "meshes": 39,
+  "mesh_parts": 93,
+  "vertices": 168474,
+  "indices": 465498,
+  "triangles": 155166,
+  "obj_sha256": "ef7b5abe45e32da11e7ccc62723d25640592e0c4142fde90c7f1b42a645656c9",
+  "limitations": [
+    "Full mesh structure recovered; UV textures/materials not exported.",
+    "Bone transforms need visual confirmation on Windows.",
+    "Mesh named Hitbox is not proof of damage multiplier or physical collision volume.",
+    "Live server damage, fire and sailing mechanics are not established by geometry alone."
+  ]
+}

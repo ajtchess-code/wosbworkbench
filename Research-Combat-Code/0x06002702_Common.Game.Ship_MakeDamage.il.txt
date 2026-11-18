@@ -1,0 +1,379 @@
+000c ldarg.1 
+000d ldfld Common.Game.DamageData::HealthDamage token(0x04000E7A)
+0012 ldc.r4 0.0
+0017 blt.s 64
+0019 ldarg.1 
+001a ldfld Common.Game.DamageData::UDamageToSailes token(0x04000E82)
+001f ldc.r4 0.0
+0024 blt.s 64
+0026 ldarg.1 
+0027 ldfld Common.Game.DamageData::HealthDamage token(0x04000E7A)
+002c call System.Single::IsNaN token(0x0A0000B7)
+0031 brtrue.s 64
+0033 ldarg.1 
+0034 ldfld Common.Game.DamageData::UDamageToSailes token(0x04000E82)
+0039 call System.Single::IsNaN token(0x0A0000B7)
+003e brfalse.s 70
+0040 newobj System.ArgumentException::.ctor token(0x0A0006DC)
+0045 throw 
+0046 ldarg.0 
+0047 call Common.Game.Ship::get_IsDestroyed token(0x060026CD)
+004c brfalse.s 79
+004e ret 
+004f ldarg.0 
+0050 ldfld Common.Game.Ship::MapInfo token(0x04000FAC)
+0055 ldfld Common.Resources.WorldMapInfo::IsEducationMap token(0x040009CD)
+005a brfalse.s 131
+005c ldarg.0 
+005d isinst ::Player token(0x02000237)
+0062 brfalse.s 131
+0064 ldarg.0 
+0065 ldfld Common.Game.Ship::UsedShip token(0x04000FAE)
+006a ldfld Common.Resources.ShipDynamicInfo::A token(0x04000848)
+006f ldarg.1 
+0070 ldfld Common.Game.DamageData::HealthDamage token(0x04000E7A)
+0075 ldc.r4 1.5
+007a div 
+007b callvirt Common.Game.ShipFirstHp::Damage token(0x06002747)
+0080 pop 
+0081 br.s 226
+0083 ldarg.0 
+0084 ldfld Common.Game.Ship::MapInfo token(0x04000FAC)
+0089 ldfld Common.Resources.WorldMapInfo::IsEducationMap token(0x040009CD)
+008e brfalse.s 203
+0090 ldarg.1 
+0091 ldfld Common.Game.DamageData::Flags token(0x04000E7D)
+0096 box ::SpecificDamageFlags token(0x0200020B)
+009b ldc.i4 1024
+00a0 box ::SpecificDamageFlags token(0x0200020B)
+00a5 call System.Enum::HasFlag token(0x0A00068D)
+00aa brfalse.s 203
+00ac ldarg.0 
+00ad ldfld Common.Game.Ship::UsedShip token(0x04000FAE)
+00b2 ldfld Common.Resources.ShipDynamicInfo::A token(0x04000848)
+00b7 ldarg.1 
+00b8 ldfld Common.Game.DamageData::HealthDamage token(0x04000E7A)
+00bd ldc.r4 1.2000000476837158
+00c2 mul 
+00c3 callvirt Common.Game.ShipFirstHp::Damage token(0x06002747)
+00c8 pop 
+00c9 br.s 226
+00cb ldarg.0 
+00cc ldfld Common.Game.Ship::UsedShip token(0x04000FAE)
+00d1 ldfld Common.Resources.ShipDynamicInfo::A token(0x04000848)
+00d6 ldarg.1 
+00d7 ldfld Common.Game.DamageData::HealthDamage token(0x04000E7A)
+00dc callvirt Common.Game.ShipFirstHp::Damage token(0x06002747)
+00e1 pop 
+00e2 ldarg.0 
+00e3 ldfld Common.Game.Ship::UsedShip token(0x04000FAE)
+00e8 ldfld Common.Resources.ShipDynamicInfo::A token(0x04000848)
+00ed callvirt Common.Game.ShipFirstHp::get_FloodingFactor token(0x06002739)
+00f2 ldc.r4 0.0
+00f7 ble.un 458
+00fc ldarg.1 
+00fd ldfld Common.Game.DamageData::SourcePawnType token(0x04000E79)
+0102 ldc.i4.4 
+0103 beq 395
+0108 ldarg.1 
+0109 ldfld Common.Game.DamageData::SourcePawnType token(0x04000E79)
+010e ldc.i4.5 
+010f beq 395
+0114 ldarg.1 
+0115 ldfld Common.Game.DamageData::SourcePawnType token(0x04000E79)
+011a ldc.i4.1 
+011b bne.un.s 308
+011d ldarg.0 
+011e ldfld Common.Game.Ship::UsedShip token(0x04000FAE)
+0123 ldfld Common.Resources.ShipDynamicInfo::A token(0x04000848)
+0128 ldfld Common.Game.ShipFirstHp::a token(0x04000FE7)
+012d ldc.r4 0.0
+0132 bgt.s 395
+0134 ldarg.1 
+0135 ldfld Common.Game.DamageData::Flags token(0x04000E7D)
+013a box ::SpecificDamageFlags token(0x0200020B)
+013f ldc.i4 128
+0144 box ::SpecificDamageFlags token(0x0200020B)
+0149 call System.Enum::HasFlag token(0x0A00068D)
+014e brtrue.s 395
+0150 ldarg.1 
+0151 ldfld Common.Game.DamageData::Flags token(0x04000E7D)
+0156 box ::SpecificDamageFlags token(0x0200020B)
+015b ldc.i4 16384
+0160 box ::SpecificDamageFlags token(0x0200020B)
+0165 call System.Enum::HasFlag token(0x0A00068D)
+016a brtrue.s 395
+016c ldarg.0 
+016d ldfld Common.Game.Ship::MapInfo token(0x04000FAC)
+0172 ldfld Common.Resources.WorldMapInfo::IsEducationMap token(0x040009CD)
+0177 brfalse.s 411
+0179 ldarg.0 
+017a ldfld Common.Game.Ship::UsedShip token(0x04000FAE)
+017f callvirt Common.Resources.ShipDynamicInfo::get_MaxHp token(0x06001F6B)
+0184 ldc.r4 500.0
+0189 bge.un.s 411
+018b ldarg.0 
+018c ldfld Common.Game.Ship::UsedShip token(0x04000FAE)
+0191 ldfld Common.Resources.ShipDynamicInfo::A token(0x04000848)
+0196 callvirt Common.Game.ShipFirstHp::A token(0x06002748)
+019b ldarg.1 
+019c ldfld Common.Game.DamageData::SourcePawnType token(0x04000E79)
+01a1 ldc.i4.3 
+01a2 bne.un.s 458
+01a4 ldarg.2 
+01a5 ldc.i4.0 
+01a6 ble.s 458
+01a8 ldarg.0 
+01a9 ldfld Common.Game.Ship::UsedShip token(0x04000FAE)
+01ae ldfld Common.Resources.ShipDynamicInfo::A token(0x04000848)
+01b3 ldarg.1 
+01b4 ldfld Common.Game.DamageData::HealthDamage token(0x04000E7A)
+01b9 ldarg.0 
+01ba ldfld Common.Game.Ship::UsedShip token(0x04000FAE)
+01bf callvirt Common.Resources.ShipDynamicInfo::get_MaxHp token(0x06001F6B)
+01c4 div 
+01c5 callvirt Common.Game.ShipFirstHp::A token(0x06002749)
+01ca ldarg.0 
+01cb ldc.r4 0.0
+01d0 ldarg.0 
+01d1 ldfld Common.Game.Ship::marchModeBonusSpeed token(0x04000FBC)
+01d6 ldarg.1 
+01d7 ldfld Common.Game.DamageData::HealthDamage token(0x04000E7A)
+01dc ldc.r4 1.0
+01e1 ldarg.0 
+01e2 ldfld Common.Game.Ship::UsedShip token(0x04000FAE)
+01e7 ldfld Common.Resources.ShipDynamicInfo::A token(0x04000848)
+01ec ldfld Common.Game.ShipFirstHp::Summary token(0x04000FF1)
+01f1 add 
+01f2 div 
+01f3 ldc.r4 100.0
+01f8 mul 
+01f9 sub 
+01fa ldarg.1 
+01fb ldfld Common.Game.DamageData::UDamageToSailes token(0x04000E82)
+0200 ldc.r4 100.0
+0205 mul 
+0206 sub 
+0207 call System.Math::Max token(0x0A0000AC)
+020c stfld Common.Game.Ship::marchModeBonusSpeed token(0x04000FBC)
+0211 ldarg.1 
+0212 ldfld Common.Game.DamageData::Flags token(0x04000E7D)
+0217 box ::SpecificDamageFlags token(0x0200020B)
+021c ldc.i4.1 
+021d box ::SpecificDamageFlags token(0x0200020B)
+0222 call System.Enum::HasFlag token(0x0A00068D)
+0227 brfalse.s 656
+0229 ldarg.0 
+022a ldfld Common.Game.Ship::UsedShip token(0x04000FAE)
+022f ldfld Common.Resources.ShipDynamicInfo::StaticInfo token(0x04000843)
+0234 ldarg.1 
+0235 ldfld Common.Game.DamageData::CollisionNodeID token(0x04000E7B)
+023a callvirt Common.Resources.ShipStaticInfo::TrySailByNodeId token(0x06001E64)
+023f ldfld Common.Resources.SailHitbox::SailStrengthIndex token(0x0400075A)
+0244 stloc.0 
+0245 ldarg.0 
+0246 ldfld Common.Game.Ship::UsedShip token(0x04000FAE)
+024b ldfld Common.Resources.ShipDynamicInfo::HitboxSailsStrength token(0x0400084C)
+0250 ldloc.0 
+0251 ldc.r4 0.0
+0256 ldarg.0 
+0257 ldfld Common.Game.Ship::UsedShip token(0x04000FAE)
+025c ldfld Common.Resources.ShipDynamicInfo::HitboxSailsStrength token(0x0400084C)
+0261 ldloc.0 
+0262 ldelem.r4 
+0263 ldarg.1 
+0264 ldfld Common.Game.DamageData::UDamageToSailes token(0x04000E82)
+0269 sub 
+026a call System.Math::Max token(0x0A0000AC)
+026f stelem.r4 
+0270 ldarg.0 
+0271 ldfld Common.Game.Ship::UsedShip token(0x04000FAE)
+0276 callvirt Common.Resources.ShipDynamicInfo::HitboxSailsStrengthCacheUpdate token(0x06001F69)
+027b ldarg.0 
+027c ldfld Common.Game.Ship::physicsBody token(0x04000FB2)
+0281 ldc.r4 0.10000000149011612
+0286 callvirt Common.Game.ShipPhysics::B token(0x0600276D)
+028b br 785
+0290 ldarg.1 
+0291 ldfld Common.Game.DamageData::Flags token(0x04000E7D)
+0296 box ::SpecificDamageFlags token(0x0200020B)
+029b ldc.i4 8192
+02a0 box ::SpecificDamageFlags token(0x0200020B)
+02a5 call System.Enum::HasFlag token(0x0A00068D)
+02aa brfalse.s 785
+02ac ldc.i4.0 
+02ad stloc.1 
+02ae br.s 758
+02b0 ldarg.0 
+02b1 ldfld Common.Game.Ship::UsedShip token(0x04000FAE)
+02b6 ldfld Common.Resources.ShipDynamicInfo::HitboxSailsStrength token(0x0400084C)
+02bb ldloc.1 
+02bc ldc.r4 0.0
+02c1 ldarg.0 
+02c2 ldfld Common.Game.Ship::UsedShip token(0x04000FAE)
+02c7 ldfld Common.Resources.ShipDynamicInfo::HitboxSailsStrength token(0x0400084C)
+02cc ldloc.1 
+02cd ldelem.r4 
+02ce ldarg.1 
+02cf ldfld Common.Game.DamageData::UDamageToSailes token(0x04000E82)
+02d4 ldarg.0 
+02d5 ldfld Common.Game.Ship::UsedShip token(0x04000FAE)
+02da ldfld Common.Resources.ShipDynamicInfo::StaticInfo token(0x04000843)
+02df ldloc.1 
+02e0 callvirt Common.Resources.ShipStaticInfo::SailByStr token(0x06001E65)
+02e5 ldfld Common.Resources.SailHitbox::WeigthMul token(0x04000757)
+02ea div 
+02eb sub 
+02ec call System.Math::Max token(0x0A0000AC)
+02f1 stelem.r4 
+02f2 ldloc.1 
+02f3 ldc.i4.1 
+02f4 add 
+02f5 stloc.1 
+02f6 ldloc.1 
+02f7 ldarg.0 
+02f8 ldfld Common.Game.Ship::UsedShip token(0x04000FAE)
+02fd ldfld Common.Resources.ShipDynamicInfo::HitboxSailsStrength token(0x0400084C)
+0302 ldlen 
+0303 conv.i4 
+0304 blt.s 688
+0306 ldarg.0 
+0307 ldfld Common.Game.Ship::UsedShip token(0x04000FAE)
+030c callvirt Common.Resources.ShipDynamicInfo::HitboxSailsStrengthCacheUpdate token(0x06001F69)
+0311 ldarg.1 
+0312 ldfld Common.Game.DamageData::Flags token(0x04000E7D)
+0317 box ::SpecificDamageFlags token(0x0200020B)
+031c ldc.i4 512
+0321 box ::SpecificDamageFlags token(0x0200020B)
+0326 call System.Enum::HasFlag token(0x0A00068D)
+032b brfalse.s 829
+032d ldarg.0 
+032e ldfld Common.Game.Ship::physicsBody token(0x04000FB2)
+0333 ldc.r4 1.0
+0338 callvirt Common.Game.ShipPhysics::B token(0x0600276D)
+033d ldarg.1 
+033e ldfld Common.Game.DamageData::Flags token(0x04000E7D)
+0343 box ::SpecificDamageFlags token(0x0200020B)
+0348 ldc.i4.4 
+0349 box ::SpecificDamageFlags token(0x0200020B)
+034e call System.Enum::HasFlag token(0x0A00068D)
+0353 brfalse.s 875
+0355 ldarg.0 
+0356 ldfld Common.Game.Ship::UsedShip token(0x04000FAE)
+035b ldfld Common.Resources.ShipDynamicInfo::A token(0x04000848)
+0360 ldarg.1 
+0361 ldfld Common.Game.DamageData::UCritCorpusTimeSec token(0x04000E7F)
+0366 stfld Common.Game.ShipFirstHp::B token(0x04000FE8)
+036b ldarg.1 
+036c ldfld Common.Game.DamageData::Flags token(0x04000E7D)
+0371 box ::SpecificDamageFlags token(0x0200020B)
+0376 ldc.i4.s 64
+0378 box ::SpecificDamageFlags token(0x0200020B)
+037d call System.Enum::HasFlag token(0x0A00068D)
+0382 brfalse.s 924
+0384 ldarg.0 
+0385 ldfld Common.Game.Ship::UsedShip token(0x04000FAE)
+038a ldfld Common.Resources.ShipDynamicInfo::A token(0x04000848)
+038f ldarg.0 
+0390 ldarg.1 
+0391 ldfld Common.Game.DamageData::ShipSpaceCollisionPoint token(0x04000E7C)
+0396 ldarg.2 
+0397 callvirt Common.Game.ShipFirstHp::CreateMicroburning token(0x06002750)
+039c ldarg.1 
+039d ldfld Common.Game.DamageData::Flags token(0x04000E7D)
+03a2 box ::SpecificDamageFlags token(0x0200020B)
+03a7 ldc.i4.s 16
+03a9 box ::SpecificDamageFlags token(0x0200020B)
+03ae call System.Enum::HasFlag token(0x0A00068D)
+03b3 brfalse.s 978
+03b5 ldarg.0 
+03b6 ldarg.2 
+03b7 stfld Common.Game.Ship::burningSourceUID token(0x04000FB8)
+03bc ldarg.0 
+03bd ldfld Common.Game.Ship::UsedShip token(0x04000FAE)
+03c2 ldfld Common.Resources.ShipDynamicInfo::A token(0x04000848)
+03c7 ldarg.1 
+03c8 ldfld Common.Game.DamageData::UBurningType token(0x04000E7E)
+03cd callvirt Common.Game.ShipFirstHp::A token(0x0600274D)
+03d2 ldarg.1 
+03d3 ldfld Common.Game.DamageData::Flags token(0x04000E7D)
+03d8 box ::SpecificDamageFlags token(0x0200020B)
+03dd ldc.i4 256
+03e2 box ::SpecificDamageFlags token(0x0200020B)
+03e7 call System.Enum::HasFlag token(0x0A00068D)
+03ec brfalse.s 1084
+03ee newobj Common.Game.GSI::.ctor token(0x06002832)
+03f3 stloc.2 
+03f4 ldc.i4.0 
+03f5 stloc.3 
+03f6 br.s 1052
+03f8 ldloc.2 
+03f9 ldarg.1 
+03fa ldfld Common.Game.DamageData::CrewDamage token(0x04000E80)
+03ff ldloc.3 
+0400 ldelem.u1 
+0401 stloc.s local(0x0004)
+0403 dup 
+0404 ldloc.s local(0x0004)
+0406 callvirt Common.Game.GSI::get_Item token(0x06002836)
+040b stloc.s local(0x0005)
+040d ldloc.s local(0x0004)
+040f ldloc.s local(0x0005)
+0411 ldc.i4.1 
+0412 add 
+0413 callvirt Common.Game.GSI::set_Item token(0x06002837)
+0418 ldloc.3 
+0419 ldc.i4.1 
+041a add 
+041b stloc.3 
+041c ldloc.3 
+041d ldarg.1 
+041e ldfld Common.Game.DamageData::CrewDamage token(0x04000E80)
+0423 ldlen 
+0424 conv.i4 
+0425 blt.s 1016
+0427 ldarg.0 
+0428 ldfld Common.Game.Ship::UsedShip token(0x04000FAE)
+042d ldfld Common.Resources.ShipDynamicInfo::Crew token(0x04000847)
+0432 ldloc.2 
+0433 ldc.i4.1 
+0434 ldloca.s local(0x0005)
+0436 callvirt Common.Game.UnitCollection::Remove token(0x060025F3)
+043b pop 
+043c ldarg.1 
+043d ldfld Common.Game.DamageData::Flags token(0x04000E7D)
+0442 box ::SpecificDamageFlags token(0x0200020B)
+0447 ldc.i4.8 
+0448 box ::SpecificDamageFlags token(0x0200020B)
+044d call System.Enum::HasFlag token(0x0A00068D)
+0452 brfalse.s 1132
+0454 ldarg.0 
+0455 ldfld Common.Game.Ship::UsedShip token(0x04000FAE)
+045a ldfld Common.Resources.ShipDynamicInfo::Cannons token(0x0400084A)
+045f ldarg.1 
+0460 ldfld Common.Game.DamageData::UCritCannon token(0x04000E81)
+0465 ldc.i4.0 
+0466 callvirt Common.Game.CannonCollection::MakeBroken token(0x06002575)
+046b pop 
+046c ldarg.0 
+046d ldfld Common.Game.Ship::UsedShip token(0x04000FAE)
+0472 ldarg.0 
+0473 ldfld Common.Game.Ship::UsedShip token(0x04000FAE)
+0478 callvirt Common.Resources.ShipDynamicInfo::get_HpFactor token(0x06001F64)
+047d stfld Common.Resources.ShipDynamicInfo::hpFactorCached token(0x0400084B)
+0482 ldarg.0 
+0483 call Common.Game.Ship::get_IsDestroyed token(0x060026CD)
+0488 brfalse.s 1203
+048a ldarg.1 
+048b ldfld Common.Game.DamageData::Flags token(0x04000E7D)
+0490 box ::SpecificDamageFlags token(0x0200020B)
+0495 ldc.i4 16384
+049a box ::SpecificDamageFlags token(0x0200020B)
+049f call System.Enum::HasFlag token(0x0A00068D)
+04a4 brfalse.s 1197
+04a6 ldarg.0 
+04a7 ldc.i4.1 
+04a8 stfld Common.Game.Ship::KilledByFireworks token(0x04000FB4)
+04ad ldarg.0 
+04ae callvirt Common.Game.Ship::DestroyCallback token(0x0600270B)
+04b3 ret 

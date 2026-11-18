@@ -1,0 +1,32 @@
+WoSB Workbench v4.3.4 — Compiled Effects Research + Damage Hypotheses
+=====================================================================
+
+This is the complete SOURCE + Windows builder, not a precompiled installer.
+
+INSTALL / UPDATE
+1) Extract this ZIP to a writable Windows folder.
+2) Run Build-Update.cmd (Python 3.13 required for building only).
+3) In your current Workbench, Updates -> choose:
+   dist\WoSBWorkbench-4.3.4-Update.zip
+4) Restart the Workbench when the offline updater completes.
+
+SHADERS / SHIP RENDERING
+1) In Discovery Center, choose Inspect compiled shaders.
+2) Select C:\Games\World of Sea Battle\default\game (or your actual client).
+3) Inspect the generated Shader-Audit.json and CompiledEffects folder.
+4) For default ship and equipped designs, continue testing Ship 3D's
+   Appearance-Diagnostics.json exports from v4.3.3.
+
+DAMAGE HYPOTHESES
+1) Mechanics Lab -> Combat damage hypotheses.
+2) Select cannon/ammo, enter target armor, impact angle, and number of hits.
+3) Compare hard-threshold vs smooth-transfer behavior. Their equations are
+   HYPOTHESES, not WoSB's confirmed HP damage formula.
+4) For real calibration, collect target pre/post HP for 3 or more controlled
+   single-shot trials per ship, weapon, region, range and angle.
+
+IMPORTANT
+This version does not deliver original WoSB Direct3D/XNA shader behavior or
+an exact damage prediction. Native shader decoding/parity needs real compiled
+shader output and an inspection of client effect bindings. Packet timing is
+not decoded hit damage, and named helper meshes are not proven hitboxes.

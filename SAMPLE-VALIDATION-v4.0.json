@@ -1,0 +1,110 @@
+{
+  "samples": [
+    {
+      "sample": "sample-01.xnb",
+      "source": "default/game/CommonData/Models/Ships/Ship_58_Hurakan.xnb",
+      "sha256": "5a75a92b75c065ad96fa8840292798e3ef548dc4845dbea868a34b4f21e9cae6",
+      "raw_bytes": 2819958,
+      "payload_bytes": 7743087,
+      "decoder": "libarchive",
+      "triangles": 245554,
+      "mesh_parts": 129,
+      "uv_exported": true,
+      "viewer_triangles": 245554,
+      "face_loss": false
+    },
+    {
+      "sample": "sample-02.xnb",
+      "source": "default/game/CommonData/Models/Ships/Megaship1.xnb",
+      "sha256": "522656bc45eb9d768ee51f696d3cdb5c672af70b188afb8616967a676e776e12",
+      "raw_bytes": 989528,
+      "payload_bytes": 3279491,
+      "decoder": "libarchive",
+      "triangles": 74672,
+      "mesh_parts": 54,
+      "uv_exported": true,
+      "viewer_triangles": 74672,
+      "face_loss": false
+    },
+    {
+      "sample": "sample-03.xnb",
+      "source": "default/game/CommonData/Models/Ships/Megaship2.xnb",
+      "sha256": "f95cd5876f9215e7c5932ed1da3d415b4bfda3db15bebbc11c45b7c89d051e94",
+      "raw_bytes": 895938,
+      "payload_bytes": 2648477,
+      "decoder": "libarchive",
+      "triangles": 71606,
+      "mesh_parts": 98,
+      "uv_exported": true,
+      "viewer_triangles": 71606,
+      "face_loss": false
+    },
+    {
+      "sample": "sample-04.xnb",
+      "source": "default/game/CommonData/Models/Ships/Ship_10_FR_russia.xnb",
+      "sha256": "00d44c9f523ae3e7d53fb44c34712de1fe719777174bae157caf016592a4845e",
+      "raw_bytes": 2375650,
+      "payload_bytes": 5406919,
+      "decoder": "libarchive",
+      "triangles": 161141,
+      "mesh_parts": 93,
+      "uv_exported": true,
+      "viewer_triangles": 161141,
+      "face_loss": false
+    },
+    {
+      "sample": "sample-05.xnb",
+      "source": "default/game/CommonData/Models/Ships/Ship_11_essex.xnb",
+      "sha256": "56a84c45896e52efea0e71314784b015be82634047adca28a1995ea658d17d40",
+      "raw_bytes": 2364836,
+      "payload_bytes": 5324184,
+      "decoder": "libarchive",
+      "triangles": 166225,
+      "mesh_parts": 94,
+      "uv_exported": true,
+      "viewer_triangles": 166225,
+      "face_loss": false
+    },
+    {
+      "sample": "sample-06.xnb",
+      "source": "default/game/CommonData/Models/Ships/Ship_12_black_prince.xnb",
+      "sha256": "ee908db36328c65b88c4805773f7a215d093e48fe51ea2607f4b590ff03f24bd",
+      "raw_bytes": 1776448,
+      "payload_bytes": 4668455,
+      "decoder": "libarchive",
+      "triangles": 133898,
+      "mesh_parts": 83,
+      "uv_exported": true,
+      "viewer_triangles": 133898,
+      "face_loss": false
+    },
+    {
+      "sample": "sample-07.xnb",
+      "source": "default/game/CommonData/Models/Ships/Ship_13_tartana.xnb",
+      "sha256": "92953186a78814278d92576694554706b916032e440ea859e7e2eefbb8b19797",
+      "raw_bytes": 660732,
+      "payload_bytes": 1628140,
+      "decoder": "libarchive",
+      "triangles": 52651,
+      "mesh_parts": 53,
+      "uv_exported": true,
+      "viewer_triangles": 52651,
+      "face_loss": false
+    },
+    {
+      "sample": "sample-08.xnb",
+      "source": "default/game/CommonData/Models/Ships/Ship_14_devourer.xnb",
+      "sha256": "7284fc0cea1b51db816bcafb94f2f64e850298c90ff0363361109dd02e7187b8",
+      "raw_bytes": 2014316,
+      "payload_bytes": 4860569,
+      "decoder": "libarchive",
+      "triangles": 152618,
+      "mesh_parts": 99,
+      "uv_exported": true,
+      "viewer_triangles": 152618,
+      "face_loss": false
+    }
+  ],
+  "scope": "Only the 8 original ship samples supplied by the user",
+  "note": "Successful geometric decode does not establish original game shaders, collision semantics, animation fidelity or damage formula."
+}

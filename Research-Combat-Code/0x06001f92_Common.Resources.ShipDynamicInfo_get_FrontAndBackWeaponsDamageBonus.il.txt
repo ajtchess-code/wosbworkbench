@@ -1,0 +1,5 @@
+0001 ldarg.0 
+0002 ldc.i4.s 32
+0004 ldc.i4.1 
+0005 callvirt Common.Resources.ShipDynamicInfo::GetBonus token(0x06001FFD)
+000a ret 

@@ -1,0 +1,12 @@
+0001 ldarg.0 
+0002 ldc.i4.3 
+0003 bge.s 20
+0005 ldc.r4 1.0
+000a ldc.r4 1.0
+000f ldarg.0 
+0010 conv.r4 
+0011 add 
+0012 div 
+0013 ret 
+0014 ldc.r4 0.0
+0019 ret 

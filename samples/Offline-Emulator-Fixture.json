@@ -1,0 +1,14 @@
+{
+  "format": "wosb-local-research-fixture-v1",
+  "tick_seconds": 0.2,
+  "vessels": [
+    {"id": "test-vasa", "name": "Vasa", "max_hp": 4000, "x": 0, "z": 0, "heading_deg": 0},
+    {"id": "test-target", "name": "Dummy target", "max_hp": 1500, "x": 100, "z": 0, "heading_deg": 180}
+  ],
+  "events": [
+    {"action": "controls", "id": "test-vasa", "speed": 3, "heading_deg": 0, "sails": 0.8},
+    {"action": "step", "ticks": 50},
+    {"action": "observed_damage", "id": "test-target", "damage": 100, "source": "test_fixture"}
+  ],
+  "limitations": "Idealized constant speed; recorded damage only; no official WoSB networking or physics."
+}

@@ -1,0 +1,43 @@
+WoSB Workbench v4.2 — Gameplay Capture Studio
+===========================================
+
+1) Extract this source ZIP. On Windows with Python 3.13, run Build-Windows.cmd
+   to compile the real EXE and updater-compatible ZIP.
+2) The SOURCE ZIP is not an installed app or updater. The builder creates
+   dist\WoSBWorkbench\WoSBWorkbench.exe and dist\WoSBWorkbench-4.2.0-Update.zip.
+3) To record gameplay: install FFmpeg (ffmpeg.exe on PATH), and Wireshark with
+   TShark/Npcap. No pip package is needed for recording from the compiled app.
+4) Connect WorldOfSeaBattleClient to the game. In Workbench open
+   More research tools → Network Research Lab → Gameplay Capture Studio.
+   Click List Wireshark interfaces; enter your adapter number. Click Detect game.
+   Leave port 23771 if still verified, or enter a verified game TCP port.
+5) Video source: desktop (includes whole monitor; may include private information)
+   or the exact game WINDOW TITLE if FFmpeg gdigrab supports it on your system.
+   Borderless-window game display is recommended for a visible overlay.
+6) Start video + game packets. Allow the tools to record; use overlay buttons
+   or Ctrl+Alt+F1–F8 shortcuts when they are available:
+      F1 single shot, F2 broadside, F3 stern, F4 side,
+      F5 sails, F6 target sunk, F7 visual sync flash, F8 hit.
+   Read/mark target health using the HP reading button and optional note field.
+7) Stop & analyze. Recording stays locally in
+   %LOCALAPPDATA%\WoSBWorkbench\GameplaySessions\WoSB-YYYYMMDD-HHMMSS.
+   Save a 'Review-only ZIP': it contains timing metadata and markers, NOT
+   raw packet payloads, raw PCAP, or original video.
+8) For video evidence of HP changes, click Create short video clips. This is
+   EXPLICIT opt-in. Review clips for chat, names, login and personal data before
+   uploading. Use Sync flash seen on video to calibrate the Video sync correction.
+9) In Mechanics Lab click Shot CSV template to record controlled actual HP losses.
+   Open Measured HP atlas to see evidence-only heatmaps by impact area and angle.
+   Untested cells are grey and different shot types/ranges are kept separate.
+10) In Ship 3D use Compare with actual in-game screenshot to create a visual
+    discrepancy image. Align game/viewer camera, zoom, lighting first.
+
+The previous recovery data, local Codex articles and v4.1 files are preserved
+under %LOCALAPPDATA%\WoSBWorkbench. Neither screen recording nor packet
+capture starts automatically. Raw video/PCAP are private and may contain
+sensitive material. Avoid recording anything you are not authorized to record.
+
+CURRENT LIMITS: Windows FFmpeg/TShark live workflow is not verified in this Linux
+build environment. No exact proprietary shader reconstruction, game-certified
+collision volumes, server HP/penetration/ricochet formula, or playable emulator
+is claimed. Packet timing cannot identify messages or HP loss by itself.

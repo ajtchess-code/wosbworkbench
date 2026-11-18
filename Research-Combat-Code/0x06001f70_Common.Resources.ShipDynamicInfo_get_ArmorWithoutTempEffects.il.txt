@@ -1,0 +1,15 @@
+0001 ldarg.0 
+0002 callvirt Common.Resources.ShipDynamicInfo::get_BasicArmor token(0x06001FF2)
+0007 ldc.r4 1.0
+000c ldarg.0 
+000d ldc.i4.5 
+000e ldc.i4.0 
+000f callvirt Common.Resources.ShipDynamicInfo::GetBonus token(0x06001FFD)
+0014 add 
+0015 mul 
+0016 ldarg.0 
+0017 ldc.i4.s 13
+0019 ldc.i4.0 
+001a callvirt Common.Resources.ShipDynamicInfo::GetBonus token(0x06001FFD)
+001f add 
+0020 ret 

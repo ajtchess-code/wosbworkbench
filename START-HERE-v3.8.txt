@@ -1,0 +1,13 @@
+WoSB Workbench v3.8.0 — complete editable source, Windows builder
+
+1. Extract this ZIP to a new folder.
+2. Open the WoSB-Workbench-v3.8 directory.
+3. On Windows 11 with Python 3.13 installed, run Build-Windows.cmd.
+4. Built app: dist\WoSBWorkbench\WoSBWorkbench.exe
+5. If Inno Setup 6 is installed, the Setup.exe will appear under dist\Installer.
+6. Build-Update.cmd makes dist\WoSBWorkbench-3.8.0-Update.zip for the existing Workbench updater.
+7. Preserve or back up %%LOCALAPPDATA%%\WoSBWorkbench before wiping old app data.
+8. Recover the original ship XNB again using v3.8 to add UV texture coordinates to the OBJ.
+9. In Ship 3D choose a ship/OBJ, optionally choose a local texture image or XNB, and open the visualizer.
+
+Limitations: source ZIP is not a precompiled Windows executable. Renderer supports source-derived geometry and user-selected texture; no complete original material mapping or verified server damage formula yet. A numerical HP result is provided only from user-supplied calibration.

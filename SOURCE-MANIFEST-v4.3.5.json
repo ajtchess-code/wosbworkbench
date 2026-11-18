@@ -1,0 +1,1458 @@
+{
+  "format": "wosb-source-manifest-v1",
+  "version": "4.3.5",
+  "generated_utc": "2026-11-18T17:19:26+00:00",
+  "files": [
+    {
+      "path": ".github/workflows/windows-build.yml",
+      "sha256": "5968f3114424a5834c9034d3048ea8b233b56adac12c82b88fb0b5f294f173f1",
+      "bytes": 875
+    },
+    {
+      "path": "AUDIT-RESULTS-v4.3.1.md",
+      "sha256": "6f89d17abb5f99b1dc4254ee644ad6bf640a35d47f5ca39df832410322f71a83",
+      "bytes": 4794
+    },
+    {
+      "path": "Build-Update.cmd",
+      "sha256": "e7dc72e1bf492efeae7f2515502fd11d4e93527427ee39f54e04492508e9527d",
+      "bytes": 471
+    },
+    {
+      "path": "Build-Windows.cmd",
+      "sha256": "e42310131c8746d887ef5c17d975d4252e15718e11323a69316ba76cccbe1f99",
+      "bytes": 548
+    },
+    {
+      "path": "Check-Setup.cmd",
+      "sha256": "cd8c0e78524025d1841bcee72f58bd83ea6f88bbebe536fc71d6a7f2b11879b7",
+      "bytes": 157
+    },
+    {
+      "path": "Estimate-Damage-Hypotheses.cmd",
+      "sha256": "115ca035c37589fc0ed6175e58d9351569a2427962684a21135d1104387d3636",
+      "bytes": 400
+    },
+    {
+      "path": "FEATURE-STATUS-50-v4.3.5.md",
+      "sha256": "2dfece07701496ff165dfbcf1539ea6c37e954857329c750c8b3eed2c9390000",
+      "bytes": 7629
+    },
+    {
+      "path": "IMPLEMENTATION-HANDOFF-v4.3.5.md",
+      "sha256": "78eef77a1760a7ddced361760962dcacd83a6ad0a08716ad32478228c1878f10",
+      "bytes": 2068
+    },
+    {
+      "path": "Inspect-Game-Shaders.cmd",
+      "sha256": "f6e3ee8ff86a75219276ec60ac6f0f668d9f5d6d6f7822170031a74f000d43cf",
+      "bytes": 550
+    },
+    {
+      "path": "Install-Dependencies.cmd",
+      "sha256": "ecf246bf70017de4b63965964e68c527325875f45ed8c2bb0cf86a1a5b4b20e4",
+      "bytes": 171
+    },
+    {
+      "path": "Open-Local-WoSB-Codex.cmd",
+      "sha256": "1b74408b81eda2b5f7c1161468ed384efe6c1bf3edb831c71bc41bf8bd510cdf",
+      "bytes": 218
+    },
+    {
+      "path": "README-Visual-Layers-and-Damage.md",
+      "sha256": "e0d564a2a26367c257b837facf981ea1bf330d4237cd94cae551132a3e4bcb1f",
+      "bytes": 2918
+    },
+    {
+      "path": "README.md",
+      "sha256": "7db1e85c3feeac814f045eb942c4c2c468fb0137b687f54f5893cd1c4ba11441",
+      "bytes": 10242
+    },
+    {
+      "path": "RELEASE-NOTES-v3.10.md",
+      "sha256": "9cee0f0d9f38719f55e0d2b81b1ee09952b409c92067925652313f464abc00ed",
+      "bytes": 6456
+    },
+    {
+      "path": "RELEASE-NOTES-v3.3.md",
+      "sha256": "03f880a26776a9cf172162bbf70c3d81be06ebdfd59d2739414fee93620e665b",
+      "bytes": 1501
+    },
+    {
+      "path": "RELEASE-NOTES-v3.4.md",
+      "sha256": "2b84ac1272f36057ee2fc648bb6ac5ef5a938f55748ca57c5a3d3f4807db16cf",
+      "bytes": 4298
+    },
+    {
+      "path": "RELEASE-NOTES-v3.5.md",
+      "sha256": "85041b2808500abb492ba81a0426813a8261ddc694bb18eab39733431cf62a09",
+      "bytes": 3827
+    },
+    {
+      "path": "RELEASE-NOTES-v3.6.md",
+      "sha256": "05e3e7721a5ca85e87817c87faa4e428ea2279acca2965560e264f9bbbab50f6",
+      "bytes": 4616
+    },
+    {
+      "path": "RELEASE-NOTES-v3.7.1.md",
+      "sha256": "eab75dd87809c902fcde5e013f965130522cc209a89f70160346ebc3e1d0b48e",
+      "bytes": 1952
+    },
+    {
+      "path": "RELEASE-NOTES-v3.7.md",
+      "sha256": "bbc9ef55012cb99c5704ae576644c1d472cba5e3b50c975bfa7928b8e5bb152d",
+      "bytes": 1485
+    },
+    {
+      "path": "RELEASE-NOTES-v3.8.md",
+      "sha256": "6042facf15be1be93e68ce72e852f3bf79fc10c130b60ade9a2bb5c1f26b60ba",
+      "bytes": 3663
+    },
+    {
+      "path": "RELEASE-NOTES-v3.9.md",
+      "sha256": "dcea803c3331c352350bbbf97ba9819856904008af666e1b5d823cc5c1e8ac38",
+      "bytes": 1300
+    },
+    {
+      "path": "RELEASE-NOTES-v4.0.md",
+      "sha256": "50cf99eb910ba25d3c00b02ed82a036480fccd273100dcc7a0c244cd809e5f55",
+      "bytes": 5741
+    },
+    {
+      "path": "RELEASE-NOTES-v4.1.md",
+      "sha256": "a765cbd6369a6863bd9169bc889a4b6dce9ae5d07ed3f83e61ddae36d9defa58",
+      "bytes": 5238
+    },
+    {
+      "path": "RELEASE-NOTES-v4.2.md",
+      "sha256": "a8f7beea1e2392f98d46a667556327ebe8c10fe503a6706f79545ce8279fe0fa",
+      "bytes": 5180
+    },
+    {
+      "path": "RELEASE-NOTES-v4.3.1.md",
+      "sha256": "57690e2b967c7261c2b8f1319f5540f893789f7a986647628e6933038f074b68",
+      "bytes": 2166
+    },
+    {
+      "path": "RELEASE-NOTES-v4.3.2.md",
+      "sha256": "67390a5ce1c8419366c976d76eb9df691680dccad0003219e54117d997ca9293",
+      "bytes": 3968
+    },
+    {
+      "path": "RELEASE-NOTES-v4.3.3.md",
+      "sha256": "50ee60eb3f8d01f192c54f665b0276f3dce6b78234f745d7e24c75fec92ab833",
+      "bytes": 2989
+    },
+    {
+      "path": "RELEASE-NOTES-v4.3.4.md",
+      "sha256": "5846247e955535cda55370a05f3ff1d6aa53920595923368248fe7f2383fd716",
+      "bytes": 4606
+    },
+    {
+      "path": "RELEASE-NOTES-v4.3.5.md",
+      "sha256": "e9d11c340d5b061d5bd82ef523a6171404fe9f11746c6bb1524e8c0cb7b737d1",
+      "bytes": 6462
+    },
+    {
+      "path": "RELEASE-NOTES-v4.3.md",
+      "sha256": "cf992aac951fd630be1cd4d54f989cb81fe23b15d972040de253391648d9ec87",
+      "bytes": 9321
+    },
+    {
+      "path": "Recheck-Decoders-Only.cmd",
+      "sha256": "1678c4678ebc28f82686ffeabda074bfe31f66161d47bf9c06211d7bcd6eadcb",
+      "bytes": 629
+    },
+    {
+      "path": "Recover-All-Clients.cmd",
+      "sha256": "173156939b9fe968494e401ed885ca8e6a8f61de3725d3764fd96ff7e03ef5b9",
+      "bytes": 332
+    },
+    {
+      "path": "Research-Ballistics-Catalog.json",
+      "sha256": "962f6646490eda688f336e81c346b67e96e8c7c56a44236a12b42b0188bed18f",
+      "bytes": 160894
+    },
+    {
+      "path": "Research-Combat-Code/0x06001d32_Common.Resources.CannonGameInfo_get_Penetration.il.txt",
+      "sha256": "b82d8d8f245e592d16c7220293bd5107faed52db7d73abea989c7d41ef9ae451",
+      "bytes": 415
+    },
+    {
+      "path": "Research-Combat-Code/0x06001ee8_Common.Resources.PlayerShipDynamicInfo_get_BasicArmor.il.txt",
+      "sha256": "c53dafcb2c8334a28c4128056e10954942dd7f5cbf4f80590a99ee24338a149d",
+      "bytes": 322
+    },
+    {
+      "path": "Research-Combat-Code/0x06001f6f_Common.Resources.ShipDynamicInfo_get_Armor.il.txt",
+      "sha256": "61ec15146cbdde9aadc3528bcd8ce41446d873c305c6727534cdfa812f3ceccd",
+      "bytes": 404
+    },
+    {
+      "path": "Research-Combat-Code/0x06001f70_Common.Resources.ShipDynamicInfo_get_ArmorWithoutTempEffects.il.txt",
+      "sha256": "927f6373e6e51e1dc748b92aba05d63cb6589736e587dfd361696088011cf71c",
+      "bytes": 404
+    },
+    {
+      "path": "Research-Combat-Code/0x06001f7c_Common.Resources.ShipDynamicInfo_get_WeaponPenetrationBonus.il.txt",
+      "sha256": "a75ef22d2e878285846ea8b78a0362fd9d04321fd3b8405854662767d191dbe8",
+      "bytes": 134
+    },
+    {
+      "path": "Research-Combat-Code/0x06001f92_Common.Resources.ShipDynamicInfo_get_FrontAndBackWeaponsDamageBonus.il.txt",
+      "sha256": "574957e89f4b5c7109efdb9e390c71af666fe56d4c153a71fa0b5170497953a1",
+      "bytes": 134
+    },
+    {
+      "path": "Research-Combat-Code/0x06001f95_Common.Resources.ShipDynamicInfo_get_ReduceDamageToNose.il.txt",
+      "sha256": "1d3a6b742b4d0b45193efd87e79e1718af91829e4f6cc2618c03277a6cfa0ae0",
+      "bytes": 134
+    },
+    {
+      "path": "Research-Combat-Code/0x06002533_Common.Game.CannonBall_SailDamageEnergy.il.txt",
+      "sha256": "174173b728842c6963d7a665f272a394e1ec6a277831d3a083d04edbfae9a192",
+      "bytes": 169
+    },
+    {
+      "path": "Research-Combat-Code/0x060026d5_Common.Game.Ship_get_ReduceDamageForServer.il.txt",
+      "sha256": "d701d46d8b0f6a862e3d097d54fc0bf5137a3b974a0e1c88393d95e79240faa0",
+      "bytes": 443
+    },
+    {
+      "path": "Research-Combat-Code/0x06002702_Common.Game.Ship_MakeDamage.il.txt",
+      "sha256": "ef43091f90d9b5b44dc1959a5f3397529d0a2ed4b4056a5f254f60a136f774dc",
+      "bytes": 13680
+    },
+    {
+      "path": "Research-Combat-Code/0x0600270d_Common.Game.Ship_CannonBallCollisionTest.il.txt",
+      "sha256": "03b522d935ff1b8d9d3e2f0f2439918932a17a3c7c1fa447e399ed542f4e9ce6",
+      "bytes": 750
+    },
+    {
+      "path": "Research-Combat-Code/0x06002747_Common.Game.ShipFirstHp_Damage.il.txt",
+      "sha256": "1b3279a73d0aa4ab7a0ae7eca319eb5ce9998f1a845ffed1a24033bb6310deab",
+      "bytes": 1465
+    },
+    {
+      "path": "Research-Ship-Designs.json",
+      "sha256": "553fb7e5b989f89056b12176bd4a7d552ef5622134ba20be7aaf619c09c6cd00",
+      "bytes": 183427
+    },
+    {
+      "path": "Research-Texture-Paths.json",
+      "sha256": "dc28b2bccab8cc5c921d210407cf4685e5174d6db9adad1e80d0f1e088838755",
+      "bytes": 77145
+    },
+    {
+      "path": "Research-Vasa-Recovered-Geometry.json",
+      "sha256": "41ceb1b10e74c06eb8c782ca29009287fd76eb876d482c82b796ed4b131f9cfa",
+      "bytes": 995
+    },
+    {
+      "path": "Research-Vasa-XNB-Metadata.json",
+      "sha256": "b8a7c09083747c9bade8e2b812685a6d97ce5fda62bf0a7ec1f4b28325db956b",
+      "bytes": 5652
+    },
+    {
+      "path": "Run-Workbench.cmd",
+      "sha256": "c5815481db257e18aada2c69daeb24b7a969025cbb3c2b334dbc5b77b3a22b60",
+      "bytes": 389
+    },
+    {
+      "path": "SAMPLE-VALIDATION-v4.0.json",
+      "sha256": "4f9703f963c8e81cc730746c19920e41163fdbd038d413c9805219ce883e5456",
+      "bytes": 3689
+    },
+    {
+      "path": "START-HERE-v3.10.txt",
+      "sha256": "19c795b9aa8e10d6ea44e10e5088bb8aecb53054c2204beb7d81fdfce2165ffe",
+      "bytes": 1111
+    },
+    {
+      "path": "START-HERE-v3.8.txt",
+      "sha256": "6cf26fb2b6ccf3a4de098057c4fff9b7ea620ad125b82364a4480d8b76c37f50",
+      "bytes": 1010
+    },
+    {
+      "path": "START-HERE-v3.9.txt",
+      "sha256": "0c7c458023e06a9410c6ae3b2b69926b252705d3f220c6ffcbe531aee9bbb6d0",
+      "bytes": 1373
+    },
+    {
+      "path": "START-HERE-v4.0.txt",
+      "sha256": "32586a435b0c7b903bda70082328cf7a804d7fe1a2858c4480ebe7cca8ba7b25",
+      "bytes": 3517
+    },
+    {
+      "path": "START-HERE-v4.1.txt",
+      "sha256": "c1eb8470b6c225339437b72a16b53c78dc05104c637d0bceedfdcb658022a5f7",
+      "bytes": 2502
+    },
+    {
+      "path": "START-HERE-v4.2.txt",
+      "sha256": "6ede1c3b6489bd9212635cffa3555abf45b24484dbdc5452321602c95fd98c71",
+      "bytes": 2899
+    },
+    {
+      "path": "START-HERE-v4.3.4.txt",
+      "sha256": "fab1f2a43567ebe30d0f7fdfba482c5ec5cbfca8eeb2310160c54052a20258a1",
+      "bytes": 1582
+    },
+    {
+      "path": "START-HERE-v4.3.5.txt",
+      "sha256": "eeaa28dda04f3959043f7542fc42b243cd8d83b630f65297c3be4e72e6b63061",
+      "bytes": 1484
+    },
+    {
+      "path": "START-HERE-v4.3.txt",
+      "sha256": "b48c422a3c5e8acdcca0c76bb7420bd09ce017014b7f7fdc8e7c6af7050983c2",
+      "bytes": 2200
+    },
+    {
+      "path": "Starter-Catalog.sqlite3",
+      "sha256": "a1285755e467d3d8f779c194c751a8fb37221f3adb627bfbbf115aaba40b64f6",
+      "bytes": 17674240
+    },
+    {
+      "path": "TEST-RESULTS-v4.3.5.txt",
+      "sha256": "faefc8f9540254a5f6e01b5d1d5adc65e2e910d70d781ec26ee4ebf5096a12db",
+      "bytes": 1306
+    },
+    {
+      "path": "Validate-Source.cmd",
+      "sha256": "52985a9ac8a8e2a115d247d68ef8a6672752db7dd0e1192398e834a42a6d0f2a",
+      "bytes": 162
+    },
+    {
+      "path": "advanced_assets.py",
+      "sha256": "88f1d33caa7ecca2dd4dca057c0ecfbbcc8b53ebd00be9a057e8c9620c7ac44a",
+      "bytes": 6326
+    },
+    {
+      "path": "advanced_catalog.py",
+      "sha256": "b33cc4bd682b48949944df0922aa59f8ef8fd17c2652770b14a585136c6a4a3e",
+      "bytes": 3649
+    },
+    {
+      "path": "advanced_experiments.py",
+      "sha256": "8065665b761d515f07ee60bd2304dc0500d2f2079231f4a3741dcfdcca00e8ad",
+      "bytes": 7543
+    },
+    {
+      "path": "advanced_geometry.py",
+      "sha256": "2d0e394f28307d3233304e5fa1e7296d268d1470c7f7fc226adf024348d0026a",
+      "bytes": 9058
+    },
+    {
+      "path": "advanced_io.py",
+      "sha256": "dc1fbd232926158f304bc306cbe81ef4c1eff3ce485debd1fb471e6128bbbeba",
+      "bytes": 821
+    },
+    {
+      "path": "advanced_network.py",
+      "sha256": "08ee47f6d60fc3d49a7b93267436b3489bf7b9f38a4d6bcc9454678defd461a5",
+      "bytes": 6910
+    },
+    {
+      "path": "advanced_performance.py",
+      "sha256": "a1420b35c63f1555c3fd333106a12c2c965f073490488a55caf8e7cb0a5cae5d",
+      "bytes": 1392
+    },
+    {
+      "path": "advanced_release.py",
+      "sha256": "5b4d823e1b433956c2299de1423564087f3bb151cb6cd63977d95cd6f21902b1",
+      "bytes": 4820
+    },
+    {
+      "path": "advanced_research_cli.py",
+      "sha256": "48bcd48b0b1c2dfc62c47c351f3e22baa8e60a50114f3d103b3523d716f233e1",
+      "bytes": 8479
+    },
+    {
+      "path": "advanced_sailing.py",
+      "sha256": "e17ac25ea042f11c3db93330e691e670d09a122021715869541f8c62c184ad6b",
+      "bytes": 4377
+    },
+    {
+      "path": "advanced_ship_config.py",
+      "sha256": "7c3c0d7921d2606cf863e7e6fa0f46a1e6064d537849cd4806f7386619080f42",
+      "bytes": 3636
+    },
+    {
+      "path": "advanced_video.py",
+      "sha256": "227174ecd6246600e5a1c8d8c273a33d2cb3f19427d0fd2bbcf7d2e8c596967b",
+      "bytes": 3938
+    },
+    {
+      "path": "appearance_lab.py",
+      "sha256": "8696ee92d3cd42c3f73adc1ba0f04280d4b1310bdaff0c62ea91c51bd7c50140",
+      "bytes": 14060
+    },
+    {
+      "path": "ballistics_lab.py",
+      "sha256": "9e4ddfacaf9b749cb4801ece6de3315b2f4515b4b5471f02fbbbeb70f40ef5a9",
+      "bytes": 4923
+    },
+    {
+      "path": "calibration_lab.py",
+      "sha256": "0f32867f8457d06819c76a3efa303bf4df821b6bd6e0291603339d6b0225852c",
+      "bytes": 1447
+    },
+    {
+      "path": "combat_scenarios.py",
+      "sha256": "210ee3a12b094286b2510924496ff3e9e6a833868d189e95f52eb47a73955c43",
+      "bytes": 4407
+    },
+    {
+      "path": "combat_studio.py",
+      "sha256": "0207f0eecaddb75dedb9a2558ad3f82d06d515e467cc6eccc08583eb8d017706",
+      "bytes": 5954
+    },
+    {
+      "path": "damage_evidence.py",
+      "sha256": "7383ff7906734647b1323ae8831de3219f642a1da8eaea31885df55f9128ccd1",
+      "bytes": 8714
+    },
+    {
+      "path": "damage_hypotheses.py",
+      "sha256": "b32b5b9b9911ad287d52bf1bfdf7b4ec4fe52b00490707003508725ab39e6957",
+      "bytes": 6721
+    },
+    {
+      "path": "desktop_main.py",
+      "sha256": "32ba534bde754ba682b1d77191ad3434a0285f87312f777f1873b72ae87a7917",
+      "bytes": 656
+    },
+    {
+      "path": "discovery_center.py",
+      "sha256": "4becc39079328ee56cf8a993a80d5fe63c6fe30cb9529a4b0dcbe815445efded",
+      "bytes": 28263
+    },
+    {
+      "path": "discovery_extensions.py",
+      "sha256": "f8ca6efce1d8841f836ecf4332f749e4641c6cff475197be0d448f3c1a71e1b2",
+      "bytes": 17896
+    },
+    {
+      "path": "economy_research.py",
+      "sha256": "7b9e122396e517ffc6a8222f5d2ed86500bf7efe3ec9c4c511081c501a110e37",
+      "bytes": 16055
+    },
+    {
+      "path": "emulator_research.py",
+      "sha256": "8447b478f1d2591f8d4bac3003f47c574bf3c4336ef38fffbbc3503efc06109f",
+      "bytes": 2782
+    },
+    {
+      "path": "engine/AI-Handoff-Guide.md",
+      "sha256": "40ee5935ff6bc4559ab7ea8a7171a563aeace30151299dead949209fdfa5f5c0",
+      "bytes": 972
+    },
+    {
+      "path": "engine/Verify-Export.py",
+      "sha256": "d3d2642b86707f84baf8fa0ea3503a7d84576f124fa15aaab218958f9630138b",
+      "bytes": 1226
+    },
+    {
+      "path": "engine/analyze_one.py",
+      "sha256": "7479d038c6a05bf822ec9b56195fffb70a73beebd484bf47b4d3042b2efb0573",
+      "bytes": 2568
+    },
+    {
+      "path": "engine/client_metadata.py",
+      "sha256": "4697e392f35ddb9e5a1154aaedda2ee77dd1f47fe9fcecaa8b642c8c5e8073f8",
+      "bytes": 14911
+    },
+    {
+      "path": "engine/client_probe.py",
+      "sha256": "9ef97c1704fd63ebba23adeccf0c97ef90327ddd3a54d2893611063e100bc089",
+      "bytes": 28068
+    },
+    {
+      "path": "engine/combat_dossiers.py",
+      "sha256": "5176f323b2552d6509376eadadf5e26825176e1e437f4968b4b79880897b66df",
+      "bytes": 16733
+    },
+    {
+      "path": "engine/combat_evidence_index.py",
+      "sha256": "2418a2942a65530eea75cfd6620fd21ca5f5e907c3cd44a6753bac06c09af4e7",
+      "bytes": 2632
+    },
+    {
+      "path": "engine/combat_fast.py",
+      "sha256": "8e08c8aac8f65ca3cfb5b257db80504a2d67a086dba43918eb9531ece28083f0",
+      "bytes": 12041
+    },
+    {
+      "path": "engine/combat_research.py",
+      "sha256": "c6ddd529be2d7bcd07a4942806b595dfc59d478e31d23721f9a38a5a996803b4",
+      "bytes": 12558
+    },
+    {
+      "path": "engine/combat_trials.py",
+      "sha256": "ec4acacd6a42dd6eb7c47a817716dea519fcca74e8564885ccdf4463411b0f32",
+      "bytes": 5740
+    },
+    {
+      "path": "engine/evidence_signatures.py",
+      "sha256": "40654bbdcf52c14d0495b4e2f2440ea4828f3b49051d85ed42ea232d64b633a9",
+      "bytes": 3951
+    },
+    {
+      "path": "engine/expand_catalog.py",
+      "sha256": "08ab7036f7b9733a39bbbf44e08f9194a8223b02b3787643a264802493b8ea84",
+      "bytes": 25126
+    },
+    {
+      "path": "engine/extract_wosb.py",
+      "sha256": "2f321dbff2882641c16023ad7f626618699f9d59eab4cb30eb6c998a3269ff5b",
+      "bytes": 35310
+    },
+    {
+      "path": "engine/full_recovery.py",
+      "sha256": "95b305ecc499c31385eac37671ada00cd3ea3fb2b92e6d5dfd482f17bfa207e8",
+      "bytes": 31243
+    },
+    {
+      "path": "engine/multi_scan.py",
+      "sha256": "7ef3cc51e741932536466fc2a5e0fdfa4b6fb07d1f1dca74e71537d79fc9ccab",
+      "bytes": 5655
+    },
+    {
+      "path": "engine/multi_workflow.py",
+      "sha256": "517f36262979bdfc1c07601d94ec30887016212767345e932f9367787da78062",
+      "bytes": 7551
+    },
+    {
+      "path": "engine/recipe_chains.py",
+      "sha256": "ca4a349be74fde92b584eed568a6f765b6b8d2402860d51f5242dd654122883d",
+      "bytes": 5100
+    },
+    {
+      "path": "engine/recover_everything.py",
+      "sha256": "7d4112ef1e643108acf1152c2703b20149bf03e8c5b49ad4186af6b0ea313aa6",
+      "bytes": 7251
+    },
+    {
+      "path": "engine/repair_queue.py",
+      "sha256": "5d2b5f8f862f5c78b7893e2e5313f5d0ed1022a574384e3470ad2a9165e1a3ff",
+      "bytes": 6111
+    },
+    {
+      "path": "engine/requirements.txt",
+      "sha256": "9c26e83a65c67fb0865a982bf6cf14d1eed623f83e6930b2afe137e588f0c532",
+      "bytes": 83
+    },
+    {
+      "path": "engine/review_bundle.py",
+      "sha256": "c31cc2abbf99a109b738d253ed4b5317f57a2d9ea55ab1f92538861fe28d0efc",
+      "bytes": 6256
+    },
+    {
+      "path": "engine/v3_progress.py",
+      "sha256": "3890c649674f8f2afe46e288a59e232bf3fdbd43ccb98f4828b38d8a6235ad5b",
+      "bytes": 3281
+    },
+    {
+      "path": "engine/xnb_geometry.py",
+      "sha256": "1c94129df3a1eeaa9b7b32938464553a412a614669d1b15000f4b63188dfdf67",
+      "bytes": 18653
+    },
+    {
+      "path": "engine/xnb_images.py",
+      "sha256": "bdef67af1bb4352046b5dacffbab3a1a98417f4809bbba50e12e0f69baed13e5",
+      "bytes": 6998
+    },
+    {
+      "path": "engine/xnb_model_probe.py",
+      "sha256": "7fc2d19f40f894dc45e47bfce018b373bb3f355f3b7dcd12a36cd3fdce17d73a",
+      "bytes": 7352
+    },
+    {
+      "path": "engine/xnb_payload.py",
+      "sha256": "86a57ae0c2d95afca0e5b6ce991c9dba4c02bba5d6daab18168359c8617e839c",
+      "bytes": 8887
+    },
+    {
+      "path": "game_hotkeys.py",
+      "sha256": "25e63d2562982157b86dc3c25d14dc78adeac5da05e2a0e6405b903b5fd3c5c0",
+      "bytes": 2633
+    },
+    {
+      "path": "gameplay_capture.py",
+      "sha256": "3cb77ceab91139ab0f87cf43bc0de73240297f68c28e55a32f241621602d9d9d",
+      "bytes": 35273
+    },
+    {
+      "path": "gltf_export.py",
+      "sha256": "2cd966f05dad97b349c5e6d5f7fe954ae3060ffa230b586bd6350a985acb33b6",
+      "bytes": 8670
+    },
+    {
+      "path": "hp_bar_ui.py",
+      "sha256": "0f9610662884fab57fd88951c8f229adf7fff366326b0d6f89b05adc027fb7d1",
+      "bytes": 7949
+    },
+    {
+      "path": "mechanics_lab.py",
+      "sha256": "eca9b93e0af49c0e64aa2aff5646f201e2989e5b87c4a3cfc1ea99b34be5296e",
+      "bytes": 6856
+    },
+    {
+      "path": "mechanics_taxonomy.py",
+      "sha256": "ff1ecf3f619aaec2b8e31d65e0f51b4830f6534849e12c5ed2175eda65eb5123",
+      "bytes": 14555
+    },
+    {
+      "path": "mechanics_verified.py",
+      "sha256": "5b7d9767e2448201e0186576508dd919de304ae69b34b7877f0ccf6072d4839b",
+      "bytes": 4578
+    },
+    {
+      "path": "model_lab.py",
+      "sha256": "baa6873d00d3110a06f223cc9d91bb15a108cb8a0440f48b2e32d7d7b25311e8",
+      "bytes": 15868
+    },
+    {
+      "path": "model_quality.py",
+      "sha256": "130c4cf992b3ee825e73c2f7957b827046fddcbaa39f5af41fa3974785747023",
+      "bytes": 3654
+    },
+    {
+      "path": "network_lab.py",
+      "sha256": "aacd0765c11ad328eeeec0e6e2bdaaa208608f066c580c8ca29fb2852032e317",
+      "bytes": 17152
+    },
+    {
+      "path": "offline_emulator.py",
+      "sha256": "274f99bd9f1a2a8e9fba5c3030e8ea30cb871949d66f220cd4d72114c14b1579",
+      "bytes": 3170
+    },
+    {
+      "path": "offline_emulator_cli.py",
+      "sha256": "44ea062ee2eb48b04ec00093e9b2914f27ef3d0e8992e5ae2dc06403b7f7b038",
+      "bytes": 1963
+    },
+    {
+      "path": "offline_updates.py",
+      "sha256": "b2a5bdc0c18b78f6f80dd0ea30a6727547061e474c85532f810ac37523b4775b",
+      "bytes": 11084
+    },
+    {
+      "path": "packaging/Build-Windows.ps1",
+      "sha256": "5a71d9586336c7934a11893890de9abf17fdccd9c80336300f653f0207eac63a",
+      "bytes": 4051
+    },
+    {
+      "path": "packaging/Create-Update-Manifest.ps1",
+      "sha256": "2c8c7eab41f63a159feef43d47d28eecc18bdd0a96105c08a4b3880b18bc1e73",
+      "bytes": 950
+    },
+    {
+      "path": "packaging/Make-Offline-Update.py",
+      "sha256": "385de2b5a52b2cf822563e51e7c6b6ad5d3835579a00222015df9d0e464c402a",
+      "bytes": 2596
+    },
+    {
+      "path": "packaging/WoSBWorkbench.iss",
+      "sha256": "2fb757bfa92ac0356dc5b16eebe22580069f00d26c06da45f3c4c885e544d220",
+      "bytes": 1039
+    },
+    {
+      "path": "research_suite.py",
+      "sha256": "dfdd6fde269e47b5ac0640d9d15b85ca2437d7ff81eaf7ea65c5a1c2d9c3d1fe",
+      "bytes": 9554
+    },
+    {
+      "path": "run_local_wiki.py",
+      "sha256": "26296a321a15373570507431e067f6e7bea9b236d97401c17bf74ad8c5e7e18d",
+      "bytes": 633
+    },
+    {
+      "path": "sailing_lab.py",
+      "sha256": "f784feeb370dbdf5af62d83997e168c8f4ee8fd68094041bac83da57ae4b684b",
+      "bytes": 4489
+    },
+    {
+      "path": "samples/Huracan-Combat-Capture-Comparison.json",
+      "sha256": "393e40b6bd78f92154b36c1ddf2f9d59ac7868260663936b90f3581b563014c0",
+      "bytes": 886
+    },
+    {
+      "path": "samples/Offline-Emulator-Fixture.json",
+      "sha256": "f240394b51cd7261a4cc44f6b442448d855e3e74eca6eae27c4c6eaa1ddf3c33",
+      "bytes": 638
+    },
+    {
+      "path": "samples/WoSB-42pdr-Damage-Hypothesis-Example.json",
+      "sha256": "5016beba006cd292e728da1a4dc70006190ca04b59c9e941851bdda35b32f70f",
+      "bytes": 1514
+    },
+    {
+      "path": "shader_recovery.py",
+      "sha256": "a730f41a449828668f0ce02049080a21ad2d1da2441f503fbff3762e597bee17",
+      "bytes": 5026
+    },
+    {
+      "path": "ship_viewer.py",
+      "sha256": "a4cea139362b994cab49ae3be5722168c2e9b001b19a4a7ca983f6e0697cd5d9",
+      "bytes": 22377
+    },
+    {
+      "path": "tests/test_discovery.py",
+      "sha256": "4ced3d78dafb723f425c675564194ba1f9e1fe04c9f0d50381d5256ee28c4b6f",
+      "bytes": 3529
+    },
+    {
+      "path": "tests/test_import_research.py",
+      "sha256": "67f874b4558f58b7d44094db23ab1889a1b7e226a448a81bdb4b4f57ad4f59e6",
+      "bytes": 1293
+    },
+    {
+      "path": "tests/test_network_lab.py",
+      "sha256": "bb55984e47f8fa34d2eff6da034f9118351563062b6c98fe5dd2d2dfc1bd0890",
+      "bytes": 3096
+    },
+    {
+      "path": "tests/test_offline_updates.py",
+      "sha256": "eea085c65325d568ff58dac4766ef5fedd951200dfdad268ea35778ac25caab5",
+      "bytes": 5066
+    },
+    {
+      "path": "tests/test_sailing_lab.py",
+      "sha256": "898261a72b54027e58708756139e7a14d3f3e818e55ee2eb0dd1d9d04d2d3c28",
+      "bytes": 1443
+    },
+    {
+      "path": "tests/test_ship_viewer.py",
+      "sha256": "611d43cb33572f98cd035bd2961ec5ccb3333cfdefaed813863081afc32bc5df",
+      "bytes": 1631
+    },
+    {
+      "path": "tests/test_v310_recovery.py",
+      "sha256": "46565049d0a253fa3bc4f5c74d9c404010ac3c4a4d1ef5b2722f06c2c7077d6b",
+      "bytes": 7035
+    },
+    {
+      "path": "tests/test_v34.py",
+      "sha256": "5f209bebce40e31c06ebf40605a8e1045e7752b02db222846478b7a105cf55ad",
+      "bytes": 5068
+    },
+    {
+      "path": "tests/test_v35.py",
+      "sha256": "432c1c4f8ffde30ac4ab43650f61e654fe45fa113f3aaa657ea39be2ebe175e2",
+      "bytes": 3152
+    },
+    {
+      "path": "tests/test_v36.py",
+      "sha256": "330e7eeb366528c1c422bff89fd0329c9532b5056fa4a2acb9f382b710897a3f",
+      "bytes": 5740
+    },
+    {
+      "path": "tests/test_v371_decoder.py",
+      "sha256": "cd58703d938ab27b987f1d9c71b8fac7d365b1a565d420924b6565d8ad945f7e",
+      "bytes": 1405
+    },
+    {
+      "path": "tests/test_v38_ballistics_viewer.py",
+      "sha256": "db74ade716e43575542f3f4100598398c063e46ecb69a03399b6ff7cb60bce2b",
+      "bytes": 2445
+    },
+    {
+      "path": "tests/test_v39_appearance.py",
+      "sha256": "18f025a37743c444b18410ee11ad1bf3b8f7dc6f0ef52e4a9cf0e31bce7591b4",
+      "bytes": 4045
+    },
+    {
+      "path": "tests/test_v40_emulator_research.py",
+      "sha256": "89a14624743d15fade7f7fd4ca54f0a1fe82e3675550600052a13a055c4fe7fd",
+      "bytes": 979
+    },
+    {
+      "path": "tests/test_v40_platform.py",
+      "sha256": "ef55900322bdb7e9aadcec36de2d1036524faf05b428c983916734d4385045d5",
+      "bytes": 4494
+    },
+    {
+      "path": "tests/test_v41_extensions.py",
+      "sha256": "e3533ac773ab87178ee786d01aaaf313ee9037bedad9a2c305d957f06bb2b786",
+      "bytes": 5453
+    },
+    {
+      "path": "tests/test_v42_gameplay.py",
+      "sha256": "3684ca6c846a9a87f83bad871df324723a182a236ad53401979f5c102dfbd11b",
+      "bytes": 6213
+    },
+    {
+      "path": "tests/test_v431_recovery_audit.py",
+      "sha256": "efb7b416228d487c181b929acd2948c5bf0ae4f76a86218957302bb2e5315b98",
+      "bytes": 8174
+    },
+    {
+      "path": "tests/test_v431_startup.py",
+      "sha256": "7e35b1defdde32001be91c58e18a0291cdc87562676cfb8e8a4de4e0f66de124",
+      "bytes": 2475
+    },
+    {
+      "path": "tests/test_v432_capture_patch.py",
+      "sha256": "687095dec86666e88852b7c1ea308ef29f1b65efa4f082235581f3807dbb8d7a",
+      "bytes": 5792
+    },
+    {
+      "path": "tests/test_v433_appearance_fixes.py",
+      "sha256": "0e738269dcb7b27417836559d725ba289ad0e09955abd58bad768662d4e983b4",
+      "bytes": 2930
+    },
+    {
+      "path": "tests/test_v434_shader_damage.py",
+      "sha256": "0265a7692b2d2d84ab4ea35b6dbd981f83fec5d52fcaaa20fd182b3b6d31cdaa",
+      "bytes": 4255
+    },
+    {
+      "path": "tests/test_v435_advanced.py",
+      "sha256": "b49b75d8c0944ca957b1ed19222d4c88e093e409265234459468660614eb5081",
+      "bytes": 13271
+    },
+    {
+      "path": "tests/test_v43_research_center.py",
+      "sha256": "e26eea36188cf0a2f148bfb08e82676e42623662220d71749b1088b7fabc9b97",
+      "bytes": 7936
+    },
+    {
+      "path": "tests/test_wiki_viewer_export.py",
+      "sha256": "cc3a826c2e5801d59a6b4f86cd27adf7926e8d1fc95a8fc413ceb71821159058",
+      "bytes": 796
+    },
+    {
+      "path": "updater_main.py",
+      "sha256": "5cc1348c362cc6a58f45650ea2fcd60f55bce4287dbd6e11d30755e984889081",
+      "bytes": 2328
+    },
+    {
+      "path": "video_evidence.py",
+      "sha256": "a9108a3db33860a68330465c8169346684e1ad732412365c9e199342b9e590d9",
+      "bytes": 8035
+    },
+    {
+      "path": "viewer/ship_viewer.html",
+      "sha256": "b3e2f7cfa950ec78895ff89358b7a52980b133e6d8df6b192f5edc55dafa5254",
+      "bytes": 45773
+    },
+    {
+      "path": "visual_reference.py",
+      "sha256": "d4673596493d5d85fa003420e4e32ad57a2d741cce011209e80044ef051102d4",
+      "bytes": 1895
+    },
+    {
+      "path": "wiki_enrichment.py",
+      "sha256": "17531bdc09878cceb34a8e968f551cbe29b1992738e4161727801b8a5ac81709",
+      "bytes": 7245
+    },
+    {
+      "path": "wiki_expanded.py",
+      "sha256": "cc1ef3387f8aff3936fd79bb7975d0e644c2b8f0256a9b04455004dde5d3c838",
+      "bytes": 15671
+    },
+    {
+      "path": "wiki_next.py",
+      "sha256": "3a2fdec57914494c621e3a9f0edc9d6bdfebe20382f09df81b451b12946df98b",
+      "bytes": 26492
+    },
+    {
+      "path": "wiki_server.py",
+      "sha256": "df275df121e8c5d40961276d9032a55a3885b50dc2a6706d2aec75b12dd8cb42",
+      "bytes": 32834
+    },
+    {
+      "path": "wiki_site/app.js",
+      "sha256": "ca0de6776cb0bc670896b922920a09f4171753a7c4249f8e79e811c6e18c8391",
+      "bytes": 12089
+    },
+    {
+      "path": "wiki_site/assets/game_ui/cannonClassIcon_bombardier.png",
+      "sha256": "dcebf9f2270dd0fb9ed3d925f9e007ba6419a35a53191acec23d460f9d314751",
+      "bytes": 1039
+    },
+    {
+      "path": "wiki_site/assets/game_ui/cannonClassIcon_distanceCannon.png",
+      "sha256": "3ca49a20ea68741641010870caaebd648ef8789b25e5bab90b1195b0078ed86f",
+      "bytes": 901
+    },
+    {
+      "path": "wiki_site/assets/game_ui/cannonClassIcon_heavyCannon.png",
+      "sha256": "4431cb9dcf462050e1765305115bf52883a6d7a7c3c8b8691b1bd094cbac5702",
+      "bytes": 1002
+    },
+    {
+      "path": "wiki_site/assets/game_ui/cannonClassIcon_liteCannon.png",
+      "sha256": "cc469a650c26c1dc1904e913414625ae723aa3093cd713685429b6d1ec5efcb3",
+      "bytes": 1281
+    },
+    {
+      "path": "wiki_site/assets/game_ui/cannonClassIcon_mortar.png",
+      "sha256": "61c57f22a31e7aa108e1940a12597f0ab5d0458559dde809120f527c8522e41e",
+      "bytes": 1191
+    },
+    {
+      "path": "wiki_site/assets/game_ui/cannonClassIcon_special_firegun.png",
+      "sha256": "f1d0d561293fc9280c67069197917ae9f85971b15f60e67951f325ad3c2857ff",
+      "bytes": 1288
+    },
+    {
+      "path": "wiki_site/assets/game_ui/cannonClassIcon_special_normal.png",
+      "sha256": "4777fd8ae29262a7ea90d062e81e4e175fa22ed94b2b1e608609c727d9c492ce",
+      "bytes": 1586
+    },
+    {
+      "path": "wiki_site/assets/game_ui/cannonSlot_emptyFiregunIcon.png",
+      "sha256": "15898c5d1def42a9d95681cf6b5628762156ef52b22518d249c0dc88afb7b966",
+      "bytes": 1337
+    },
+    {
+      "path": "wiki_site/assets/game_ui/cannonSlot_emptyIcon.png",
+      "sha256": "9660ef6caa0400e1868170e50b62d138baeb1bfc1b203aae8c135949e4cedc04",
+      "bytes": 2189
+    },
+    {
+      "path": "wiki_site/assets/game_ui/cannonSlot_emptyMortarIcon.png",
+      "sha256": "1d32c08e94f7628dac2ac7f40309f00a0b857b4af385bbbe020e9aff7108161d",
+      "bytes": 1313
+    },
+    {
+      "path": "wiki_site/assets/game_ui/cannonSlot_frameBg.png",
+      "sha256": "10ed98bc4297b9b313d415716a725140fec5396eef82ec9addfe3839f0e4f014",
+      "bytes": 1452
+    },
+    {
+      "path": "wiki_site/assets/game_ui/portShipInfo_navIconCannons.png",
+      "sha256": "8f5b43a2a42c8a0798d7e6750338d12dda97f7cdb4e303fcbf3b7aacd4c4b995",
+      "bytes": 3208
+    },
+    {
+      "path": "wiki_site/assets/game_ui/portShipInfo_navIconUpgrades.png",
+      "sha256": "9c4e0c42d0ba31547b92f93b0338ed80ea52437f31f3ed69728c47dd663ce7c2",
+      "bytes": 3426
+    },
+    {
+      "path": "wiki_site/assets/game_ui/upgradeWindow_improvementEmptySlotIcon.png",
+      "sha256": "1fea545feabcf8274c39d065078c6033c0a2dc6a6a381d57ebd188479cd259e5",
+      "bytes": 2473
+    },
+    {
+      "path": "wiki_site/assets/game_ui/upgradeWindow_regularSlotIcon.png",
+      "sha256": "0681d1844c2a33529ff9ab85a4add69e76544b9c8a4c8d0d2b8d7a0f1ba8ce80",
+      "bytes": 16335
+    },
+    {
+      "path": "wiki_site/assets/game_ui/upgradeWindow_sailSlotIcon.png",
+      "sha256": "ce5f329f3024b0577adb133adb0da094af80875f0fd3f71e741e3e1dae6c9ec6",
+      "bytes": 21141
+    },
+    {
+      "path": "wiki_site/assets/game_ui/visualEquip_cannonIcon.png",
+      "sha256": "3ad486c71c006603b83e88cb176b6a8f823e08ad240b99c37e8ac9f6e4417458",
+      "bytes": 622
+    },
+    {
+      "path": "wiki_site/assets/shipIcon1.png",
+      "sha256": "354b7f99111a9cc87975a3ad8bb969dfba2ea79bc5c111d648a3dabfccde0241",
+      "bytes": 5097
+    },
+    {
+      "path": "wiki_site/assets/shipIcon10.png",
+      "sha256": "a86d83398e492c143b924d08767788494cb9021c8c80d016973460b6b447c04f",
+      "bytes": 26664
+    },
+    {
+      "path": "wiki_site/assets/shipIcon11.png",
+      "sha256": "cda5f3037067030e986b8dc272256a41e2f938793e409c1ea77b923de3c325ba",
+      "bytes": 25023
+    },
+    {
+      "path": "wiki_site/assets/shipIcon12.png",
+      "sha256": "d1baaefc95587c60b0fdaae494a6be484b3fa4a10b40211d16ac0dd81f6715e2",
+      "bytes": 22001
+    },
+    {
+      "path": "wiki_site/assets/shipIcon13.png",
+      "sha256": "e6ad234b292baed09c1054c3e130e46c31c7255e3a363bbb01faac7a53423b9d",
+      "bytes": 14923
+    },
+    {
+      "path": "wiki_site/assets/shipIcon14.png",
+      "sha256": "48d257949d724df22395f199bb8dbb6f90863faa723e21ae2b87c9a52a60c9d9",
+      "bytes": 28078
+    },
+    {
+      "path": "wiki_site/assets/shipIcon15.png",
+      "sha256": "a3bfe694b82fdd90ad9a3716c9a916a8367c2a0ce7b870850cb8619b621b7288",
+      "bytes": 16667
+    },
+    {
+      "path": "wiki_site/assets/shipIcon16.png",
+      "sha256": "72468f3201752ad7421541d7596bc9320c471f40cd5309790baad49e6bd28adc",
+      "bytes": 26000
+    },
+    {
+      "path": "wiki_site/assets/shipIcon17.png",
+      "sha256": "718dc2a406936ed28214596a6b5275d92aa831da7b4639e3a0783fc0f90d22f2",
+      "bytes": 18361
+    },
+    {
+      "path": "wiki_site/assets/shipIcon18.png",
+      "sha256": "255d452e2ab90a74b7b1b06d6494eda7c2d0184f7e97e8bfbec97e9ae1ee9895",
+      "bytes": 30783
+    },
+    {
+      "path": "wiki_site/assets/shipIcon19.png",
+      "sha256": "c63c4fa660a004bf3fa1c81fa2345d91c914c8390a3372859ea3897ba2eb8fc6",
+      "bytes": 26258
+    },
+    {
+      "path": "wiki_site/assets/shipIcon2.png",
+      "sha256": "978e3b1ae3a2a3450a301ce9daa9a7e84557b6b839834dd9e54883b3fcf1518d",
+      "bytes": 14605
+    },
+    {
+      "path": "wiki_site/assets/shipIcon21.png",
+      "sha256": "4f547c0bcc6bc677df962f01664b9f0a1189c1d1ccb1dc03273ed9261309e124",
+      "bytes": 25525
+    },
+    {
+      "path": "wiki_site/assets/shipIcon22.png",
+      "sha256": "f8f33f0d01c237d2787b940e99a310a8a7d8d71f4df6373f9773e18878926b1d",
+      "bytes": 10953
+    },
+    {
+      "path": "wiki_site/assets/shipIcon23.png",
+      "sha256": "9539f6346764ea7d975d41fd877e4c35c862100b944c2c00d6cf39d29a9305a4",
+      "bytes": 23418
+    },
+    {
+      "path": "wiki_site/assets/shipIcon24.png",
+      "sha256": "e580ab9558b570e9b5abeeb79ca1af3681f0de195289cd65ce514fa5016921da",
+      "bytes": 32221
+    },
+    {
+      "path": "wiki_site/assets/shipIcon25.png",
+      "sha256": "5e56447506e28712db5b0fef7f7e3d49c5c1a1e91699e309b8713f65be05010a",
+      "bytes": 27929
+    },
+    {
+      "path": "wiki_site/assets/shipIcon26.png",
+      "sha256": "4d24beded3ffc3859e8127db0fb77cd06c85803cd4d78b615739b8b7b0b731cd",
+      "bytes": 12614
+    },
+    {
+      "path": "wiki_site/assets/shipIcon27.png",
+      "sha256": "fff44c5b5125fd6c22b5be404736b09194893a5ec88695a4f87a6cd83c0117e1",
+      "bytes": 30406
+    },
+    {
+      "path": "wiki_site/assets/shipIcon28.png",
+      "sha256": "961135c2cc66da33e26801546f76005265136a5fa3970c6be4631ead063c4a78",
+      "bytes": 16235
+    },
+    {
+      "path": "wiki_site/assets/shipIcon3.png",
+      "sha256": "5e0d673e9d48085af8f67d8a92aa141fefcff2c603ebdcb3d7960d9f51a061d0",
+      "bytes": 15353
+    },
+    {
+      "path": "wiki_site/assets/shipIcon30.png",
+      "sha256": "5a027e9d50193ecc2150a4e97083562b19da6e3f5e7e61b2c5ae5771a63103e5",
+      "bytes": 31494
+    },
+    {
+      "path": "wiki_site/assets/shipIcon31.png",
+      "sha256": "4a93a2d403dbc6dbc3f83beb45a3c54aaf198e3d6f2a88d6468be3ec22f17093",
+      "bytes": 27367
+    },
+    {
+      "path": "wiki_site/assets/shipIcon32.png",
+      "sha256": "9c0d533d7019aea4d2b3ba2d35ce9b945b5ef52760e35cc69c372190cf826090",
+      "bytes": 16228
+    },
+    {
+      "path": "wiki_site/assets/shipIcon33.png",
+      "sha256": "18e39c915d2757d2011048d9ee60f0c71131e5f19e69c703f9d9cae5a1710433",
+      "bytes": 28918
+    },
+    {
+      "path": "wiki_site/assets/shipIcon34.png",
+      "sha256": "fb5b46588e844a1b0893f8e670e9533b5b7e48f2688f33cccf3bee033cef7166",
+      "bytes": 30031
+    },
+    {
+      "path": "wiki_site/assets/shipIcon35.png",
+      "sha256": "52c9383975f0f715cbb1751222ace289b4aae053a962aaf60d9989b6fb567356",
+      "bytes": 41923
+    },
+    {
+      "path": "wiki_site/assets/shipIcon36.png",
+      "sha256": "c92ad50481b89e869a729b09f21b92d4d1930001fe1ebdda87b286d60887228e",
+      "bytes": 30119
+    },
+    {
+      "path": "wiki_site/assets/shipIcon37.png",
+      "sha256": "28294a175f5ff529b44408987ae3d0f334201b6c11aa08eed937664d9200e640",
+      "bytes": 29408
+    },
+    {
+      "path": "wiki_site/assets/shipIcon38.png",
+      "sha256": "200257d152e885acf41e8c41c45dd508ec2dcce1a34ab1572b70318a01b460eb",
+      "bytes": 17041
+    },
+    {
+      "path": "wiki_site/assets/shipIcon39.png",
+      "sha256": "29bfc7520e604366db88cfcaf997e5088c6194bdfbebfce2794660c563311bc2",
+      "bytes": 40094
+    },
+    {
+      "path": "wiki_site/assets/shipIcon4.png",
+      "sha256": "7b0157926e34022583e4ca0e35810218e8da1e5a4649b1f5be1ca2ccb88cdf5d",
+      "bytes": 18269
+    },
+    {
+      "path": "wiki_site/assets/shipIcon40.png",
+      "sha256": "36de2a7f93a664a00cc0a881d56647ffd5e4acedbc5552f793365d7c912c5c0c",
+      "bytes": 38183
+    },
+    {
+      "path": "wiki_site/assets/shipIcon41.png",
+      "sha256": "95ec698582dc056c0ea6dcb83eb07b1e3ab231534d14a95cd147bf6290b3a684",
+      "bytes": 22007
+    },
+    {
+      "path": "wiki_site/assets/shipIcon42.png",
+      "sha256": "8d17d73c3add402f1c7efa1864f6ee38618670d08f184a3f5c946a15cb361592",
+      "bytes": 27608
+    },
+    {
+      "path": "wiki_site/assets/shipIcon43.png",
+      "sha256": "9cab3d8bde6d3587a78da8d52fe375d01c186e3aba310776115ea2053949fa82",
+      "bytes": 15348
+    },
+    {
+      "path": "wiki_site/assets/shipIcon44.png",
+      "sha256": "d1a860fdad55b806464b527faaf26c767aa0958f1d48d6120773f04658d53f3c",
+      "bytes": 30949
+    },
+    {
+      "path": "wiki_site/assets/shipIcon45.png",
+      "sha256": "d05e69b3a64399586beabaf21c23dd377cf274784cb33e62daf73c9bc98d603e",
+      "bytes": 22322
+    },
+    {
+      "path": "wiki_site/assets/shipIcon46.png",
+      "sha256": "391a8be6de198547c75ff3220e9e565509518052e80f215a4291e2d479b6720a",
+      "bytes": 31360
+    },
+    {
+      "path": "wiki_site/assets/shipIcon47.png",
+      "sha256": "81aa75dea77aeb97e47e6cbb74a9ebc8c520ba2fe963eaa976db0de8e609dff5",
+      "bytes": 23757
+    },
+    {
+      "path": "wiki_site/assets/shipIcon48.png",
+      "sha256": "7a152ce32dabf34de5157cc8e23db7b0676b2a27877d6763894a569cc3b20e6c",
+      "bytes": 20468
+    },
+    {
+      "path": "wiki_site/assets/shipIcon49.png",
+      "sha256": "9673a7c9333524074a40a3ad9a42fa444c05352b0de989d702a49e44132cadd9",
+      "bytes": 41186
+    },
+    {
+      "path": "wiki_site/assets/shipIcon5.png",
+      "sha256": "9c19afab2603f701ebcab64a56a9cf43a1a618ea514ec1c45120fc588d6b6cf4",
+      "bytes": 17958
+    },
+    {
+      "path": "wiki_site/assets/shipIcon50.png",
+      "sha256": "c60c4cff2fd883558ee019d81390b8c465c5b237d06bfecefc3fd60759003b94",
+      "bytes": 10665
+    },
+    {
+      "path": "wiki_site/assets/shipIcon51.png",
+      "sha256": "53cb05885418d99929aeb19e3cd9b83a022e9d9281ac8704096c266055e0820d",
+      "bytes": 27064
+    },
+    {
+      "path": "wiki_site/assets/shipIcon52.png",
+      "sha256": "c7f1760a49ff1014dc5ae4366c565fdd9cebb5408972978c65013a2c741b604e",
+      "bytes": 27557
+    },
+    {
+      "path": "wiki_site/assets/shipIcon53.png",
+      "sha256": "f73a3bf4e8ec9606c244a8d1aed37c11d5dcf55369617f21d72f846def87800c",
+      "bytes": 21254
+    },
+    {
+      "path": "wiki_site/assets/shipIcon54.png",
+      "sha256": "0e1afaa51b670ff50d7a56051df69e5b2967c448c07f0d8fc3644e4c04549cb0",
+      "bytes": 26985
+    },
+    {
+      "path": "wiki_site/assets/shipIcon55.png",
+      "sha256": "3e508a221138ba22a26bb30b92ca5bb55b32018bd5fed344cdf4a4774beb5f26",
+      "bytes": 30006
+    },
+    {
+      "path": "wiki_site/assets/shipIcon56.png",
+      "sha256": "60ad63514ea43beea14eebec03b9ce70aa9ff3e96c597a4a5383c181e854a25e",
+      "bytes": 34020
+    },
+    {
+      "path": "wiki_site/assets/shipIcon57.png",
+      "sha256": "60830ffdb3fecde17f9a50bfd75083e30f0c8fbeae6b5aa7ea91a01d995838f9",
+      "bytes": 19075
+    },
+    {
+      "path": "wiki_site/assets/shipIcon58.png",
+      "sha256": "8b1985844c4e3a48ad2f7e3780cf9011a91f4feadc6ed3603de556cef0ddce09",
+      "bytes": 42987
+    },
+    {
+      "path": "wiki_site/assets/shipIcon59.png",
+      "sha256": "e6a33fd1da5470617a621b5dbc9a76f43bdf7b4874decb1f8b9200d169faf19e",
+      "bytes": 24782
+    },
+    {
+      "path": "wiki_site/assets/shipIcon6.png",
+      "sha256": "4a80f06c838426b022e36b17ef24a8edbfae7df6b5b4aaa8ce8396276ee7cad6",
+      "bytes": 19582
+    },
+    {
+      "path": "wiki_site/assets/shipIcon60.png",
+      "sha256": "88b027ffe1ea78f4636352d67fca0820d1789c9c168b429c69bdf58bea18b569",
+      "bytes": 21168
+    },
+    {
+      "path": "wiki_site/assets/shipIcon61.png",
+      "sha256": "355bc85d4331ae421f17b8af43439d7215ede66715b56c6f4cb74b4003892ef8",
+      "bytes": 33359
+    },
+    {
+      "path": "wiki_site/assets/shipIcon62.png",
+      "sha256": "26520dbf40b6b56b0342970d8ea7970b869973bb188bc9d5d637f3d324858ad0",
+      "bytes": 29280
+    },
+    {
+      "path": "wiki_site/assets/shipIcon63.png",
+      "sha256": "2aac58d1ad98294d53b25eba6a9e4a75a78d313c76f4555bdc6484f29e571b67",
+      "bytes": 15268
+    },
+    {
+      "path": "wiki_site/assets/shipIcon64.png",
+      "sha256": "70d34d58b46a738a29b95355d5fdbd97d384cb0c7b16c7aa6503a44e759d4d61",
+      "bytes": 29506
+    },
+    {
+      "path": "wiki_site/assets/shipIcon65.png",
+      "sha256": "719c74dab762e8d3df753a96579ac27f28a26af6006fd13c51f9e99df3ec613f",
+      "bytes": 31918
+    },
+    {
+      "path": "wiki_site/assets/shipIcon66.png",
+      "sha256": "823833210cc6210a1400156e0fba2aa5b39f5f35e83c72e1db6c07e9628ef835",
+      "bytes": 33787
+    },
+    {
+      "path": "wiki_site/assets/shipIcon67.png",
+      "sha256": "dd8258f380e5d5b47cae54d496b6f7189227a86e7e306139efdb11bc2a67faba",
+      "bytes": 31735
+    },
+    {
+      "path": "wiki_site/assets/shipIcon68.png",
+      "sha256": "354b7f99111a9cc87975a3ad8bb969dfba2ea79bc5c111d648a3dabfccde0241",
+      "bytes": 5097
+    },
+    {
+      "path": "wiki_site/assets/shipIcon69.png",
+      "sha256": "fa9be5134d01021a9b55dcbf566014480994432d5c8a5272fed0ba8ecde0024d",
+      "bytes": 38862
+    },
+    {
+      "path": "wiki_site/assets/shipIcon7.png",
+      "sha256": "d5a94121829cfece405fb1ac2eb6fb33f85d69eee1188a0845cb782b1e828c53",
+      "bytes": 28229
+    },
+    {
+      "path": "wiki_site/assets/shipIcon70.png",
+      "sha256": "b4f6cbc1381b79112ba4a323a68b423fe0a7420fe8c508bcf437531057f6842d",
+      "bytes": 29426
+    },
+    {
+      "path": "wiki_site/assets/shipIcon71.png",
+      "sha256": "683aaf76f7a47dd8aeb4a89ecbb22967f5660fbc08128000609990b1a6f0d825",
+      "bytes": 18843
+    },
+    {
+      "path": "wiki_site/assets/shipIcon72.png",
+      "sha256": "5f0ca0a85e11f5ea1055d7d2d39aeae0116ff5fc79080ae3a645717cb2cd8933",
+      "bytes": 24281
+    },
+    {
+      "path": "wiki_site/assets/shipIcon73.png",
+      "sha256": "c828add6e9785db9c47f3837f5c7f5779a6914938431de3c3cddb11caa64eb98",
+      "bytes": 32629
+    },
+    {
+      "path": "wiki_site/assets/shipIcon74.png",
+      "sha256": "91d04de05ab7dc4652cbcc51e872c8f91d59823e3fb7fa0ef957709a2cc08c43",
+      "bytes": 34216
+    },
+    {
+      "path": "wiki_site/assets/shipIcon75.png",
+      "sha256": "1f2ef52fb5ec3862e47621c8a68144be748a103fe89d06641e1cf81370207b67",
+      "bytes": 28318
+    },
+    {
+      "path": "wiki_site/assets/shipIcon76.png",
+      "sha256": "1a4d7f86512ddee59891688b905e896cfdd13ee04914aaa91842ec1be65e2c94",
+      "bytes": 26044
+    },
+    {
+      "path": "wiki_site/assets/shipIcon77.png",
+      "sha256": "766f255228660f0f3373f82cbe571986488210ff863cea282ae297988ab85339",
+      "bytes": 26087
+    },
+    {
+      "path": "wiki_site/assets/shipIcon78.png",
+      "sha256": "90fc6eaed2c22de346f45ca5e235c8c56b41d5772ad81526e6e6891651d6af68",
+      "bytes": 30689
+    },
+    {
+      "path": "wiki_site/assets/shipIcon79.png",
+      "sha256": "0f1ca6d350ef26b9837af50683963e5f069a1fa52d46f0b6c9d31eb5fa06f76c",
+      "bytes": 29883
+    },
+    {
+      "path": "wiki_site/assets/shipIcon8.png",
+      "sha256": "8451589854bf6c23b67b399ca5f6032f0bb8626ea1e397dc6031379eda731a1c",
+      "bytes": 22646
+    },
+    {
+      "path": "wiki_site/assets/shipIcon80.png",
+      "sha256": "df35becc3e3424ce51b75e66aa336d76be552b5f729a5a3cfc9f81f27236eab7",
+      "bytes": 18600
+    },
+    {
+      "path": "wiki_site/assets/shipIcon81.png",
+      "sha256": "354b7f99111a9cc87975a3ad8bb969dfba2ea79bc5c111d648a3dabfccde0241",
+      "bytes": 5097
+    },
+    {
+      "path": "wiki_site/assets/shipIcon9.png",
+      "sha256": "b99a8d8746d68bde52740300ace623894ff683926d8c0f6433ded29217385588",
+      "bytes": 20878
+    },
+    {
+      "path": "wiki_site/assets/shipyard_background.png",
+      "sha256": "29fe8bc82e41d0247c2b9475895ac3c3418f49b6c4f06740a198fbe71afb40ce",
+      "bytes": 1832390
+    },
+    {
+      "path": "wiki_site/next.js",
+      "sha256": "ab2d010380a49076a736d5809908badb5d4c8f59c0799959f9045ddccafefcdc",
+      "bytes": 23768
+    },
+    {
+      "path": "wiki_site/style.css",
+      "sha256": "b11fe95e3e8190e5d6104e6816fac528032d1be8a8a9ae861d27fb7cfa93eda7",
+      "bytes": 11909
+    },
+    {
+      "path": "workbench_db.py",
+      "sha256": "86d83f5ed003db5e9bfabbb618911169d880f731557460bafd8c252cf5956d12",
+      "bytes": 18929
+    },
+    {
+      "path": "workbench_import.py",
+      "sha256": "58e43cad1fe05409ae9dc3f2f72034f3772bf19be3dc78d082d8dc99c6bb78b3",
+      "bytes": 15932
+    },
+    {
+      "path": "workbench_ui.py",
+      "sha256": "b5e7cfa41cb530aefcb68da582f7bbc35a62e8106117dfc2f3aee5e9462ae957",
+      "bytes": 148503
+    },
+    {
+      "path": "workbench_updates.py",
+      "sha256": "21c6028977002d62ab76d36a15236ffea0ed1951b4069ca68e6a4e635c95cb7e",
+      "bytes": 3219
+    },
+    {
+      "path": "xnb_diagnostics.py",
+      "sha256": "58c42505c4f0e35c83c2e30af264f4e138ed167bda458a2472c87a07bc6b7a6a",
+      "bytes": 2934
+    }
+  ],
+  "checks": [
+    {
+      "item": "desktop_main.py",
+      "passed": true
+    },
+    {
+      "item": "workbench_ui.py",
+      "passed": true
+    },
+    {
+      "item": "engine/full_recovery.py",
+      "passed": true
+    },
+    {
+      "item": "engine/xnb_geometry.py",
+      "passed": true
+    },
+    {
+      "item": "gameplay_capture.py",
+      "passed": true
+    },
+    {
+      "item": "packaging/Build-Windows.ps1",
+      "passed": true
+    },
+    {
+      "item": "advanced_geometry.py",
+      "passed": true
+    },
+    {
+      "item": "advanced_network.py",
+      "passed": true
+    },
+    {
+      "item": "advanced_assets.py",
+      "passed": true
+    },
+    {
+      "item": "advanced_experiments.py",
+      "passed": true
+    },
+    {
+      "item": "advanced_sailing.py",
+      "passed": true
+    },
+    {
+      "item": "advanced_catalog.py",
+      "passed": true
+    },
+    {
+      "item": "advanced_release.py",
+      "passed": true
+    },
+    {
+      "item": "all Python sources compile",
+      "passed": true,
+      "errors": []
+    }
+  ],
+  "validation_limits": {
+    "windows_executable_built": false,
+    "live_game_client_tested": false,
+    "gpu_shader_parity_tested": false,
+    "exact_server_damage_verified": false
+  },
+  "readiness": "source-structure-checks-passed"
+}

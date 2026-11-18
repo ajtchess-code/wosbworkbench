@@ -1,0 +1,23 @@
+{
+  "warning": "No raw packet bytes, addresses or tokens included. Existing sample data was supplied by the user.",
+  "records": [
+    {
+      "label": "Nov 16 reference capture",
+      "confirmed_remote_game_port": 23771,
+      "client_payload_segments": 46,
+      "server_payload_segments": 192,
+      "candidate_45_byte_client_segments": 0,
+      "length_prefix_segment_hints": 233,
+      "interpretation": "unclassified network observations only; single/broadside shot and HP damage not decoded"
+    },
+    {
+      "label": "Nov 17 Huracan fight",
+      "confirmed_remote_game_port": 23771,
+      "client_payload_segments": 231,
+      "server_payload_segments": 802,
+      "candidate_45_byte_client_segments": 99,
+      "length_prefix_segment_hints": 1028,
+      "interpretation": "unclassified network observations only; single/broadside shot and HP damage not decoded"
+    }
+  ]
+}

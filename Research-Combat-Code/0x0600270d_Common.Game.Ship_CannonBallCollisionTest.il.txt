@@ -1,0 +1,20 @@
+0001 ldarg.2 
+0002 initobj ::ShipAndBallCollisionTestResult token(0x0200023D)
+0008 ldarg.0 
+0009 ldarg.1 
+000a ldfld Common.Game.CannonBall::A token(0x04000E4E)
+000f callvirt UWPhysicsWOSLib.Shapes.Shape::get_Sphere token(0x06000085)
+0014 call Common.Game.Ship::SphereCollisionTest token(0x0600270C)
+0019 brfalse.s 59
+001b ldarg.0 
+001c ldarg.1 
+001d ldfld Common.Game.CannonBall::A token(0x04000E4E)
+0022 ldarg.2 
+0023 ldarg.1 
+0024 callvirt Common.Game.CannonBall::get_BallInfo token(0x06002535)
+0029 ldc.i4.s 9
+002b callvirt Common.Resources.CannonBallInfo::get_Item token(0x06001D23)
+0030 ldarg.1 
+0031 ldfld Common.Game.CannonBall::PassedSailHitboxes token(0x04000E47)
+0036 call Common.Game.Ship::A token(0x06002710)
+003b ret 

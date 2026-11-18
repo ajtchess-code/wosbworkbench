@@ -1,0 +1,13 @@
+WoSB Workbench v4.3.6 — TEST RESULTS
+====================================
+Date: 2026-11-18 · Linux · Python 3.13
+Command: python -m pytest -q
+Result: 207 passed in 5.73s
+  155 pre-existing + 28 (test_v436_fixes_and_protocol.py) + 24 (test_v436_platform.py)
+Includes: RFC 8032 Ed25519 vectors; signed/unsigned/tampered update ZIPs; stale-file removal;
+  Protocol Lab on synthetic captures; schema decode/export; watcher state machine; coverage,
+  version tracking, XWB and source index; wiki search/links/tags/revisions/drafts/renderer;
+  web Codex routes; --self-test; headless UI smoke run (all pages and main flows on a Tk stand-in).
+
+NOT TESTED HERE: Windows build/installer/frozen self-test; real Tk rendering; live game capture;
+  protocol_extract and ILSpy on real WoSB assemblies; real WoSB .xwb banks; Wireshark loading the Lua dissector.

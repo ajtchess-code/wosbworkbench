@@ -1,0 +1,40 @@
+WOSB WORKBENCH v4.3 — START HERE
+=================================
+
+WHAT'S NEW: Modern Research Center; Codex ship outfitting with original game artwork;
+controlled cannon tests; damage-evidence charts; sailing and wind notebook;
+visual-fidelity comparison; manual HP-bar video measurements; UTC video/packet
+research timeline; setup/readiness checker; prioritized failed-asset repair queue.
+
+1) Extract the full SOURCE ZIP to a normal folder. Open WoSB-Workbench-v4.3.
+2) Double-click Build-Windows.cmd on a Windows computer with Python 3.13
+   installed. This builds dist\WoSBWorkbench\WoSBWorkbench.exe, a portable ZIP,
+   and an update-compatible ZIP. Optional Inno Setup 6 builds Setup.exe.
+   NOTE: You cannot install the source ZIP through the Workbench updater.
+3) Start the compiled app. Existing user data remains under
+   %LOCALAPPDATA%\WoSBWorkbench.
+4) Overview: Open Research Center, Shipyard & fitting, Ballistics Studio,
+   Combat experiments, Damage Evidence Atlas, Visual Fidelity Lab, or
+   Video + packet correlation. Check setup/release readiness here too.
+5) For the wiki without compiling the desktop app, use
+   Open-Local-WoSB-Codex.cmd with the Python dependencies installed.
+6) Full Recovery -> Recover Everything reads your installed game clients.
+   It can resume existing results. Failure ZIPs now include a Repair Queue.
+7) Gameplay Capture Studio remains under More research tools -> Network
+   Research Lab. Recording is opt-in; FFmpeg and TShark/Npcap are needed.
+   Video HP tool is in Overview; you manually select the HP bar rectangle
+   and color. The result is a *relative bar fill*, not guaranteed exact HP.
+
+RESEARCH RULES: Source-derived, measured and illustrative estimates stay
+separate. The real WoSB server-authoritative HP/ricochet/mortar/sail/barrel
+formulas, all original shaders/animations and a playable multiplayer emulator
+have NOT been verified/recreated. The local emulation mode is a sandbox.
+
+RUN THE SOURCE TESTS:
+  py -3.13 -m unittest discover -s tests -q
+
+QUICK DIAGNOSTICS:
+  py -3.13 research_suite.py check
+  py -3.13 research_suite.py release --root .
+
+Read RELEASE-NOTES-v4.3.md for exact feature details, limitations and evidence.

@@ -1,0 +1,112 @@
+# Builds WoSB Workbench on GitHub's Windows machines — no local build needed.
+#   * Every push to main / pull request: unit tests + Windows build + frozen self-test (artifacts kept 14 days).
+#     (Windows minutes count double on private repos, so other branches are not built automatically;
+#      use "Run workflow" on the Actions tab to build any branch.)
+#   * Pushing a tag vX.Y.Z (matching workbench_db.VERSION): also publishes a GitHub Release with
+#       WoSBWorkbench-X.Y.Z-Setup.exe     <- download this and double-click to install
+#       WoSBWorkbench-X.Y.Z-Update.zip    <- used by the app's built-in updater
+#       WoSBWorkbench-X.Y.Z-Portable.zip
+#       wosb-release.json                 <- SHA-256 of every asset (+ optional Ed25519 signature)
+# Optional repository secret WOSB_SIGNING_KEY_HEX signs releases (see packaging/Make-Signing-Key.py).
+name: Build and release
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: ${{ !startsWith(github.ref, 'refs/tags/') }}
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Install dependencies
+        run: python -m pip install -r engine/requirements.txt pytest
+      - name: Unit tests
+        run: python -m pytest -q
+
+  windows:
+    needs: tests
+    runs-on: windows-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Read version
+        id: version
+        shell: pwsh
+        run: |
+          $v = (python -c "from workbench_db import VERSION; print(VERSION)").Trim()
+          "version=$v" >> $env:GITHUB_OUTPUT
+          if ($env:GITHUB_REF -like 'refs/tags/*' -and $env:GITHUB_REF_NAME -ne "v$v") {
+            throw "Tag $env:GITHUB_REF_NAME does not match workbench_db.VERSION ($v). Bump VERSION first."
+          }
+      - name: Install Inno Setup
+        shell: pwsh
+        run: choco install innosetup --no-progress -y
+      - name: Build executable, self-test it and build the installer
+        shell: pwsh
+        env:
+          WOSB_SKIP_TESTS: '1'
+          WOSB_PYTHON: python
+          WOSB_SIGNING_KEY_HEX: ${{ secrets.WOSB_SIGNING_KEY_HEX }}
+        run: |
+          if ($env:WOSB_SIGNING_KEY_HEX) {
+            $key = Join-Path $env:RUNNER_TEMP 'wosb-signing.txt'
+            Set-Content -LiteralPath $key -Value $env:WOSB_SIGNING_KEY_HEX -Encoding ascii
+            $env:WOSB_SIGNING_KEY = $key
+          }
+          ./packaging/Build-Windows.ps1
+          $setup = "dist/Installer/WoSBWorkbench-${{ steps.version.outputs.version }}-Setup.exe"
+          if (-not (Test-Path $setup)) { throw "Installer was not produced: $setup" }
+          Copy-Item $setup dist/
+          python packaging/Make-Release-Manifest.py --dist dist --version ${{ steps.version.outputs.version }}
+      - name: Keep build outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: WoSB-Workbench-${{ steps.version.outputs.version }}
+          retention-days: 14
+          if-no-files-found: error
+          path: |
+            dist/WoSBWorkbench-*-Setup.exe
+            dist/WoSBWorkbench-*-Update.zip
+            dist/WoSBWorkbench-*-Portable.zip
+            dist/wosb-release.json
+            dist/Self-Test.json
+
+  publish:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: windows
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: WoSB-Workbench-${{ needs.windows.outputs.version }}
+          path: release
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.windows.outputs.version }}
+        run: |
+          notes="RELEASE-NOTES-v${VERSION}.md"
+          if [ ! -f "$notes" ]; then echo "WoSB Workbench ${VERSION}" > /tmp/notes.md; notes=/tmp/notes.md; fi
+          gh release create "$GITHUB_REF_NAME" \
+            "release/WoSBWorkbench-${VERSION}-Setup.exe" \
+            "release/WoSBWorkbench-${VERSION}-Update.zip" \
+            "release/WoSBWorkbench-${VERSION}-Portable.zip" \
+            "release/wosb-release.json" \
+            --title "WoSB Workbench ${VERSION}" --notes-file "$notes" --verify-tag

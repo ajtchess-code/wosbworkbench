@@ -1,0 +1,53 @@
+000c ldarg.0 
+000d ldfld Common.Game.ShipFirstHp::A token(0x04000FE6)
+0012 ldc.r4 0.0
+0017 ble.un.s 31
+0019 ldc.r4 0.0
+001e ret 
+001f ldarg.0 
+0020 ldc.r4 0.0
+0025 ldarg.0 
+0026 ldfld Common.Game.ShipFirstHp::TemporalStrength token(0x04000FF0)
+002b ldarg.1 
+002c sub 
+002d call System.Math::Max token(0x0A0000AC)
+0032 stfld Common.Game.ShipFirstHp::TemporalStrength token(0x04000FF0)
+0037 ldarg.1 
+0038 ldarg.0 
+0039 ldfld Common.Game.ShipFirstHp::Summary token(0x04000FF1)
+003e call System.Math::Min token(0x0A00009C)
+0043 stloc.0 
+0044 ldarg.0 
+0045 ldarg.0 
+0046 ldfld Common.Game.ShipFirstHp::Summary token(0x04000FF1)
+004b ldloc.0 
+004c sub 
+004d conv.r8 
+004e ldc.r8 0.5
+0057 blt.s 99
+0059 ldarg.0 
+005a ldfld Common.Game.ShipFirstHp::Summary token(0x04000FF1)
+005f ldloc.0 
+0060 sub 
+0061 br.s 104
+0063 ldc.r4 0.0
+0068 stfld Common.Game.ShipFirstHp::Summary token(0x04000FF1)
+006d ldarg.0 
+006e ldfld Common.Game.ShipFirstHp::Summary token(0x04000FF1)
+0073 ldc.r4 0.0
+0078 bgt.un.s 133
+007a ldarg.0 
+007b ldc.r4 0.0
+0080 stfld Common.Game.ShipFirstHp::Summary token(0x04000FF1)
+0085 ldarg.0 
+0086 ldfld Common.Game.ShipFirstHp::Summary token(0x04000FF1)
+008b ldc.r4 0.0
+0090 bgt.un.s 168
+0092 ldarg.0 
+0093 ldc.r4 0.009999999776482582
+0098 stfld Common.Game.ShipFirstHp::A token(0x04000FE6)
+009d ldarg.0 
+009e ldc.r4 1.0
+00a3 stfld Common.Game.ShipFirstHp::Summary token(0x04000FF1)
+00a8 ldloc.0 
+00a9 ret 

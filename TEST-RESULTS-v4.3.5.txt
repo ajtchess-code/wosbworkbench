@@ -1,0 +1,25 @@
+WoSB Workbench v4.3.5 — TEST RESULTS
+====================================
+Date: 2026-11-18
+Validation platform: Linux, Python 3.13.5
+Baseline v4.3.4 tests before edits: 105 passed
+Current complete source: 130 tests passed, 0 test failures, 0 errors
+Added advanced regression tests: 25
+Command: python -m unittest discover -s tests -q
+Python bytecode/syntax: python -m compileall -q . (passed)
+CLI smoke test: advanced_research_cli.py --help (passed)
+CLI smoke test: benchmark --grid 24 (passed)
+CLI smoke test: release manifest (passed)
+Existing suite emitted ResourceWarning(s) for unclosed SQLite connections in
+wiki_server.py; this does not change the test result and warrants cleanup.
+
+NOT TESTED HERE:
+- A native Windows executable was NOT built on this Linux environment.
+- No clean Windows installation / upgrade / rollback was executed.
+- No in-game GPU shader equivalence, ship design parity or original game collision was established.
+- No authoritative server damage equation was recovered.
+- No live game packet/HP/video capture was conducted from this environment.
+- Synthetic PCAP and frame-change fixtures are not a live capture substitute.
+
+The source can be built using Build-Update.cmd on Windows with Python 3.13.
+Never pass the complete-source ZIP to the installed Workbench updater.

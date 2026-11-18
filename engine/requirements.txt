@@ -1,0 +1,6 @@
+dnfile==0.18.0
+dncil==1.0.2
+pyzipper==0.4.0
+Pillow==13.0.0
+texture2ddecoder==1.0.6
+lz4>=4.3.3,<5

@@ -1,0 +1,17 @@
+WoSB Workbench v4.1 — START HERE (Windows 10/11)
+
+1. Extract the source ZIP to a normal folder outside the WoSB game installation.
+2. Run Build-Windows.cmd (Python 3.13 required to BUILD; internet may be required to install Python libraries). This compiles a portable EXE, a portable ZIP, and an updater-compatible ZIP. If Inno Setup 6 is installed, it also creates Setup.exe.
+3. Launch dist\WoSBWorkbench\WoSBWorkbench.exe. Alternatively, existing v3.4+ Workbench installs can use their Updates screen to apply the newly built dist\WoSBWorkbench-4.1.0-Update.zip. Do NOT give the Updates screen this SOURCE ZIP.
+4. User data is kept in %LOCALAPPDATA%\WoSBWorkbench. Create a backup before upgrading, but do not delete your earlier recovery scans or wiki notes.
+5. Choose Full Recovery -> Recover ALL installations (or Recover Everything for one selected game). The scan only READS the game directories; it can take time and disk space. It creates decode ledgers, code evidence and small review-only ZIPs. The first v4.1 scan should check the original client versions and recalculate code method signatures.
+6. Choose Ship 3D to view recovered models. Use the asset-folder field to point at your game Data folder or your directory of WOSB-Research-Part-*.zip parts. Run Recover XNB -> OBJ again to preserve UV/material names. Use Export textured GLB for an offline model file. Switch skins and check the material diagnostic panel.
+7. Open the Local Codex from Workbench. On a source checkout you may run Open-Local-WoSB-Codex.cmd. Explore Shipyard Atlas, Compare Ships, Guides, Equipment and Mechanics Lab. Fittings and observations are local research notebooks, not verified official loadout or shot outcomes.
+8. Run Recover-All-Clients.cmd as an optional stand-alone full multi-installation scan. See RELEASE-NOTES-v4.1.md for evidence and limitations.
+
+INTEGRITY / LIMITS
+- Ship models and textures must come from your installed game or your own research export; raw game assets are not redistributed in this source ZIP.
+- Camera-directed exposure maps measure surface obliquity, NOT confirmed damage vulnerability.
+- Calculations recovered from client code do not automatically establish final server-side HP damage, ricochet, mortar or barrel damage formulas.
+- Local server emulator research is a deterministic offline sandbox, not an official-protocol compatible playable server.
+- Windows builds and original in-game visual comparisons cannot be verified in this Linux packaging environment.

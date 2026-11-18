@@ -1,0 +1,16 @@
+# Build outputs
+dist/
+build/
+.build-venv/
+*.spec
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+# Never commit signing secrets or tokens
+*secret*.txt
+*.key
+secrets/
+# Local data
+*.sqlite3-wal
+*.sqlite3-shm
