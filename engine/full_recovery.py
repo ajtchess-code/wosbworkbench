@@ -309,14 +309,20 @@ class Recovery:
         No conversion to C# or claim that client functions are server-authoritative.
         """
         from client_metadata import Metadata
-        files=list(self.files({'.dll','.exe'}))
+        import re as _re
+        # The Steam build bundles the .NET runtime (~200 DLLs). Indexing it used
+        # up the method cap before the game's own engine assemblies were reached.
+        framework=_re.compile(r'^(System(\..*)?|Microsoft\..*|mscorlib|netstandard|WindowsBase|Presentation.*|'
+                              r'ReachFramework|UIAutomation.*|WinRT\.Runtime|DirectWriteForwarder|Accessibility|'
+                              r'PenImc.*|WindowsFormsIntegration)$',_re.I)
+        files=[f for f in self.files({'.dll','.exe'}) if not framework.match(f.stem)]
         # Code indexes have an upper bound; index gameplay assemblies before
         # enormous Windows SDK and UI dependencies so combat evidence survives.
         def assembly_priority(path):
             name=path.name.casefold()
             if name=='common.dll':return (0,str(path).casefold())
             if 'worldofseabattle' in name or name=='content.dll':return (1,str(path).casefold())
-            if name.startswith(('uw','wosb')):return (2,str(path).casefold())
+            if name.startswith(('uw','wosb','reskana','thera','fna')):return (2,str(path).casefold())
             return (3,str(path).casefold())
         files.sort(key=assembly_priority)
         count=0;errors=[];assembly_rows=[];limit_hit=False;remaining_uninspected=0

@@ -45,7 +45,44 @@ HANDLERS = {
     '.mp3': ('Audio', 'Direct'), '.fx': ('Shader source', 'Shader recovery'), '.fxo': ('Compiled shader', 'Shader recovery'),
     '.mgfx': ('MonoGame effect', 'Shader recovery'), '.ttf': ('Font', 'Direct'), '.otf': ('Font', 'Direct'),
     '.pdb': ('Debug symbols', 'Use with ILSpy for names'), '.config': ('.NET config', 'Structured inspector'),
+    # Standard formats: nothing to reverse, they open with ordinary tools.
+    '.ogv': ('Video (Ogg Theora)', 'Direct: plays in VLC; ffmpeg converts it'),
+    '.webm': ('Video', 'Direct'), '.mp4': ('Video', 'Direct'),
+    '.ico': ('Icon', 'Direct (Pillow)'), '.svg': ('Vector image', 'Direct (text)'),
+    '.woff': ('Web font', 'Direct'), '.woff2': ('Web font (Brotli-compressed by design)', 'Direct'),
+    '.html': ('Web page', 'Direct (text)'), '.htm': ('Web page', 'Direct (text)'), '.js': ('JavaScript', 'Direct (text)'),
+    '.css': ('Stylesheet', 'Direct (text)'), '.ts': ('TypeScript declarations', 'Direct (text)'),
+    '.yml': ('YAML config', 'Direct (text)'), '.yaml': ('YAML config', 'Direct (text)'), '.plist': ('Property list', 'Direct (text)'),
+    '.nsh': ('NSIS installer script', 'Direct (text)'), '.sh': ('Shell script', 'Direct (text)'), '.md': ('Text', 'Direct'),
+    '.asar': ('Electron app archive (launcher code)', 'datamine.extract_asar'),
+    '.pak': ('Chromium resource pack (Electron runtime, not game data)', 'Not needed for the game'),
+    '.pem': ('Certificate / key (launcher bundle)', 'Do not share; not game data'),
+    '.cer': ('Certificate', 'Do not share; not game data'), '.crt': ('Certificate', 'Do not share; not game data'),
+    '.bak': ('Backup copy', 'Same format as the file it backs up'),
 }
+# Files the coverage report recognizes by name or content rather than extension.
+NAMED = {
+    'icudtl.dat': ('ICU Unicode data (Electron/.NET runtime)', 'Not game data'),
+    'snapshot_blob.bin': ('V8 snapshot (Electron runtime)', 'Not game data'),
+    'v8_context_snapshot.bin': ('V8 snapshot (Electron runtime)', 'Not game data'),
+    'appid': ('Steam app id (text)', 'Direct (text)'),
+}
+
+
+def _sniff(name, head):
+    """Recognize a file by name or leading bytes when its extension says nothing."""
+    if name.casefold() in NAMED:
+        return NAMED[name.casefold()]
+    stripped = head.lstrip(b'\xef\xbb\xbf \t\r\n')
+    if stripped[:1] in (b'{', b'['):
+        return ('JSON (by content)', 'Direct: open as JSON')
+    if head[:2] == b'MZ':
+        return ('PE binary (by content)', 'Managed IL index when .NET; Ghidra when native')
+    if head[:4] == b'OggS':
+        return ('Ogg container (by content)', 'Direct')
+    if head[:4] == b'PK\x03\x04':
+        return ('ZIP container (by content)', 'Any ZIP tool')
+    return None
 SKIP_DIRS = {'$recycle.bin', '__pycache__'}
 
 
@@ -68,7 +105,7 @@ def _is_managed(path):
 def coverage_report(root, *, ledger=None, file_limit=400_000):
     """Classify every file under ``root`` and point at the remaining gaps."""
     root = Path(root).resolve(strict=True)
-    by_ext = defaultdict(lambda: {'files': 0, 'bytes': 0, 'magic': Counter(), 'samples': [], 'entropy': []})
+    by_ext = defaultdict(lambda: {'files': 0, 'bytes': 0, 'magic': Counter(), 'samples': [], 'entropy': [], 'sniffed': Counter()})
     managed = native = 0; count = 0
     for current, dirs, files in os.walk(root):
         dirs[:] = [d for d in dirs if d.casefold() not in SKIP_DIRS]
@@ -85,6 +122,10 @@ def coverage_report(root, *, ledger=None, file_limit=400_000):
             except OSError:
                 continue
             row = by_ext[ext]; row['files'] += 1; row['bytes'] += size
+            if ext not in HANDLERS:
+                found = _sniff(name, head)
+                if found:
+                    row['sniffed'][found] += 1
             row['magic'][head[:4].hex()] += 1
             if len(row['samples']) < 5:
                 row['samples'].append(path.relative_to(root).as_posix())
@@ -110,13 +151,15 @@ def coverage_report(root, *, ledger=None, file_limit=400_000):
     rows = []; gaps = []
     for ext, row in sorted(by_ext.items(), key=lambda kv: -kv[1]['bytes']):
         kind, handler = HANDLERS.get(ext, ('Unknown', None))
+        if handler is None and row['sniffed'] and sum(row['sniffed'].values()) == row['files']:
+            (kind, handler), _n = row['sniffed'].most_common(1)[0]
         mean_entropy = round(sum(row['entropy']) / len(row['entropy']), 2) if row['entropy'] else 0
         item = {'extension': ext, 'files': row['files'], 'megabytes': round(row['bytes'] / 1048576, 2),
                 'kind': kind, 'handler': handler or 'NONE — not decoded yet',
                 'common_magic': [m for m, _ in row['magic'].most_common(3)], 'header_entropy': mean_entropy,
                 'samples': row['samples']}
         rows.append(item)
-        if handler is None and row['bytes'] > 64 * 1024:
+        if handler is None and row['bytes'] > 16 * 1024:
             gaps.append({'extension': ext, 'files': row['files'], 'megabytes': item['megabytes'],
                          'hint': ('high entropy: probably compressed or encrypted container — look for the loader in the client code'
                                   if mean_entropy > 7.5 else 'structured binary: inspect samples in a hex editor (ImHex) and search the decompiled client for the extension'),
@@ -131,6 +174,71 @@ def coverage_report(root, *, ledger=None, file_limit=400_000):
     return {'format': 'wosb-decode-coverage-v1', 'root': str(root), 'generated_utc': _utc(),
             'files': count, 'managed_assemblies': managed, 'native_binaries': native,
             'by_extension': rows, 'xnb_ledger': dict(ledger_counts), 'gaps': gaps}
+
+
+def find_ledger(data_home, root):
+    """Newest Full Recovery AssetLedger.jsonl for ``root`` (single- or all-clients run)."""
+    data_home = Path(data_home); want = str(Path(root)).casefold().rstrip('\\/')
+    candidates = []
+    for status in list(data_home.glob('FullRecovery/*/Recovery-Status.json')) + list(data_home.glob('FullRecovery-AllClients/*/Recovery-Status.json')):
+        try:
+            data = json.loads(status.read_text(encoding='utf-8'))
+        except (OSError, ValueError):
+            continue
+        source = str(data.get('source') or data.get('root') or data.get('game') or '').casefold().rstrip('\\/')
+        ledger = status.parent / 'Reports' / 'AssetLedger.jsonl'
+        if source == want and ledger.is_file():
+            candidates.append(ledger)
+    if not candidates:
+        return None
+    return max(candidates, key=lambda p: p.stat().st_mtime)
+
+
+def extract_asar(path, out_dir, *, max_files=20000, max_bytes=512 * 1024 * 1024):
+    """Unpack an Electron ``app.asar`` (the launcher's JavaScript) to ``out_dir``.
+
+    Format: a Chromium Pickle header holding a JSON file table, followed by the
+    concatenated file bodies. Files marked ``unpacked`` live in ``app.asar.unpacked``.
+    """
+    path = Path(path); out = Path(out_dir)
+    with path.open('rb') as fh:
+        head = fh.read(16)
+        if len(head) < 16:
+            raise ValueError('Not an asar archive')
+        header_size = struct.unpack_from('<I', head, 4)[0]
+        json_len = struct.unpack_from('<I', head, 12)[0]
+        if not 0 < json_len < 64 * 1024 * 1024:
+            raise ValueError('Not an asar archive (bad header length)')
+        table = json.loads(fh.read(json_len).decode('utf-8'))
+        base = 8 + header_size
+        written = 0; total = 0; unpacked = 0; skipped = []
+        root_out = out.resolve()
+
+        def walk(node, rel):
+            nonlocal written, total, unpacked
+            for name, entry in (node.get('files') or {}).items():
+                if '/' in name or '\\' in name or name in ('', '.', '..'):
+                    skipped.append(rel + name); continue
+                child = rel + name
+                if 'files' in entry:
+                    walk(entry, child + '/'); continue
+                if entry.get('unpacked'):
+                    unpacked += 1; continue
+                if 'link' in entry:
+                    skipped.append(child); continue
+                size = int(entry.get('size', 0)); offset = int(entry.get('offset', 0))
+                if written >= max_files or total + size > max_bytes:
+                    raise ValueError('asar archive exceeds extraction limits')
+                dest = (out / child).resolve()
+                if root_out not in dest.parents:
+                    skipped.append(child); continue
+                dest.parent.mkdir(parents=True, exist_ok=True)
+                fh.seek(base + offset)
+                dest.write_bytes(fh.read(size))
+                written += 1; total += size
+        walk(table, '')
+    return {'archive': str(path), 'output': str(out), 'files_written': written, 'bytes': total,
+            'unpacked_elsewhere': unpacked, 'skipped': skipped[:50]}
 
 
 def _utc():
@@ -230,15 +338,39 @@ def find_ilspycmd(configured=None):
     return next((c for c in candidates if c and Path(c).is_file()), None)
 
 
-def decompile_assemblies(root, out_dir, *, ilspycmd=None, include=r'.*', timeout=900, progress=None, cancel=None):
-    """Decompile every managed assembly under root to a C# project per assembly."""
+# The Steam client is a self-contained .NET publish, so ~200 of its DLLs are the
+# .NET runtime itself. Decompiling those wastes minutes and buries the game code.
+FRAMEWORK_ASSEMBLY = re.compile(
+    r'^(System(\..*)?|Microsoft\..*|mscorlib|netstandard|WindowsBase|Presentation.*|ReachFramework|'
+    r'UIAutomation.*|WinRT\.Runtime|DirectWriteForwarder|Accessibility|PenImc.*|WindowsFormsIntegration|'
+    r'createdump|clrjit|coreclr|hostfxr|hostpolicy|vcruntime.*|msquic|api-ms-win-.*)$', re.I)
+
+
+def is_framework_assembly(path):
+    return bool(FRAMEWORK_ASSEMBLY.match(Path(path).stem))
+
+
+def decompile_assemblies(root, out_dir, *, ilspycmd=None, include=r'.*', timeout=900, progress=None, cancel=None,
+                         label=None, include_framework=False):
+    """Decompile the managed assemblies under root to one C# project each.
+
+    Output goes to ``out_dir/<label>/<assembly>`` so several installs can be kept side
+    by side; .NET runtime assemblies are skipped unless ``include_framework``.
+    """
     exe = find_ilspycmd(ilspycmd)
     if not exe:
         raise FileNotFoundError('ilspycmd not found. Install the .NET SDK, then: dotnet tool install --global ilspycmd')
-    root = Path(root).resolve(strict=True); out = Path(out_dir); out.mkdir(parents=True, exist_ok=True)
+    root = Path(root).resolve(strict=True)
+    base = Path(out_dir)
+    out = base / re.sub(r'[^\w.-]', '_', label or root.name)
     pattern = re.compile(include, re.I)
-    assemblies = [p for p in sorted(root.rglob('*')) if p.suffix.casefold() in ('.dll', '.exe') and p.is_file()
+    candidates = [p for p in sorted(root.rglob('*')) if p.suffix.casefold() in ('.dll', '.exe') and p.is_file()
                   and pattern.search(p.name) and _is_managed(p)]
+    assemblies = [p for p in candidates if include_framework or not is_framework_assembly(p)]
+    if not assemblies:
+        raise ValueError(f'No managed .NET game assemblies found in {root}. '
+                         'The WoSB launcher is an Electron app; decompile the game client (Steam or standalone) instead.')
+    out.mkdir(parents=True, exist_ok=True)
     results = []
     flags = getattr(subprocess, 'CREATE_NO_WINDOW', 0) if os.name == 'nt' else 0
     for i, asm in enumerate(assemblies, 1):
@@ -258,10 +390,21 @@ def decompile_assemblies(root, out_dir, *, ilspycmd=None, include=r'.*', timeout
                             'error': '' if ok else (proc.stderr or proc.stdout)[-800:]})
         except subprocess.TimeoutExpired:
             results.append({'assembly': asm.relative_to(root).as_posix(), 'ok': False, 'error': 'timeout'})
-    summary = {'format': 'wosb-decompile-v1', 'root': str(root), 'output': str(out), 'generated_utc': _utc(),
-               'assemblies': results, 'tool': exe,
+    summary = {'format': 'wosb-decompile-v2', 'root': str(root), 'label': out.name, 'output': str(out),
+               'generated_utc': _utc(), 'assemblies': results, 'tool': exe,
+               'skipped_framework': len(candidates) - len(assemblies),
                'note': 'Static decompilation of your local client for research; do not redistribute the output.'}
     (out / 'Decompile-Summary.json').write_text(json.dumps(summary, indent=2), encoding='utf-8')
+    # Keep a top-level index of every install decompiled so far.
+    index_file = base / 'Decompile-Summary.json'
+    try:
+        existing = json.loads(index_file.read_text(encoding='utf-8')) if index_file.is_file() else {}
+    except (OSError, ValueError):
+        existing = {}
+    installs = {k: v for k, v in (existing.get('installs') or {}).items()} if existing.get('format') == 'wosb-decompile-index-v1' else {}
+    installs[out.name] = {'root': str(root), 'generated_utc': summary['generated_utc'],
+                          'assemblies': len(results), 'ok': sum(1 for r in results if r.get('ok'))}
+    index_file.write_text(json.dumps({'format': 'wosb-decompile-index-v1', 'installs': installs}, indent=2), encoding='utf-8')
     return summary
 
 
@@ -286,6 +429,8 @@ def build_source_index(source_dir, index_path=None):
             conn.execute('CREATE TABLE source_fts (path TEXT, body TEXT)'); fts = False
         files = 0; symbols = 0
         for path in sorted(source_dir.rglob('*.cs')):
+            if any(is_framework_assembly(part) for part in path.relative_to(source_dir).parts[:-1][:2]):
+                continue
             try:
                 body = path.read_text(encoding='utf-8', errors='replace')
             except OSError:

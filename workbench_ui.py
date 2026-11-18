@@ -143,6 +143,7 @@ class App:
         self.tabs.on_select=lambda title:self.settings.set('ui.last_page',title)
         if self.settings.get('capture.auto_capture',False):self.root.after(1500,self._start_watcher)
         if not self.settings.get('first_run_complete',False):self.root.after(700,self._open_setup_wizard)
+        self.root.after(900,self._repair_saved_installs)
         self.root.after(1200,self._refresh_dashboard)
         if self.settings.get('updates.check_on_startup',True):self.root.after(4000,lambda:self._github_check(silent=True))
 
@@ -659,7 +660,12 @@ class App:
                  ('Extract audio bank (.xwb)','XACT wave banks to WAV files (PCM / ADPCM); other codecs saved raw.',self._dm_wave_bank),
                  ('Compare definitions between builds','Added/removed message classes, field changes and renumbered opcodes.',self._protocol_diff),
                  ('Protocol message browser','Hex view per message type, field inference and schema editing; exports Wireshark/ImHex/Kaitai.',self._open_message_browser),
-                 ('Recover ALL installations','Run Full Recovery on every configured Game/Steam/launcher folder.',self._start_all_recovery)]
+                 ('Recover ALL installations','Run Full Recovery on every configured Game/Steam/launcher folder.',self._start_all_recovery),
+                 ('Rebuild ship hitboxes','Corpus, sail and mast hitboxes for every recovered ship, built with the client\'s own hitbox rules.',self._dm_hitboxes),
+                 ('Damage model reference','How the client applies hull, sail, crew, fire and flooding damage, with a hit simulator.',self._dm_damage_model),
+                 ('Unpack launcher code (app.asar)','Extract the Electron launcher\'s JavaScript so it can be read and searched.',self._dm_asar),
+                 ('Free disk space','Remove duplicate Catalog-2, Catalog-3… exports (about 2.3 GB each), keeping the newest.',self._dm_cleanup),
+                 ('Build wiki website','A public fan wiki: ship/cannon/item pages, categories, guides, damage simulator, wind and comparison tools.',self._build_wiki_site)]
         for i,(title,desc,cmd) in enumerate(actions):
             card=ttk.Frame(grid,style='Card.TFrame',padding=12);card.grid(row=i//3,column=i%3,sticky='nsew',padx=(0,10),pady=(0,10))
             ttk.Label(card,text=title,style='CardTitle.TLabel').pack(anchor='w')
@@ -668,6 +674,18 @@ class App:
         for col in range(3):grid.columnconfigure(col,weight=1)
         ttk.Label(parent,text='Results open in a sortable table view and are saved under your data folder → Research. '
                   'Nothing in the game folder is modified and no game code is executed.',style='Muted.TLabel',wraplength=1000).pack(anchor='w',pady=8)
+
+    def _repair_saved_installs(self):
+        """Earlier builds could save the Workbench's own folder as the game install."""
+        try:cleared=self.settings.repair_installs()
+        except Exception:return
+        if not cleared:return
+        roots=self._known_installs()
+        self._notice('Fixed install settings',
+                     'Your saved '+'/'.join(cleared)+' install pointed at WoSB Workbench itself, so scans of it were '
+                     'scanning this app. '+(('Now using: '+', '.join(roots)+'. ') if roots else '')+
+                     'Re-run Full Recovery / Client scans to replace those results.',kind='warning',
+                     action=('Open settings',lambda:self.tabs.select_named('Settings')))
 
     def _known_installs(self):
         """Saved installs; if none are saved, auto-detect and remember them."""
@@ -749,10 +767,7 @@ class App:
         def task(ctx):
             import datamine
             from advanced_io import write_json_atomic
-            ledger=None
-            fp=__import__('hashlib').sha256(str(Path(root).resolve()).casefold().encode()).hexdigest()[:10]
-            candidate=home()/'FullRecovery'/fp/'Reports'/'AssetLedger.jsonl'
-            if candidate.is_file():ledger=candidate
+            ledger=datamine.find_ledger(home(),root)
             ctx.progress(None,'Classifying files…')
             report=datamine.coverage_report(root,ledger=ledger)
             dest=home()/'Research'/'Coverage'/('Coverage-'+slugify(Path(root).name)+'.json')
@@ -761,7 +776,9 @@ class App:
         self._run_async(task,lambda r:self._show_result(r[0],'Decode coverage — '+Path(root).name,r[1]),'Building decode coverage report…')
 
     def _dm_decompile(self):
-        root=self._pick_install('Install folder to decompile (managed .NET assemblies only)')
+        roots=[r for r in self._known_installs() if self._install_label(r)!='Launcher']
+        if len(roots)==1:root=roots[0]
+        else:root=self._pick_install('Game client to decompile (the launcher has no .NET code)')
         if not root:return
         if not messagebox.askyesno('Decompile client','Decompile every .NET assembly in this folder to C# with ILSpy?\n\n'
                                    'This can take several minutes and a few hundred MB. The output is for your own research; do not redistribute it.',parent=self.root):return
@@ -769,16 +786,157 @@ class App:
         configured=self.settings.get('tools.ilspycmd','') or None
         def task(ctx):
             import datamine
-            summary=datamine.decompile_assemblies(root,out,ilspycmd=configured,progress=ctx.progress,cancel=ctx.cancel_event)
+            summary=datamine.decompile_assemblies(root,out,ilspycmd=configured,progress=ctx.progress,cancel=ctx.cancel_event,
+                                                  label=slugify(self._install_label(root)+'-'+Path(root).name))
             ctx.progress(None,'Indexing decompiled source…')
             summary['index']=datamine.build_source_index(out,out/'Source-Index.sqlite3')
+            ctx.progress(None,'Extracting message layouts…')
+            try:
+                import source_schemas
+                schemas=source_schemas.extract_from_index(out/'Source-Index.sqlite3')
+                source_schemas.write_schemas(schemas,home()/'Research'/'Protocol'/'Message-Schemas.json')
+                summary['schemas']=schemas
+            except Exception as exc:
+                summary['schemas_error']=str(exc)
             ctx.set_output(out)
             return summary
         def done(summary):
             ok=sum(1 for a in summary['assemblies'] if a.get('ok'))
-            self._notice('Decompile finished',f"{ok}/{len(summary['assemblies'])} assemblies · {summary['index']['files']:,} source files indexed. "
+            if summary.get('schemas'):
+                import mechanics_reference
+                mechanics_reference.seed_message_pages(self.db,summary['schemas']);self.refresh_articles()
+            self._notice('Decompile finished',f"{ok}/{len(summary['assemblies'])} game assemblies ({summary.get('skipped_framework',0)} .NET runtime DLLs skipped) · {summary['index']['files']:,} source files indexed. "
                          'Use Search everything (Ctrl+K) to search the code.',kind='success',action=('Open folder',lambda:self._open_path(out)))
         self._run_async(task,done,'Decompiling client assemblies with ILSpy…')
+
+    def _dm_hitboxes(self):
+        import hitbox_recovery
+        dirs=hitbox_recovery.find_models_dirs(home())
+        if not dirs:
+            self._notice('No recovered ships','Run Full Recovery on the game client first; it decodes the ship models.',kind='warning',
+                         action=('Full Recovery',lambda:self.tabs.select_named('Full Recovery')));return
+        src=dirs[0]
+        if len(dirs)>1:
+            src=ui_extras.Chooser(self.root,COLORS,'Recovered models','Newest recovery first.',
+                                  [(str(d.parents[4].name),d,str(d)) for d in dirs]).show()
+            if not src:return
+        out=home()/'Research'/'Hitboxes'
+        def task(ctx):
+            ctx.set_output(out)
+            return hitbox_recovery.batch(src,out,progress=ctx.progress)
+        def done(res):
+            import mechanics_reference
+            mechanics_reference.seed_damage_pages(self.db);mechanics_reference.seed_hitbox_summary(self.db,res)
+            self.refresh_articles()
+            ok=sum(1 for s in res['ships'] if 'error' not in s)
+            self._notice('Hitboxes rebuilt',f'{ok}/{len(res["ships"])} ships. The Ship 3D viewer now shows these zones; see the "Ship hitbox table" wiki page.',
+                         kind='success',action=('Open folder',lambda:self._open_path(out)))
+        self._run_async(task,done,'Rebuilding ship hitboxes…')
+
+    def _dm_damage_model(self):
+        import mechanics_reference
+        mechanics_reference.seed_damage_pages(self.db);self.refresh_articles()
+        win=tk.Toplevel(self.root);win.title('Damage simulator');win.geometry('760x560');win.configure(bg=COLORS['NAVY'])
+        ttk.Label(win,text='Damage simulator',style='Section.TLabel').pack(anchor='w',padx=16,pady=(14,2))
+        ttk.Label(win,text='Applies hits with the client\'s own HP, sinking, sail and fire rules. Hit amounts are your inputs '
+                  '(the server decides those).',style='Muted.TLabel',wraplength=720).pack(anchor='w',padx=16)
+        form=ttk.Frame(win);form.pack(fill='x',padx=16,pady=10)
+        hp=tk.StringVar(value='5000');sails=tk.StringVar(value='6')
+        ttk.Label(form,text='Max HP').grid(row=0,column=0,sticky='w');ttk.Entry(form,textvariable=hp,width=10).grid(row=0,column=1,padx=6)
+        ttk.Label(form,text='Sails').grid(row=0,column=2,sticky='w');ttk.Entry(form,textvariable=sails,width=6).grid(row=0,column=3,padx=6)
+        ttk.Label(win,text='Hits, one per line:  source damage [flags]   e.g.  CannonBall 800   ·   MortarShot 50   ·   CannonBall 0 SingleSailDamage sail=2 0.3',
+                  style='Muted.TLabel',wraplength=720).pack(anchor='w',padx=16)
+        box=tk.Text(win,height=8,bg=COLORS['PANEL'],fg=COLORS['TEXT'],insertbackground=COLORS['TEXT'],relief='flat')
+        box.insert('1.0','CannonBall 1800\nCannonBall 1800\nCannonBall 1800\nCollision 100\n');box.pack(fill='x',padx=16)
+        result=tk.Text(win,height=12,bg=COLORS['PANEL'],fg=COLORS['TEXT'],relief='flat');result.pack(fill='both',expand=True,padx=16,pady=10)
+        def run():
+            import damage_model as dm
+            try:
+                n=max(1,int(sails.get()));state=dm.ShipState(max_hp=float(hp.get()),sail_weights=[1/n]*n)
+                lines=[]
+                for raw in box.get('1.0','end').splitlines():
+                    parts=raw.split()
+                    if not parts:continue
+                    data=dm.DamageData(source=dm.DamageID[parts[0]],health_damage=float(parts[1]) if len(parts)>1 else 0,source_uid=1)
+                    for extra in parts[2:]:
+                        if extra.startswith('sail='):data.collision_node_id=int(extra[5:])
+                        elif extra in dm.Flags.__members__:data.flags|=dm.Flags[extra]
+                        else:data.damage_to_sails=float(extra)
+                    r=dm.apply_damage(state,data,source_ship_uid=data.source_uid)
+                    lines.append(f"{raw.strip():<38} HP {r.get('hp_before',0):>8.1f} → {r.get('hp_after',0):>8.1f}   sails {r.get('sails_after',1)*100:5.1f}%"
+                                 +('   SINKING' if r.get('sinking') else '')+('   DESTROYED' if r.get('destroyed') else '')
+                                 +(('   '+'; '.join(r['events'])) if r.get('events') else ''))
+                result.delete('1.0','end');result.insert('1.0','\n'.join(lines) or 'No hits.')
+            except (KeyError,ValueError,IndexError) as exc:
+                result.delete('1.0','end');result.insert('1.0',f'Could not read that line: {exc}\nSources: '+', '.join(dm.DamageID.__members__))
+        row=ttk.Frame(win);row.pack(fill='x',padx=16,pady=(0,12))
+        ttk.Button(row,text='Simulate',style='Accent.TButton',command=run).pack(side='left')
+        ttk.Button(row,text='Damage rules (wiki)',command=lambda:self._open_article_by_slug('damage-and-sinking')).pack(side='left',padx=8)
+        run()
+
+    def _open_article_by_slug(self,slug):
+        row=self.db.conn.execute('SELECT id FROM articles WHERE slug=?',(slug,)).fetchone()
+        if row:
+            self.tabs.select_named('Wiki editor');self._select_article(row[0])
+
+    def _dm_asar(self):
+        candidates=[]
+        for root in self._known_installs():
+            try:candidates+=[p for p in Path(root).rglob('app.asar') if p.is_file()]
+            except OSError:pass
+        if not candidates:
+            path=filedialog.askopenfilename(title='Electron app.asar',filetypes=[('Electron archive','*.asar')],parent=self.root)
+            if not path:return
+            candidates=[Path(path)]
+        archive=candidates[0]
+        out=home()/'Research'/'Launcher'/'app'
+        def task(ctx):
+            import datamine
+            ctx.set_output(out)
+            return datamine.extract_asar(archive,out)
+        self._run_async(task,lambda r:self._notice('Launcher unpacked',f"{r['files_written']:,} files from {archive.name}.",kind='success',
+                        action=('Open folder',lambda:self._open_path(out))),'Unpacking launcher…')
+
+    def _dm_cleanup(self):
+        reports=home()/'Reports'
+        dupes=[];promote=[]   # newest export becomes 'Catalog' so importers use it
+        if reports.is_dir():
+            for scan in reports.iterdir():
+                cats=[p for p in scan.glob('Catalog*') if p.is_dir() and (p.name in ('Catalog','Catalog-previous')
+                      or p.name.split('-',1)[-1].isdigit())]
+                if len(cats)<2:continue
+                cats.sort(key=lambda p:p.stat().st_mtime)
+                newest=cats[-1]
+                dupes+=cats[:-1]
+                if newest.name!='Catalog':promote.append((newest,scan/'Catalog'))
+        if not dupes:
+            self._notice('Nothing to clean','No duplicate catalog exports found.',kind='success');return
+        def size(p):
+            return sum(f.stat().st_size for f in p.rglob('*') if f.is_file())
+        total=sum(size(p) for p in dupes)
+        if not messagebox.askyesno('Free disk space',f'Delete {len(dupes)} older catalog export(s), {total/1e9:.1f} GB?\n\n'
+                                   'The newest catalog in each scan is kept (and renamed to Catalog, so imports use it). This cannot be undone.',parent=self.root):return
+        def task(ctx):
+            for i,p in enumerate(dupes):
+                ctx.progress(i/len(dupes),'Deleting '+p.name);shutil.rmtree(p,ignore_errors=True)
+            for newest,target in promote:
+                if not target.exists():newest.rename(target)
+            return total
+        self._run_async(task,lambda t:self._notice('Disk space freed',f'{t/1e9:.1f} GB removed.',kind='success'),'Removing old catalogs…')
+
+    def _build_wiki_site(self):
+        out=home()/'WikiSite'
+        def task(ctx):
+            import wiki_site,mechanics_reference
+            mechanics_reference.seed_damage_pages(self.db)
+            ctx.set_output(out)
+            hb=home()/'Research'/'Hitboxes'
+            return wiki_site.build_site(self.db,out,hitboxes_dir=hb if hb.is_dir() else None)
+        def done(m):
+            self._notice('Wiki website built',f"{m['pages']:,} pages · {m['entities'].get('ship',0)} ships · {m['articles']} guides · "
+                         f"{m['ships_with_hitboxes']} ships with hit zones. Open index.html, or upload the folder to GitHub Pages or any web host.",
+                         kind='success',action=('Open site',lambda:webbrowser.open((out/'index.html').as_uri())))
+        self._run_async(task,done,'Building wiki website…')
 
     def _dm_search_source(self):
         index=home()/'Research'/'Decompiled'/'Source-Index.sqlite3'

@@ -12,6 +12,21 @@ from pathlib import Path
 
 CLIENT_EXE = 'WorldOfSeaBattleClient.exe'
 GAME_HINTS = ('world of sea battle', 'worldofseabattle', 'wosb')
+# Our own app also matches 'wosb' in Add/Remove Programs; never treat it as a game install.
+OWN_APP_HINTS = ('workbench',)
+OWN_APP_MARKERS = ('WoSBWorkbench.exe', 'WoSBUpdater.exe')
+
+
+def is_workbench_dir(path, *, exists=None):
+    """True if ``path`` is (or is inside) a WoSB Workbench installation."""
+    exists = exists or (lambda p: Path(p).exists())
+    try:
+        p = Path(str(path))
+    except (TypeError, ValueError):
+        return False
+    if 'workbench' in p.name.casefold():
+        return True
+    return any(exists(p / marker) for marker in OWN_APP_MARKERS)
 COMMON_GAME = [r'C:\Games\World of Sea Battle', r'D:\Games\World of Sea Battle',
                r'C:\Program Files\World of Sea Battle', r'C:\Program Files (x86)\World of Sea Battle']
 COMMON_LAUNCHER = [r'C:\Games\Wosb Launcher', r'D:\Games\Wosb Launcher', r'C:\Games\WoSB Launcher']
@@ -113,7 +128,10 @@ def _registry_values():
                     try:
                         with winreg.OpenKey(root, winreg.EnumKey(root, i)) as app:
                             display = str(winreg.QueryValueEx(app, 'DisplayName')[0])
-                            if any(h in display.casefold() for h in GAME_HINTS) or 'sea battle' in display.casefold():
+                            folded = display.casefold()
+                            if any(h in folded for h in OWN_APP_HINTS):
+                                continue
+                            if any(h in folded for h in GAME_HINTS) or 'sea battle' in folded:
                                 location = winreg.QueryValueEx(app, 'InstallLocation')[0]
                                 yield ('uninstall', display, location)
                     except OSError:
@@ -144,7 +162,7 @@ def detect_installs(*, registry=None, exists=None, listdir=None, read_text=None,
 
     def add(kind, path):
         path = str(path)
-        if path and path not in result[kind] and exists(path):
+        if path and path not in result[kind] and exists(path) and not is_workbench_dir(path, exists=exists):
             result[kind].append(path)
 
     steam_roots = [v for kind, _, v in registry if kind == 'steam']
@@ -157,8 +175,11 @@ def detect_installs(*, registry=None, exists=None, listdir=None, read_text=None,
                 add('steam', game)
     for kind, display, location in registry:
         if kind == 'uninstall' and location:
-            add('launcher' if 'launcher' in str(display).casefold() else
-                (classify_root(location, exists=exists) or 'game'), location)
+            # Only accept a registry location whose content looks like the game or launcher;
+            # a bare name match is not evidence (it picked up our own app before).
+            kind_found = 'launcher' if 'launcher' in str(display).casefold() else classify_root(location, exists=exists)
+            if kind_found:
+                add(kind_found, location)
     for path in COMMON_GAME:
         add('game', path)
     for path in COMMON_LAUNCHER:

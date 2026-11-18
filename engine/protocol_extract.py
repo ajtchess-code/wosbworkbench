@@ -36,14 +36,34 @@ MESSAGE_NAME = re.compile(r'(packet|message|msg|request|response|reply|command|c
                           r'notification|event|sync|update|net|proto|datagram|payload)', re.I)
 STRONG_NAME = re.compile(r'(packet|message|msg|request|response|rpc|cmd)$', re.I)
 SERIALIZER = re.compile(r'^(serialize|deserialize|write|read|pack|unpack|encode|decode|tobytes|frombytes|'
-                        r'writeto|readfrom|save|load|marshal|unmarshal|onserialize|ondeserialize)', re.I)
+                        r'writeto|readfrom|save|load|marshal|unmarshal|onserialize|ondeserialize|boxing|unboxing|'
+                        r'IMPSerializable\.(Boxing|Unboxing))', re.I)
 OPCODE_ENUM = re.compile(r'(opcode|op_code|messagetype|msgtype|messageid|msgid|packettype|packetid|'
                          r'commandtype|commandid|cmdtype|rpcid|rpctype|netmessage|protocolid)', re.I)
-IO_OWNER = re.compile(r'(reader|writer|stream|buffer|packet|serializ|bitstream|netdata|bytes?array)', re.I)
+IO_OWNER = re.compile(r'(reader|writer|stream|buffer|packet|serializ|bitstream|netdata|bytes?array|extern|tlistformatter)', re.I)
+# WoSB's own serializer (ManualPacketSerialization.Externs.WriterExtern + Common.TlistFormatter).
+EXTERN_TYPES = {'writestruct': 'struct', 'readstruct': 'struct', 'writebyte': 'uint8', 'readbyte': 'uint8',
+                'writeenum': 'enum8', 'readenum': 'enum8', 'readboolean': 'bool(0xFF=true)',
+                'writebytes8bitsize': 'bytes[u8 len]', 'readbytes8bitsize': 'bytes[u8 len]',
+                'writebytes32bitsize': 'bytes[i32 len]', 'readbytes32bitsize': 'bytes[i32 len]',
+                'writebyteconstsize': 'bytes[const]', 'readstring': 'string(present u8, i16 len, UTF-16LE)',
+                'writetliststruct': 'list[i16 count] of struct', 'readtliststruct': 'list[i16 count] of struct',
+                'writetlist': 'list[i16 count]', 'readtlist': 'list[i16 count]',
+                'writetlistimps': 'list[i16 count] of object', 'readtlistimps': 'list[i16 count] of object',
+                'readimps': 'nullable object (present u8)', 'readimpsnonull': 'object', 'readimps_struct': 'struct object',
+                'writenonull': 'object', 'writestruct8bitsize': 'array[u8 count]', 'readstruct8bitsize': 'array[u8 count]',
+                'writedict': 'dict[i32 count]', 'readdict': 'dict[i32 count]', 'readarray': 'array[i16 count]'}
 IO_CALL = re.compile(r'^(read|write|put|get|peek|skip)', re.I)
 NETWORK_STRING = re.compile(r'(tcp|udp|socket|connect|login|auth|session|handshake|ping|pong|packet|opcode|'
                             r'server|lobby|region|port|protocol|encrypt|decrypt|compress)', re.I)
 HOSTLIKE = re.compile(r'([a-z0-9-]+\.)+[a-z]{2,}|\b\d{1,3}(\.\d{1,3}){3}\b', re.I)
+
+# The Steam client bundles the .NET runtime; its ~200 assemblies only add noise
+# (they produced most of the 'opcode enums' in earlier extractions).
+FRAMEWORK = re.compile(
+    r'^(System(\..*)?|Microsoft\..*|mscorlib|netstandard|WindowsBase|Presentation.*|ReachFramework|'
+    r'UIAutomation.*|WinRT\.Runtime|DirectWriteForwarder|Accessibility|PenImc.*|WindowsFormsIntegration|'
+    r'createdump|clrjit|coreclr|hostfxr|hostpolicy|msquic|api-ms-win-.*)$', re.I)
 
 ELEMENT_TYPES = {0x01: 'void', 0x02: 'bool', 0x03: 'char', 0x04: 'int8', 0x05: 'uint8', 0x06: 'int16',
                  0x07: 'uint16', 0x08: 'int32', 0x09: 'uint32', 0x0a: 'int64', 0x0b: 'uint64',
@@ -133,6 +153,9 @@ def wire_op(owner, name, param_type=None):
     """Map an IO call to a wire-field description, or None if not IO."""
     low = name.casefold()
     short_owner = owner.rsplit('.', 1)[-1]
+    if short_owner in ('WriterExtern', 'TlistFormatter') and (low in EXTERN_TYPES or low == 'write'):
+        kind = EXTERN_TYPES.get(low) or (param_type or 'object')
+        return {'op': 'read' if low.startswith(('read', 'peek')) else 'write', 'type': kind, 'call': f'{short_owner}.{name}'}
     if not (IO_OWNER.search(short_owner) and IO_CALL.match(name)) and low not in READ_TYPES:
         return None
     if low in READ_TYPES:
@@ -351,7 +374,7 @@ def extract(root, *, label='', include=None, progress=None):
     """Scan every .NET assembly under ``root`` (client, Steam build or launcher)."""
     root = Path(root).resolve(strict=True)
     files = sorted(p for p in root.rglob('*') if p.suffix.lower() in ('.dll', '.exe') and p.is_file()
-                   and p.stat().st_size < 256 * 1024 * 1024)
+                   and p.stat().st_size < 256 * 1024 * 1024 and not FRAMEWORK.match(p.stem))
     if include:
         pattern = re.compile(include, re.I)
         files = [p for p in files if pattern.search(p.name)]

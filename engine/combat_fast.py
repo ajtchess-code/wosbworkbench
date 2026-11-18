@@ -38,10 +38,26 @@ def _write_csv(path, rows, columns):
             writer.writerow(clean)
 
 
+_FRAMEWORK = re.compile(
+    r'^(System(\..*)?|Microsoft\..*|mscorlib|netstandard|WindowsBase|Presentation.*|ReachFramework|'
+    r'UIAutomation.*|WinRT\.Runtime|DirectWriteForwarder|Accessibility|PenImc.*|WindowsFormsIntegration)$', re.I)
+
+
+def _is_managed(path):
+    """PE file with a CLR metadata root ('BSJB'); native DLLs have none."""
+    try:
+        with open(path, 'rb') as fh:
+            head = fh.read(2 * 1024 * 1024)
+        return head[:2] == b'MZ' and b'BSJB' in head
+    except OSError:
+        return False
+
+
 def _list_managed_candidates(game):
+    """Managed game assemblies only: native DLLs and the bundled .NET runtime are skipped."""
     from client_probe import skip_path
     return sorted(p for p in game.rglob('*') if p.is_file() and p.suffix.lower() in ('.dll', '.exe')
-                  and not skip_path(p, game))
+                  and not skip_path(p, game) and not _FRAMEWORK.match(p.stem) and _is_managed(p))
 
 
 def _index_assembly(path, relative, *, max_candidates=90, max_il_bytes=131072,

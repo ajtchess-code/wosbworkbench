@@ -35,14 +35,25 @@ def catalog_inputs(root):
 
 
 def unique_catalog_destination(root):
-    """Never overwrite older catalog exports on reruns."""
+    """Destination for a new catalog export: always ``Catalog``.
+
+    Importers prefer the folder named ``Catalog``; earlier builds wrote reruns to
+    Catalog-2, Catalog-3, ... so the *oldest* export kept being imported and each
+    rerun added ~2.3 GB. The previous export is kept once, as Catalog-previous.
+    """
+    import shutil
     root=Path(root)
     dest=root/'Catalog'
-    if not dest.exists():return dest
-    index=2
-    while (root/f'Catalog-{index}').exists():index+=1
-    return root/f'Catalog-{index}'
-
+    if dest.exists():
+        previous=root/'Catalog-previous'
+        if previous.exists():shutil.rmtree(previous,ignore_errors=True)
+        try:dest.rename(previous)
+        except OSError:
+            # Locked by another process: fall back to a numbered folder rather than failing.
+            index=2
+            while (root/f'Catalog-{index}').exists():index+=1
+            return root/f'Catalog-{index}'
+    return dest
 
 def run(output, paths=None, *, poll=2, analysis_extra=None, extraction_extra=None, cancel_event=None):
     out=Path(output).resolve()

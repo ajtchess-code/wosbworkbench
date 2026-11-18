@@ -150,6 +150,65 @@ class Framing:
                 'inclusive': self.inclusive, 'adjust': self.adjust, 'description': self.describe()}
 
 
+# Confirmed from the client's transport code (Reskana ReskanaClient + header struct):
+# every frame = u16 total length (incl. header) | u16 payload checksum | u8 flag | payload,
+# payload chunks capped at 20475 bytes. The payload itself is obfuscated, so byte values
+# after the header (and any 'opcode' guessed from them) carry no meaning in a raw capture.
+WOSB_FRAMING = Framing(0, 2, 'little', True)
+WOSB_HEADER = {'size': 5, 'fields': [{'offset': 0, 'size': 2, 'name': 'total_length', 'type': 'u16le'},
+                                     {'offset': 2, 'size': 2, 'name': 'payload_checksum', 'type': 'u16le'},
+                                     {'offset': 4, 'size': 1, 'name': 'sequence', 'type': 'u8 (increments per frame, wraps)'}],
+               'max_payload': 20475,
+               'source': 'Reskana_7_0: ReskanaProgect/Network/ReskanaClient.cs, header struct (Size = 5)',
+               'payload': 'obfuscated by the client transport; not decoded by this tool'}
+
+
+def _wosb_fits(runs):
+    """True when the WoSB 5-byte header chains through (almost) every sampled byte."""
+    total = sum(len(b) for b in runs)
+    if total < 64:
+        return False
+    covered = 0
+    for buf in runs:
+        start = sync_offset(buf, WOSB_FRAMING)
+        pos, frames = _walk(buf[start:], WOSB_FRAMING)
+        if frames:
+            covered += pos
+    return covered / total >= 0.95
+
+
+def marker_traffic(messages, markers, *, window=1.5):
+    """Frames and bytes per direction within ``window`` s after each marker (timing only)."""
+    rows = []
+    stamps = [(_ts(st), d, len(m)) for d, st, m in messages if st is not None]
+    for mk in markers:
+        t = _ts(mk.get('utc') or mk.get('time') or mk.get('timestamp'))
+        if t is None:
+            continue
+        win = [(d, n) for ts, d, n in stamps if ts is not None and t <= ts <= t + window]
+        row = {'kind': mk.get('kind') or mk.get('category'), 'utc': mk.get('utc'), 'window_s': window}
+        for direction in ('server', 'client'):
+            sizes = [n for d, n in win if d == direction]
+            row[direction + '_frames'] = len(sizes); row[direction + '_bytes'] = sum(sizes)
+            row[direction + '_largest'] = max(sizes) if sizes else 0
+        rows.append(row)
+    return rows
+
+
+def wosb_frame_stats(messages):
+    """Per-direction size statistics for WoSB frames (header-level facts only)."""
+    out = {}
+    for direction, _stamp, msg in messages:
+        row = out.setdefault(direction, {'frames': 0, 'bytes': 0, 'sizes': Counter(), 'flags': Counter(), 'max': 0})
+        row['frames'] += 1; row['bytes'] += len(msg); row['sizes'][len(msg)] += 1
+        row['max'] = max(row['max'], len(msg))
+        if len(msg) >= 5:
+            row['flags'][msg[4]] += 1
+    return {d: {'frames': r['frames'], 'bytes': r['bytes'], 'max_frame': r['max'],
+                'top_sizes': r['sizes'].most_common(15), 'sequence_values_sample': dict(r['flags'].most_common(8))}
+            for d, r in out.items()}
+
+
 def candidate_framings():
     out = []
     for offset in (0, 1, 2):
@@ -180,10 +239,18 @@ def sync_offset(buf, framing, *, max_scan=512, window=16 * 1024, lookahead=64):
     among starts that walk to the end of the window, the one yielding the most
     frames wins; scanning stops ``lookahead`` bytes after the first good start.
     """
+    # The window must hold the largest possible frame, or a big first frame
+    # (e.g. WoSB's initial world-state burst) makes the true offset look bad.
+    window = max(window, (1 << (8 * framing.size)) + framing.header if framing.size <= 2 else window)
+
     def walk(start):
         view = buf[start:start + window]
         pos, frames = _walk(view, framing)
         return (frames >= 3 and len(view) - pos < 4096), frames, pos
+    # A chain from byte 0 that consumes the whole run is conclusive.
+    pos_all, frames_all = _walk(buf, framing)
+    if frames_all >= 2 and len(buf) - pos_all < framing.header + 1:
+        return 0
     good, frames0, _ = walk(0)
     if good and frames0 >= 64:
         return 0
@@ -417,7 +484,8 @@ def analyze(paths, *, server_port=None, markers=None, framing=None, opcode_width
     # Framing detection samples the largest runs only; splitting still uses every run.
     sample_runs = sorted((buf for _, runs in runs_by_stream for buf, _ in runs), key=len, reverse=True)[:64]
     ranking = detect_framing(sample_runs)
-    chosen = framing or (ranking[0]['_framing'] if ranking else None)
+    wosb = framing is None and _wosb_fits(sample_runs)
+    chosen = framing or (WOSB_FRAMING if wosb else (ranking[0]['_framing'] if ranking else None))
     messages = []; leftovers = 0
     stream_rows = []
     for stream, runs in runs_by_stream:
@@ -433,7 +501,12 @@ def analyze(paths, *, server_port=None, markers=None, framing=None, opcode_width
                             'bytes': sum(len(c[2]) for c in stream.chunks), 'messages': count,
                             'gaps': stream.gaps, 'gap_bytes': stream.gap_bytes,
                             'retransmits': stream.retransmits, 'overlaps': stream.overlaps})
-    catalog = build_catalog(messages, chosen, opcode_width, keep_samples=keep_samples) if chosen and messages else {'types': []}
+    if wosb or chosen == WOSB_FRAMING:
+        # Header fields are real; everything after byte 5 is obfuscated, so no opcode catalog.
+        catalog = {'types': [], 'opcode_width': 1,
+                   'note': 'WoSB transport detected: payloads are obfuscated, so per-type opcodes cannot be read from a raw capture.'}
+    else:
+        catalog = build_catalog(messages, chosen, opcode_width, keep_samples=keep_samples) if chosen and messages else {'types': []}
     width = catalog.get('opcode_width', 1)
     all_bytes = b''.join(m[:256] for _, _, m in messages[:4000])
     result = {
@@ -445,7 +518,10 @@ def analyze(paths, *, server_port=None, markers=None, framing=None, opcode_width
         'messages': len(messages), 'unframed_tail_bytes': leftovers,
         'payload_entropy_bits': round(entropy(all_bytes), 3),
         'catalog': catalog,
-        'marker_associations': correlate_markers(messages, markers or [], chosen, width) if chosen else [],
+        'marker_associations': correlate_markers(messages, markers or [], chosen, width) if chosen and not (wosb or chosen == WOSB_FRAMING) else [],
+        'wosb_transport': ({'header': WOSB_HEADER, 'frames': wosb_frame_stats(messages),
+                            'marker_traffic': marker_traffic(messages, markers or [])}
+                           if (wosb or chosen == WOSB_FRAMING) else None),
         'definition_matches': match_definitions(catalog, definitions) if definitions else [],
         'evidence': {'observed': 'TCP bytes, sizes, timing and directions from your own capture',
                      'hypothesis': 'framing layout, opcode position and marker associations',

@@ -90,15 +90,28 @@ class Settings:
 
     def game_roots(self):
         """All configured install folders that exist, Game first."""
+        try:
+            from install_detect import is_workbench_dir
+        except Exception:  # pragma: no cover - defensive
+            is_workbench_dir = lambda _p: False
         roots = []
         for key in ('game', 'steam', 'launcher'):
             value = (self.get('installs.' + key) or '').strip()
-            if value and value not in roots and Path(value).is_dir():
+            if value and value not in roots and Path(value).is_dir() and not is_workbench_dir(value):
                 roots.append(value)
         for value in self.get('extra_roots') or []:
-            if value and value not in roots and Path(value).is_dir():
+            if value and value not in roots and Path(value).is_dir() and not is_workbench_dir(value):
                 roots.append(value)
         return roots
+
+    def repair_installs(self):
+        """Clear saved installs that point at the Workbench itself. Returns the keys cleared."""
+        from install_detect import is_workbench_dir
+        cleared = [key for key in ('game', 'steam', 'launcher')
+                   if (self.get('installs.' + key) or '').strip() and is_workbench_dir(self.get('installs.' + key))]
+        if cleared:
+            self.update({'installs.' + key: '' for key in cleared})
+        return cleared
 
 
 _instance = None

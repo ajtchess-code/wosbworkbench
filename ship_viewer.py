@@ -262,13 +262,32 @@ def make_html(ship, mesh=None, zones=None, template=None, *, texture=None, balli
     return html.replace('/*__MODEL_DATA__*/',payload)
 
 
+def _rebuilt_zones(mesh_path):
+    """Zones from 'Rebuild ship hitboxes' (Research/Hitboxes/<model>.zones.json), if present."""
+    if not mesh_path:
+        return None
+    try:
+        from workbench_db import home
+        stem=Path(mesh_path).stem
+        candidate=home()/'Research'/'Hitboxes'/(stem+'.zones.json')
+        if not candidate.is_file():
+            import hitbox_recovery
+            ext=Path(mesh_path).with_name(stem+'_externalHitbox.obj')
+            res=hitbox_recovery.build(mesh_path,ext if ext.is_file() else None)
+            return hitbox_recovery.zones_for_viewer(res)
+        return json.loads(candidate.read_text('utf-8')).get('zones')
+    except Exception:
+        return None
+
+
 def export_viewer(output, ship, mesh_path=None, zones_path=None, template=None,
                   *, texture_path=None, ballistics=None, game_assets_root=None, db=None, observations_csv=None):
     mesh=read_obj(mesh_path) if mesh_path else None
     zones=json.loads(Path(zones_path).read_text('utf-8')) if zones_path else None
     # Candidate geometry is visible independently from any manually confirmed zones.
     if zones is None:
-        zones={'zones':candidate_hitboxes_from_mesh(mesh)+catalog_hitbox_candidate(ship,db)}
+        rebuilt=_rebuilt_zones(mesh_path)
+        zones={'zones':rebuilt if rebuilt else candidate_hitboxes_from_mesh(mesh)+catalog_hitbox_candidate(ship,db)}
     if ballistics is None:
         from ballistics_lab import load_ballistics_catalog
         ballistics=load_ballistics_catalog()

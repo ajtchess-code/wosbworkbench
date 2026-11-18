@@ -253,14 +253,14 @@ class DatamineTests(TempDir):
     def test_coverage_report_finds_gaps_and_ledger(self):
         game = self.tmp / 'game'; (game / 'CommonData').mkdir(parents=True)
         (game / 'CommonData' / 'a.xnb').write_bytes(b'XNBw' + b'\0' * 100)
-        (game / 'CommonData' / 'mystery.pak').write_bytes(os.urandom(70 * 1024))
+        (game / 'CommonData' / 'mystery.qzx').write_bytes(os.urandom(70 * 1024))
         (game / 'native.dll').write_bytes(b'MZ' + b'\0' * 200)
         ledger = self.tmp / 'ledger.jsonl'
         ledger.write_text(json.dumps({'status': 'decoded'}) + '\n' + json.dumps({'status': 'failed', 'reason': 'custom reader'}) + '\n')
         report = datamine.coverage_report(game, ledger=ledger)
         exts = {r['extension']: r for r in report['by_extension']}
-        self.assertEqual(exts['.pak']['handler'], 'NONE — not decoded yet')
-        self.assertTrue(any(g['extension'] == '.pak' and 'entropy' in g['hint'] for g in report['gaps']))
+        self.assertEqual(exts['.qzx']['handler'], 'NONE — not decoded yet')
+        self.assertTrue(any(g['extension'] == '.qzx' and 'entropy' in g['hint'] for g in report['gaps']))
         self.assertEqual(report['xnb_ledger'], {'decoded': 1, 'failed': 1})
         self.assertEqual(report['native_binaries'], 1)
 
