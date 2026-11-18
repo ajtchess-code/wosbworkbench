@@ -791,3 +791,59 @@ class MessageBrowser:
         if folder:
             files = protocol_schema.export_tools(self.schema, folder, port=int((self.header or {}).get('server_port') or 23771))
             self.notify('Tool exports written', '\n'.join(files))
+
+
+# ----------------------------------------------------------------- chooser
+
+class Chooser:
+    """Modal one-click picker over known locations, with an 'Other…' browse fallback.
+
+    options: [(label, value, detail)]. browse: None | 'dir' | 'file' | 'files'.
+    Returns the chosen value (a list for 'files'), or None if cancelled.
+    """
+    def __init__(self, root, colors, title, prompt, options, *, browse='dir', filetypes=None, initial=0):
+        self.root = root; self.colors = colors; self.title = title; self.prompt = prompt
+        self.options = list(options); self.browse = browse; self.filetypes = filetypes or [('All files', '*.*')]
+        self.initial = initial; self.result = None
+
+    def show(self):
+        win = tk.Toplevel(self.root); win.title(self.title); win.geometry('820x420'); win.configure(bg=self.colors['NAVY'])
+        win.transient(self.root)
+        ttk.Label(win, text=self.title, style='Section.TLabel').pack(anchor='w', padx=16, pady=(14, 2))
+        ttk.Label(win, text=self.prompt, style='Muted.TLabel', wraplength=780).pack(anchor='w', padx=16, pady=(0, 8))
+        frame, tree = _scrolled_tree(win, ('choice', 'detail'), height=9)
+        tree.heading('choice', text='Location'); tree.heading('detail', text='Details')
+        tree.column('choice', width=520); tree.column('detail', width=240)
+        frame.pack(fill='both', expand=True, padx=16)
+        for i, (label, _value, detail) in enumerate(self.options):
+            tree.insert('', 'end', iid=str(i), values=(label, detail or ''))
+        if self.options:
+            tree.selection_set(str(min(self.initial, len(self.options) - 1)))
+
+        def choose(_e=None):
+            sel = tree.selection()
+            if sel:
+                self.result = self.options[int(sel[0])][1]; win.destroy()
+
+        def other():
+            if self.browse == 'dir':
+                value = filedialog.askdirectory(title=self.title, parent=win)
+            elif self.browse == 'files':
+                value = list(filedialog.askopenfilenames(title=self.title, filetypes=self.filetypes, parent=win)) or None
+            else:
+                value = filedialog.askopenfilename(title=self.title, filetypes=self.filetypes, parent=win)
+            if value:
+                self.result = value; win.destroy()
+        tree.bind('<Double-1>', choose); tree.bind('<Return>', choose)
+        row = ttk.Frame(win); row.pack(fill='x', padx=16, pady=12)
+        ttk.Button(row, text='Use selected', style='Accent.TButton', command=choose).pack(side='right')
+        ttk.Button(row, text='Cancel', command=win.destroy).pack(side='right', padx=8)
+        if self.browse:
+            ttk.Button(row, text='Other…', command=other).pack(side='left')
+        win.bind('<Escape>', lambda _e: win.destroy())
+        try:
+            win.grab_set()
+        except tk.TclError:
+            pass
+        self.root.wait_window(win)
+        return self.result

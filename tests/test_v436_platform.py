@@ -394,6 +394,7 @@ class SubprocessUiTests(unittest.TestCase):
         proc = subprocess.run([sys.executable, str(driver), str(ROOT)], capture_output=True, text=True, timeout=240,
                               env=dict(os.environ, PYTHONPATH=''))
         self.assertIn('SMOKE OK', proc.stdout, proc.stdout[-3000:] + proc.stderr[-3000:])
+        self.assertIn('AUTOPICK OK', proc.stdout)
 
 
 if __name__ == '__main__':

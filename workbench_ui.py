@@ -669,10 +669,79 @@ class App:
         ttk.Label(parent,text='Results open in a sortable table view and are saved under your data folder → Research. '
                   'Nothing in the game folder is modified and no game code is executed.',style='Muted.TLabel',wraplength=1000).pack(anchor='w',pady=8)
 
-    def _pick_install(self,title):
+    def _known_installs(self):
+        """Saved installs; if none are saved, auto-detect and remember them."""
         roots=self.settings.game_roots()
-        initial=roots[0] if roots else None
-        return filedialog.askdirectory(title=title,initialdir=initial,parent=self.root)
+        if roots:return roots
+        try:
+            import install_detect
+            found=install_detect.detect_installs()
+        except Exception:
+            found={}
+        changes={}
+        for key in ('game','steam','launcher'):
+            if found.get(key):changes['installs.'+key]=found[key][0]
+        if changes:
+            try:self.settings.update(changes)
+            except Exception:pass
+            roots=self.settings.game_roots()
+            if roots:self._notice('Installs found','Using '+', '.join(roots)+'. Change them in Settings.',kind='success')
+        return roots
+
+    def _install_label(self,root):
+        names={}
+        for key,label in (('game','Game client'),('steam','Steam client'),('launcher','Launcher')):
+            v=(self.settings.get('installs.'+key) or '').strip()
+            if v:names.setdefault(str(Path(v)),label)
+        return names.get(str(Path(root)),'Other folder')
+
+    def _pick_install(self,title,*,ask_if_one=False):
+        """Return an install folder without a file dialog whenever possible.
+
+        One saved install is used directly; several open a one-click chooser;
+        none offers the setup wizard (or browsing) instead."""
+        roots=self._known_installs()
+        if len(roots)==1 and not ask_if_one:return roots[0]
+        if not roots:
+            if messagebox.askyesno(title,'No World of Sea Battle installs are saved or detected.\n\n'
+                                   'Open the setup wizard to set them now? (Choose No to browse for a folder.)',parent=self.root):
+                self._open_setup_wizard();return None
+            return filedialog.askdirectory(title=title,parent=self.root) or None
+        options=[(r,r,self._install_label(r)) for r in roots]
+        return ui_extras.Chooser(self.root,COLORS,title,'Pick the install to use. Double-click or press Enter.',options).show()
+
+    def _sessions(self):
+        items=[]
+        for base in (home()/'GameplaySessions',home()/'AutoCaptures'):
+            try:items+=[p for p in base.iterdir() if p.is_dir()]
+            except OSError:pass
+        return sorted(items,key=lambda p:p.stat().st_mtime,reverse=True)
+
+    def _pick_session(self,title,*,prefer=None):
+        """Use the current/most recent session; offer a chooser when several exist."""
+        if prefer and Path(prefer).is_dir():return str(prefer)
+        sessions=self._sessions()
+        if not sessions:
+            self._notice('No sessions yet','Record one in Gameplay Capture Studio, or turn on auto capture in Settings.',kind='warning')
+            return None
+        if len(sessions)==1:return str(sessions[0])
+        from datetime import datetime as _dt
+        options=[(p.name,str(p),p.parent.name+' · '+_dt.fromtimestamp(p.stat().st_mtime).strftime('%Y-%m-%d %H:%M')) for p in sessions[:200]]
+        return ui_extras.Chooser(self.root,COLORS,title,'Newest first. The top session is preselected.',options).show()
+
+    def _pick_files(self,title,options,*,filetypes,multiple=False,prompt='Newest first.'):
+        if not options:
+            if multiple:return list(filedialog.askopenfilenames(title=title,filetypes=filetypes,parent=self.root)) or None
+            return filedialog.askopenfilename(title=title,filetypes=filetypes,parent=self.root) or None
+        return ui_extras.Chooser(self.root,COLORS,title,prompt,options,browse='files' if multiple else 'file',filetypes=filetypes).show()
+
+    def _session_captures(self):
+        """Capture files from the newest sessions, as chooser options (value = sorted file list)."""
+        out=[]
+        for folder in self._sessions()[:100]:
+            files=sorted(str(f) for f in folder.rglob('*') if f.suffix.lower() in ('.pcap','.pcapng'))
+            if files:out.append((folder.name,files,f'{len(files)} capture file(s) · {folder.parent.name}'))
+        return out
 
     def _dm_coverage(self):
         root=self._pick_install('Install folder to check (Game, Steam or launcher)')
@@ -718,7 +787,7 @@ class App:
         self._open_search()
 
     def _dm_track_versions(self):
-        roots=self.settings.game_roots()
+        roots=self._known_installs()
         if not roots:
             root=self._pick_install('Install folder to fingerprint')
             if not root:return
@@ -749,15 +818,36 @@ class App:
         self._run_async(task,done,'Checking client versions…')
 
     def _dm_wave_bank(self):
-        path=filedialog.askopenfilename(title='XACT wave bank',filetypes=[('Wave bank','*.xwb'),('All files','*.*')],parent=self.root)
-        if not path:return
-        out=home()/'Research'/'Audio'/Path(path).stem
+        roots=self._known_installs()
+        banks=[]
+        for root in roots:
+            try:banks+=[p for p in Path(root).rglob('*.xwb') if p.is_file()]
+            except OSError:pass
+        banks=list(dict.fromkeys(banks))
+        if not banks:
+            path=filedialog.askopenfilename(title='No .xwb found in your installs — choose a wave bank',
+                                            filetypes=[('Wave bank','*.xwb'),('All files','*.*')],parent=self.root)
+            if not path:return
+            banks=[Path(path)]
+        base=home()/'Research'/'Audio'
         def task(ctx):
             import datamine
-            ctx.set_output(out)
-            return datamine.extract_wave_bank(path,out)
-        self._run_async(task,lambda r:self._notice('Audio bank extracted',f"{r['wav_written']} WAV files · {len(r['other'])} other codec entries",
-                        kind='success',action=('Open folder',lambda:self._open_path(out))),'Extracting audio bank…')
+            ctx.set_output(base)
+            total={'banks':0,'wav_written':0,'other':0,'failed':[]}
+            for i,bank in enumerate(banks):
+                ctx.progress(i/len(banks),'Extracting '+bank.name)
+                if ctx.cancel_event.is_set():break
+                try:
+                    r=datamine.extract_wave_bank(str(bank),base/bank.stem)
+                    total['banks']+=1;total['wav_written']+=r['wav_written'];total['other']+=len(r['other'])
+                except Exception as exc:
+                    total['failed'].append(f'{bank.name}: {exc}')
+            return total
+        def done(t):
+            msg=f"{t['banks']} bank(s) · {t['wav_written']} WAV files · {t['other']} other codec entries"
+            if t['failed']:msg+='\nFailed: '+'; '.join(t['failed'][:5])
+            self._notice('Audio banks extracted',msg,kind='warning' if t['failed'] else 'success',action=('Open folder',lambda:self._open_path(base)))
+        self._run_async(task,done,f'Extracting {len(banks)} audio bank(s)…')
 
     def _open_message_browser(self):
         ui_extras.MessageBrowser(self.root,COLORS,jobs=lambda task,done,desc:self._run_async(task,done,desc),
@@ -1032,10 +1122,7 @@ class App:
         self.selected_finding=None
 
     def _shader_audit_dialog(self):
-        from appearance_lab import detect_local_asset_root
-        suggestion=detect_local_asset_root()
-        root=filedialog.askdirectory(title='Select locally installed WoSB folder for read-only shader inspection',
-                                    initialdir=suggestion if suggestion and Path(suggestion).is_dir() else None)
+        root=self._pick_install('Install for read-only shader inspection')
         if not root:return
         output=home()/'Research'/'ShaderAudit'
         def worker():
@@ -1048,8 +1135,13 @@ class App:
         self._run_async(worker,done,'Extracting and inspecting compiled client effects…')
 
     def _audit_reports_dialog(self):
-        path=filedialog.askopenfilename(title='Choose WoSB report ZIP',filetypes=[('WoSB reports ZIP','*.zip')])
-        if not path:path=filedialog.askdirectory(title='Or choose WoSB Reports folder')
+        options=[]
+        reports=home()/'Reports'
+        if reports.is_dir():options.append(('Saved scans (Reports folder)',str(reports),str(reports)))
+        for z in sorted(home().glob('*Report*.zip'),key=lambda p:p.stat().st_mtime,reverse=True)[:20]:
+            options.append((z.name,str(z),'report ZIP'))
+        if len(options)==1:return self._audit_reports_path(options[0][1])
+        path=self._pick_files('Reports to audit',options,filetypes=[('WoSB reports ZIP','*.zip')])
         if path:self._audit_reports_path(path)
 
     def _audit_saved_scans(self):
@@ -1458,9 +1550,11 @@ class App:
                 if path:candidates=[{'path':path,'score':0,'status':'manually selected sample'}]
         if not candidates:return self._notice('Model samples',
             'No name-matched candidate. Select any XNB row in the model asset table, then choose Export XNB samples.')
-        suggested=GAME_PATHS[0] if self.ship_build=='Game' else GAME_PATHS[-1]
-        root=suggested if Path(suggested).is_dir() else ''
-        if not root:root=filedialog.askdirectory(title='Select the corresponding game installation folder')
+        want='steam' if self.ship_build!='Game' else 'game'
+        root=(self.settings.get('installs.'+want) or '').strip()
+        if not Path(root or '.').is_dir() or not root:
+            suggested=GAME_PATHS[0] if self.ship_build=='Game' else GAME_PATHS[-1]
+            root=suggested if Path(suggested).is_dir() else self._pick_install('Install the model came from')
         if not root:return
         save=filedialog.asksaveasfilename(title='Save optional original-XNB debug sample ZIP',
             defaultextension='.zip',initialfile='WoSB-Ship-Model-Debug-Samples.zip',
@@ -2013,7 +2107,7 @@ class App:
     def _gameplay_clips_export(self):
         folder=self.last_gameplay_dir
         if not folder:
-            folder=filedialog.askdirectory(title='Choose a completed WoSB gameplay recording')
+            folder=self._pick_session('Pick a completed WoSB gameplay recording')
             if not folder:return
         if self.gameplay_session and self.gameplay_session.started:return self._notice('Still recording','Stop the recording before exporting video clips.')
         if not messagebox.askyesno('Export identifiable video clips',
@@ -2032,7 +2126,7 @@ class App:
     def _gameplay_review_export(self):
         folder=self.last_gameplay_dir
         if not folder:
-            folder=filedialog.askdirectory(title='Choose a WoSB GameplaySessions recording')
+            folder=self._pick_session('Pick a WoSB GameplaySessions recording')
             if not folder:return
         if self.gameplay_session and self.gameplay_session.started:return self._notice('Still recording','Stop recording before exporting a review ZIP.')
         try:offset=float(self.gameplay_video_offset.get())
@@ -2050,7 +2144,7 @@ class App:
     def _gameplay_evidence_export(self):
         folder=self.last_gameplay_dir
         if not folder:
-            folder=filedialog.askdirectory(title='Choose completed gameplay session')
+            folder=self._pick_session('Pick completed gameplay session')
             if not folder:return
         if self.gameplay_session and self.gameplay_session.started:
             return self._notice('Still recording','Stop recording before exporting combat evidence.')
@@ -2147,8 +2241,8 @@ class App:
                      kind='success',action=('Open as table',lambda:self._show_result(report,'Protocol catalog',dest)))
 
     def _protocol_catalog_files(self):
-        files=filedialog.askopenfilenames(title='Choose capture file(s) in capture order',
-            filetypes=[('Packet capture','*.pcap *.pcapng'),('All files','*.*')],parent=self.root)
+        files=self._pick_files('Captures to catalog',self._session_captures(),multiple=True,
+            filetypes=[('Packet capture','*.pcap *.pcapng'),('All files','*.*')],prompt='Captures from your sessions, newest first. Other… picks files.')
         if not files:return
         port=self.gameplay_port.get().strip() if hasattr(self,'gameplay_port') else ''
         port=int(port) if port.isdigit() else None
@@ -2171,8 +2265,7 @@ class App:
         self._run_async(task,self._protocol_done,'Cataloging session messages and correlating your markers…')
 
     def _protocol_catalog_session(self):
-        folder=filedialog.askdirectory(title='Choose a Gameplay Capture Studio session folder',
-            initialdir=str(self.last_gameplay_dir or home()),parent=self.root)
+        folder=self._pick_session('Session to catalog',prefer=self.last_gameplay_dir)
         if not folder:return
         definitions=self._protocol_definitions_hint()
         def task():
@@ -2183,8 +2276,7 @@ class App:
         self._run_async(task,self._protocol_done,'Cataloging session messages and correlating your markers…')
 
     def _protocol_extract(self,root=None):
-        root=root or filedialog.askdirectory(title='Choose a client, Steam or launcher installation folder (read-only)',
-                                             initialdir=(self.settings.game_roots() or [None])[0],parent=self.root)
+        root=root or self._pick_install('Install to extract message definitions from')
         if not root:return
         label=Path(root).name
         def task():
@@ -2214,8 +2306,8 @@ class App:
         self._run_async(task,done,'Reading .NET metadata and serializer IL (no game code executed)…')
 
     def _protocol_message_log(self):
-        files=filedialog.askopenfilenames(title='Capture file(s) of YOUR session, in capture order',
-            filetypes=[('Packet capture','*.pcap *.pcapng')],parent=self.root)
+        files=self._pick_files('Your session captures',self._session_captures(),multiple=True,
+            filetypes=[('Packet capture','*.pcap *.pcapng')],prompt='Captures from your sessions, newest first.')
         if not files:return
         dest=filedialog.asksaveasfilename(title='Save private message log',defaultextension='.jsonl',
             initialfile='WoSB-Message-Log.jsonl',filetypes=[('JSON lines','*.jsonl')],parent=self.root)
@@ -2231,11 +2323,16 @@ class App:
             'Writing reassembled messages…')
 
     def _protocol_diff(self):
-        old=filedialog.askopenfilename(title='Older/other build definitions',filetypes=[('Protocol definitions','*.json')],
-                                       initialdir=str(home()/'Research'/'Protocol'),parent=self.root)
+        from datetime import datetime as _dt
+        saved=sorted((p for p in (home()/'Research'/'Protocol').glob('Protocol-Definitions-*.json') if p.stem!='Protocol-Definitions-latest'),
+                     key=lambda p:p.stat().st_mtime,reverse=True) if (home()/'Research'/'Protocol').is_dir() else []
+        opts=[(p.stem.replace('Protocol-Definitions-',''),str(p),_dt.fromtimestamp(p.stat().st_mtime).strftime('%Y-%m-%d %H:%M')) for p in saved]
+        if len(saved)<2 and not messagebox.askyesno('Compare definitions',
+            f'{len(saved)} saved extraction(s) found. Run “Extract message definitions” on each build you want to compare.\n\nBrowse for files instead?',parent=self.root):return
+        ft=[('Protocol definitions','*.json')]
+        old=self._pick_files('Older build definitions',opts[1:] or opts,filetypes=ft)
         if not old:return
-        new=filedialog.askopenfilename(title='Newer/compared build definitions',filetypes=[('Protocol definitions','*.json')],
-                                       initialdir=str(home()/'Research'/'Protocol'),parent=self.root)
+        new=self._pick_files('Newer build definitions',[o for o in opts if o[1]!=old],filetypes=ft)
         if not new:return
         def task():
             engine=str(bundled_path('engine'))

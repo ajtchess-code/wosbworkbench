@@ -103,6 +103,8 @@ class Widget:
     def iconbitmap(self, *a, **k): pass
     def mainloop(self): pass
     def invoke(self): pass
+    def grab_set(self): pass
+    def wait_window(self, *a): pass
     def state(self, *a): return ()
     # Entry-like text storage
     def insert(self, index, text, *a): self._entry = getattr(self, '_entry', '') + str(text)

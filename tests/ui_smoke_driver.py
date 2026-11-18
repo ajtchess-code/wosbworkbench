@@ -49,6 +49,15 @@ app.jobs.wait(job, 5); app._drain_events()
 app._poll_events()
 app._check_setup(); time.sleep(0.5); app._drain_events()
 app._dm_track_versions  # attribute exists
+# auto-resolved folders: one saved install is used directly, no dialog
+inst = tempfile.mkdtemp(); app.settings.update({'installs.game': inst, 'installs.steam': '', 'installs.launcher': ''})
+assert app._pick_install('x') == inst, 'single install should resolve without a dialog'
+inst2 = tempfile.mkdtemp(); app.settings.update({'installs.steam': inst2})
+ch = ui_extras.Chooser(root, w.COLORS, 'T', 'p', [(inst, inst, 'Game'), (inst2, inst2, 'Steam')]); print('chooser default:', ch.show())
+sess = w.home() / 'GameplaySessions' / 'WoSB-1'; sess.mkdir(parents=True); (sess / 'a.pcapng').write_bytes(b'')
+assert app._pick_session('s') == str(sess), 'single session should resolve directly'
+print('session captures:', [o[2] for o in app._session_captures()])
+print('AUTOPICK OK')
 app._close()
 print('messagebox log:', [x[0] for x in fake_tk.sys.modules['tkinter.messagebox'].LOG][:10])
 print('SMOKE OK')
