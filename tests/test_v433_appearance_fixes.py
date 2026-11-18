@@ -11,7 +11,7 @@ from ship_viewer import export_viewer
 
 class AppearanceV433Tests(unittest.TestCase):
     def setUp(self):
-        data=json.loads((Path(__file__).resolve().parents[1]/'Research-Ballistics-Catalog.json').read_text())['datasets']
+        data=json.loads((Path(__file__).resolve().parents[1]/'Research-Ballistics-Catalog.json').read_text(encoding='utf-8'))['datasets']
         self.ship=next(x for x in data['ShipsToPlay'] if x['EnglishName']=='Huracan')
 
     def make_asset_tree(self,root):
@@ -37,20 +37,20 @@ class AppearanceV433Tests(unittest.TestCase):
             for name in ('Empire_1_hull','Empire_3_hull'):
                 item=app['textures'][name]
                 self.assertTrue((root/item['browser_loader']).exists())
-                self.assertIn('data:image/png;base64,',(root/item['browser_loader']).read_text())
+                self.assertIn('data:image/png;base64,',(root/item['browser_loader']).read_text(encoding='utf-8'))
                 self.assertEqual(item['asset_source'].endswith('.png'),True)
 
     def test_diagnostics_written_for_export(self):
         with tempfile.TemporaryDirectory() as tmp:
             root=Path(tmp);self.make_asset_tree(root)
-            obj=root/'huracan.obj';obj.write_text('v 0 0 0\nv 1 0 0\nv 0 1 0\nvt 0 0\nvt 1 0\nvt 0 1\no ShipCorpus_part0\nusemtl Empire_1_hull\nf 1/1 2/2 3/3\n')
+            obj=root/'huracan.obj';obj.write_text('v 0 0 0\nv 1 0 0\nv 0 1 0\nvt 0 0\nvt 1 0\nvt 0 1\no ShipCorpus_part0\nusemtl Empire_1_hull\nf 1/1 2/2 3/3\n',encoding='utf-8')
             out=root/'huracan.html'
             export_viewer(out,self.ship,obj,game_assets_root=root)
-            diagnostics=json.loads((root/'huracan-Appearance-Diagnostics.json').read_text())
+            diagnostics=json.loads((root/'huracan-Appearance-Diagnostics.json').read_text(encoding='utf-8'))
             self.assertEqual(diagnostics['format'],'wosb-appearance-diagnostics-v433')
             self.assertIn('Empire_1_hull',diagnostics['loaded_texture_candidates'])
             red=next(d for d in diagnostics['designs'] if d['name']=='Huracan Red Fish')
             self.assertTrue(red['replacement_images_found']['Empire_1_hull'])
-            self.assertIn('browser_loader',out.read_text())
+            self.assertIn('browser_loader',out.read_text(encoding='utf-8'))
 
 if __name__=='__main__':unittest.main()

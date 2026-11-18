@@ -47,7 +47,6 @@ Source: "..\dist\WoSBWorkbench\*"; DestDir: "{app}"; Flags: ignoreversion recurs
 
 [Icons]
 Name: "{autoprograms}\WoSB Workbench"; Filename: "{app}\{#MyAppExeName}"
-Name: "{autoprograms}\WoSB Workbench (logs folder)"; Filename: "{localappdata}\WoSBWorkbench\Logs"; Flags: foldershortcut
 Name: "{autodesktop}\WoSB Workbench"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
 
 [Tasks]

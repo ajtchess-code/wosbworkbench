@@ -40,8 +40,8 @@ class OfflineUpdatesTests(unittest.TestCase):
             self.assertEqual(len(info.files),2)
             backup=root/'Backup'
             updates.apply_verified_update(zipfile_path,install,backup,'3.2.0')
-            self.assertEqual((install/'desktop_main.py').read_text(),'new')
-            self.assertEqual((backup/'original'/'desktop_main.py').read_text(),'old')
+            self.assertEqual((install/'desktop_main.py').read_text(encoding='utf-8'),'new')
+            self.assertEqual((backup/'original'/'desktop_main.py').read_text(encoding='utf-8'),'old')
             self.assertEqual((data/'Workbench.sqlite3').read_bytes(),b'user wiki must survive')
 
     def test_reject_downgrade_and_missing_minimum(self):
@@ -85,8 +85,8 @@ class OfflineUpdatesTests(unittest.TestCase):
             with patch.object(updates.os,'replace',side_effect=fail_after_one):
                 with self.assertRaisesRegex(OSError,'simulated locked'):
                     updates.apply_verified_update(zipfile_path,install,root/'Backup','3.2.0')
-            self.assertEqual((install/'desktop_main.py').read_text(),'old')
-            self.assertEqual((install/'workbench_db.py').read_text(),'old db code')
+            self.assertEqual((install/'desktop_main.py').read_text(encoding='utf-8'),'old')
+            self.assertEqual((install/'workbench_db.py').read_text(encoding='utf-8'),'old db code')
             self.assertEqual((data/'Workbench.sqlite3').read_bytes(),b'user wiki must survive')
 
     def test_changed_only_release(self):

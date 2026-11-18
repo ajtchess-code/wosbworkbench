@@ -24,7 +24,7 @@ class AdvancedResearchTests(unittest.TestCase):
             p=Path(tmp)/'summary.json'
             write_json_atomic(p,{'verified':False})
             with self.assertRaises(ValueError):write_json_atomic(p,{'oversized':'12345'},limit=3)
-            self.assertEqual(json.loads(p.read_text()),{'verified':False})
+            self.assertEqual(json.loads(p.read_text(encoding='utf-8')),{'verified':False})
             self.assertFalse(list(Path(tmp).glob('*.partial')))
 
     def test_video_frame_budget_rejected_before_subprocess(self):
@@ -74,8 +74,8 @@ class AdvancedResearchTests(unittest.TestCase):
 
     def test_snapshot_and_diff(self):
         with tempfile.TemporaryDirectory() as tmp:
-            root=Path(tmp);(root/'sample.obj').write_text('abc');a=inventory_tree(root)
-            (root/'sample.obj').write_text('abd');(root/'new.xnb').write_bytes(b'XNB')
+            root=Path(tmp);(root/'sample.obj').write_text('abc',encoding='utf-8');a=inventory_tree(root)
+            (root/'sample.obj').write_text('abd',encoding='utf-8');(root/'new.xnb').write_bytes(b'XNB')
             b=inventory_tree(root);d=diff_inventories(a,b)
             self.assertEqual(d['changed'],['sample.obj'])
             self.assertEqual(d['added'],['new.xnb'])
@@ -173,7 +173,7 @@ class AdvancedResearchTests(unittest.TestCase):
             base=Path(tmp)/'source';base.mkdir()
             # Without real sources the readiness gate must fail rather than producing
             # an apparently releasable source archive.
-            (base/'desktop_main.py').write_text('x=1')
+            (base/'desktop_main.py').write_text('x=1',encoding='utf-8')
             self.assertEqual(make_manifest(base)['readiness'],'failed-source-checks')
             with self.assertRaises(ValueError):build_source_zip(base,Path(tmp)/'bad.zip')
 

@@ -54,7 +54,7 @@ class TestEffectAudit(unittest.TestCase):
 
 class TestCombatProxy(unittest.TestCase):
     def test_catalog_fields(self):
-        d=json.loads((Path(__file__).resolve().parents[1]/'Research-Ballistics-Catalog.json').read_text())['datasets']
+        d=json.loads((Path(__file__).resolve().parents[1]/'Research-Ballistics-Catalog.json').read_text(encoding='utf-8'))['datasets']
         cannon=lookup(d['Cannons'],'42-pdr Carronade')
         ammo=lookup(d['CannonBalls'],'Round Shot')
         self.assertEqual(cannon['Penetration'],26.5)

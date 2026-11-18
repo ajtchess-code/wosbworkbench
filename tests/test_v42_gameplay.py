@@ -57,7 +57,7 @@ class SessionTests(unittest.TestCase):
             # replace with actual .pcap & rename matcher requires *.pcapng
             t='2023-11-14T22:13:19.123+00:00'
             meta={'schema':1,'capture':{'video_launch_utc':t,'port':23771,'game_connection_confirmed':True},'status':'stopped'}
-            (folder/'session.json').write_text(json.dumps(meta))
+            (folder/'session.json').write_text(json.dumps(meta),encoding='utf-8')
             (folder/'events.jsonl').write_text(json.dumps({'utc':t,'kind':'single-shot','note':'target HP 300 to 280'})+'\n')
             data=analyze_session(folder)
             self.assertEqual(data['recorded_events'],1)
@@ -97,8 +97,8 @@ class DamageTests(unittest.TestCase):
             with csvpath.open('a',encoding='utf-8') as f:
                 f.write('trial1,,Huracan,Merchant Grace,42 pound carronade,Round shot,single,stern,100,30,400,360,40,game1,test\n')
             p=generate_trial_dashboard(csvpath,Path(td)/'atlas.html')
-            self.assertIn('Measured Damage Atlas',p.read_text())
-            self.assertIn('insufficient_samples',p.read_text())
+            self.assertIn('Measured Damage Atlas',p.read_text(encoding='utf-8'))
+            self.assertIn('insufficient_samples',p.read_text(encoding='utf-8'))
 
     def test_screenshot_comparison(self):
         with tempfile.TemporaryDirectory() as td:

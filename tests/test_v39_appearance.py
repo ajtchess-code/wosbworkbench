@@ -11,7 +11,7 @@ from PIL import Image
 
 class AppearanceV39Tests(unittest.TestCase):
     def setUp(self):
-        catalog=json.loads((Path(__file__).resolve().parents[1]/'Research-Ballistics-Catalog.json').read_text())['datasets']
+        catalog=json.loads((Path(__file__).resolve().parents[1]/'Research-Ballistics-Catalog.json').read_text(encoding='utf-8'))['datasets']
         self.vasa=next(r for r in catalog['ShipsToPlay'] if r['EnglishName']=='Vasa')
         self.huracan=next(r for r in catalog['ShipsToPlay'] if r['EnglishName']=='Huracan')
 
@@ -46,7 +46,7 @@ class AppearanceV39Tests(unittest.TestCase):
     def test_full_mesh_preserves_names_and_original_count(self):
         with tempfile.TemporaryDirectory() as d:
             p=Path(d)/'big.obj'
-            with p.open('w') as f:
+            with p.open('w',encoding='utf-8') as f:
                 f.write('v 0 0 0\nv 1 0 0\nv 0 1 0\n')
                 f.write('o ShipCorpus_part0\nusemtl Empire_1_hull\n')
                 for i in range(100_000):f.write('f 1 2 3\n')
@@ -67,7 +67,7 @@ class AppearanceV39Tests(unittest.TestCase):
             p.write_text('weapon,ammo,target_ship,target_armor_region,observed_hp_damage,range_m,impact_angle_deg\n'
                          'Long Cannon,Round Shot,Vasa,starboard,75,100,20\n'
                          'Long Cannon,Round Shot,Vasa,starboard,80,100,21\n'
-                         'Long Cannon,Round Shot,Vasa,starboard,abc,100,21\n')
+                         'Long Cannon,Round Shot,Vasa,starboard,abc,100,21\n',encoding='utf-8')
             data=load_trials(p)
             self.assertEqual(len(data),2)
             self.assertEqual(data[0]['damage'],75)

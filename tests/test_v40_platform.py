@@ -26,14 +26,14 @@ usemtl Vasa_hull
 f 1/1 2/2 3/3
 usemtl Vasa_decor
 f 1/1 2/2 4/3
-''')
+''',encoding='utf-8')
             m=read_obj(f,triangle_budget=1)
             self.assertEqual(m['triangles_count'],2)
             self.assertEqual(m['sampling_status'],'full_resolution')
             self.assertEqual([g['material'] for g in m['groups']],['Vasa_hull','Vasa_decor'])
             self.assertEqual([g['first_triangle'] for g in m['groups']],[0,1])
             page=export_viewer(Path(d)/'vasa.html',{'EnglishName':'Vasa'},f)
-            text=page.read_text()
+            text=page.read_text(encoding='utf-8')
             self.assertIn('showAngleMap',text)
             self.assertIn('Vasa_decor',text)
     def test_candidate_hitbox_from_actual_helper_mesh(self):
@@ -49,7 +49,7 @@ f 1/1 2/2 4/3
         with tempfile.TemporaryDirectory() as d:
             root=Path(d);Image.new('RGB',(4,4),(140,20,20)).save(root/'Vasa_hull.png')
             Image.new('RGB',(4,4),(30,140,40)).save(root/'Vasa_hull_hist.png')
-            cat=json.loads((Path(__file__).resolve().parents[1]/'Research-Ballistics-Catalog.json').read_text())['datasets']
+            cat=json.loads((Path(__file__).resolve().parents[1]/'Research-Ballistics-Catalog.json').read_text(encoding='utf-8'))['datasets']
             ship=next(s for s in cat['ShipsToPlay'] if s.get('EnglishName')=='Vasa')
             appearance=prepare_appearance(ship,{'groups':[{'name':'ShipCorpus','material':'vasa_HULL'}]},game_assets_root=root)
             self.assertIn('Vasa_hull_hist',appearance['textures'])
@@ -57,7 +57,7 @@ f 1/1 2/2 4/3
     def test_review_only_keeps_failures_and_not_successes(self):
         with tempfile.TemporaryDirectory() as d:
             out=Path(d);(out/'Reports').mkdir()
-            with (out/'Reports'/'AssetLedger.jsonl').open('w') as f:
+            with (out/'Reports'/'AssetLedger.jsonl').open('w',encoding='utf-8') as f:
                 for row in [{'path':'good.xnb','status':'decoded','kind':'model'},
                             {'path':'bad.xnb','status':'failed','kind':'texture','error_type':'XNBError','error':'missing'},
                             {'path':'unknown.xnb','status':'unsupported','kind':'material','reason':'reader_unimplemented'}]:

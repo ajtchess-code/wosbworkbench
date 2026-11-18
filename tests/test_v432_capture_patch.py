@@ -87,7 +87,7 @@ class CapturePatchTests(unittest.TestCase):
             meta={'schema':1,'session_id':'fixture-test','capture':{
               'video_launch_utc':'2026-11-17T20:38:51+00:00','video':'gameplay.mp4','port':23771},
               'fight':{'target_ship':'Ship A'}}
-            (folder/'session.json').write_text(json.dumps(meta))
+            (folder/'session.json').write_text(json.dumps(meta),encoding='utf-8')
             (folder/'events.jsonl').write_text(json.dumps({'utc':'2026-11-17T20:38:52+00:00',
                 'kind':'single-shot','note':'target hp unreadable','target':'Ship A'})+'\n')
             analyze_session(folder)

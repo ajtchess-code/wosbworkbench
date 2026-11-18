@@ -37,7 +37,7 @@ def test_nested_scan_archive_and_duplicate_catalog(tmp_path):
 
 def test_model_library_persists_without_inventing_zones(tmp_path):
     obj=tmp_path/'hull.obj'
-    obj.write_text('v 0 0 0\nv 1 0 0\nv 0 1 0\nf 1 2 3\n')
+    obj.write_text('v 0 0 0\nv 1 0 0\nv 0 1 0\nf 1 2 3\n',encoding='utf-8')
     ship={'ID':30,'EnglishName':'Victory'}
     lib=ModelLibrary(tmp_path/'models')
     entry=lib.import_obj(ship,'Game',obj)
@@ -72,9 +72,9 @@ def test_report_folder_import_keeps_build_provenance(tmp_path):
     root=tmp_path/'Reports'
     for label in ('Scan1','Scan3'):
         p=root/label/'Catalog'/'AI-Data';p.mkdir(parents=True)
-        (p/'ShipsToPlay.jsonl').write_text('{"ID":30,"EnglishName":"Victory"}\n')
+        (p/'ShipsToPlay.jsonl').write_text('{"ID":30,"EnglishName":"Victory"}\n',encoding='utf-8')
         q=root/label/'Catalog-2'/'AI-Data';q.mkdir(parents=True)
-        (q/'ShipsToPlay.jsonl').write_text('{"ID":30,"EnglishName":"DO NOT IMPORT"}\n')
+        (q/'ShipsToPlay.jsonl').write_text('{"ID":30,"EnglishName":"DO NOT IMPORT"}\n',encoding='utf-8')
     db=CatalogDB(tmp_path/'db.sqlite3')
     result=Importer(db).catalog_folder(root)
     assert result['records']==2

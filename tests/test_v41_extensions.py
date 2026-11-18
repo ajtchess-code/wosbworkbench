@@ -1,3 +1,4 @@
+from contextlib import closing
 """Regression tests for v4.1 additions; no WoSB game process or network access."""
 import json,math,sqlite3,tempfile,unittest
 from pathlib import Path
@@ -83,7 +84,7 @@ class EvidenceTests(unittest.TestCase):
             p=Path(td)/'sample.il.txt'
             p.write_text('# 0x06002533 Common.Game.CannonBall::SailDamageEnergy\n'
                          '0001 ldarg.0\n0002 ldc.i4.3\n0003 bge.s 20\n'
-                         '0005 ldc.r4 1.0\n000a ldc.r4 1.0\n0010 conv.r4\n0011 add\n0012 div\n0014 ldc.r4 0.0\n')
+                         '0005 ldc.r4 1.0\n000a ldc.r4 1.0\n0010 conv.r4\n0011 add\n0012 div\n0014 ldc.r4 0.0\n',encoding='utf-8')
             report=audit_folder(td)
             self.assertEqual(report['verified_client_methods']['sail_damage_energy']['status'],'client_signature_matches')
 
@@ -94,7 +95,7 @@ class RecoveryTests(unittest.TestCase):
             paths={}
             for label,hash_value in (('game','aa'),('steam','bb')):
                 root=Path(td)/label;root.mkdir()
-                with sqlite3.connect(root/'Recovery-State.sqlite3') as db:
+                with closing(sqlite3.connect(root/'Recovery-State.sqlite3')) as db, db:
                     db.execute('CREATE TABLE assets(path TEXT,sha256 TEXT,kind TEXT,status TEXT)')
                     db.execute('INSERT INTO assets VALUES(?,?,?,?)',('Ship.xnb',hash_value,'model','decoded'))
                 paths[label]=root

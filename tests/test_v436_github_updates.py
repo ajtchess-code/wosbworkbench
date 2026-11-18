@@ -144,10 +144,10 @@ class ToolingTests(unittest.TestCase):
         for suffix in ('Setup.exe', 'Update.zip', 'Portable.zip'):
             (tmp / f'WoSBWorkbench-9.9.9-{suffix}').write_bytes(suffix.encode())
         secret, public = update_signing.generate_keypair()
-        key = tmp / 'k.txt'; key.write_text(secret.hex())
+        key = tmp / 'k.txt'; key.write_text(secret.hex(),encoding='utf-8')
         subprocess.run([sys.executable, str(ROOT / 'packaging' / 'Make-Release-Manifest.py'), '--dist', str(tmp),
                         '--version', '9.9.9', '--sign-key', str(key)], check=True, capture_output=True)
-        manifest = json.loads((tmp / 'wosb-release.json').read_text())
+        manifest = json.loads((tmp / 'wosb-release.json').read_text(encoding='utf-8'))
         self.assertEqual(len(manifest['assets']), 3)
         self.assertTrue(update_signing.verify_manifest(manifest, public))
 

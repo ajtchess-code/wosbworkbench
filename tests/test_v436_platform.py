@@ -214,13 +214,13 @@ class WatcherTests(TempDir):
         state['conn'] = [{'port': 23771, 'confirmed': True}]
         self.assertEqual(w.tick(), 'capturing'); self.assertEqual(started[0][0], '3')
         session = w.session
-        self.assertEqual(json.loads((session / 'session.json').read_text())['capture']['port'], 23771)
+        self.assertEqual(json.loads((session / 'session.json').read_text(encoding='utf-8'))['capture']['port'], 23771)
         state['conn'] = []
         self.assertEqual(w.tick(), 'capturing')          # within the grace period
         self.assertEqual(w.tick(), 'idle')               # stopped and analyzed
         self.assertEqual(events, ['capture-started', 'capture-stopped', 'analysis-finished'])
         self.assertEqual(len(stopped), 1)
-        self.assertEqual(json.loads((session / 'session.json').read_text())['stop_reason'], 'game disconnected')
+        self.assertEqual(json.loads((session / 'session.json').read_text(encoding='utf-8'))['stop_reason'], 'game disconnected')
 
     def test_no_adapter_reports_error(self):
         events = []
@@ -369,7 +369,7 @@ class SigningTests(TempDir):
         apply_verified_update(package, install, backup, '1.0.0')
         self.assertFalse((install / '_internal' / 'old.dll').exists())
         self.assertEqual((backup / 'original' / '_internal' / 'old.dll').read_bytes(), b'stale')
-        self.assertEqual((install / 'desktop_main.py').read_text(), 'new')
+        self.assertEqual((install / 'desktop_main.py').read_text(encoding='utf-8'), 'new')
 
 
 class SubprocessUiTests(unittest.TestCase):

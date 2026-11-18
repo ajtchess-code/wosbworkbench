@@ -31,6 +31,7 @@ if (-not ($version -match '^\d+(\.\d+){1,3}$')) { throw "Could not read VERSION 
 Write-Host "Building WoSB Workbench $version" -ForegroundColor Cyan
 
 if ($env:WOSB_SKIP_TESTS -ne '1') {
+  $env:PYTHONUTF8 = '1'   # tests read UTF-8 data files; Windows defaults to cp1252
   & $run -m pytest -q (Join-Path $project 'tests')
   if ($LASTEXITCODE -ne 0) {
     if ($env:WOSB_STRICT_TESTS -eq '1') { throw 'Unit tests failed (strict mode).' }

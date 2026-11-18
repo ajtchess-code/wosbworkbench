@@ -64,7 +64,7 @@ class RecoveryAuditTests(unittest.TestCase):
             out=Path(td)/'out'
             report=Recovery(game,out,catalog=False,code=False,payloads=False).run()
             self.assertEqual(report['assets']['counts']['unsupported'],1)
-            asset=json.loads((out/'Reports/AssetLedger.jsonl').read_text().strip())
+            asset=json.loads((out/'Reports/AssetLedger.jsonl').read_text(encoding='utf-8').strip())
             self.assertTrue((out/asset['compiled_effect_export']).exists())
 
     def test_optional_null_effect_reference_is_allowed_in_model_header(self):
@@ -108,7 +108,7 @@ class RecoveryAuditTests(unittest.TestCase):
             self.assertEqual(recovery.report['links']['generic_placeholder_labels_ignored'],2)
             self.assertEqual(recovery.report['links']['matched'],1)
             self.assertEqual(recovery.report['links']['unmatched'],1)
-            rows=[json.loads(x) for x in (out/'Reports/ModelTextureLinks.jsonl').read_text().splitlines()]
+            rows=[json.loads(x) for x in (out/'Reports/ModelTextureLinks.jsonl').read_text(encoding='utf-8').splitlines()]
             self.assertEqual([r['material_label'] for r in rows],['Vasa_hull','TERRAIN1'])
             recovery.db.close()
 
@@ -120,7 +120,7 @@ class RecoveryAuditTests(unittest.TestCase):
             recovery=Recovery(game,out,code=False,catalog=False)
             output=out/'Recovered/model/Ship.obj'
             output.parent.mkdir(parents=True)
-            output.write_text('# decoded ship')
+            output.write_text('# decoded ship',encoding='utf-8')
             stat=source.stat()
             recovery.persist('Ship.xnb',stat,'examplehash','model','decoded',
                              'Recovered/model/Ship.obj')
@@ -140,7 +140,7 @@ class RecoveryAuditTests(unittest.TestCase):
             game=Path(td)/'game';game.mkdir();(game/'authors.xnb').write_bytes(b'NOT_A_STANDARD_XNB'+b'\x00'*60)
             result=Recovery(game,Path(td)/'out',catalog=False,code=False,payloads=False).run()
             self.assertEqual(result['assets']['counts']['unsupported'],1)
-            row=json.loads((Path(td)/'out/Reports/AssetLedger.jsonl').read_text().strip())
+            row=json.loads((Path(td)/'out/Reports/AssetLedger.jsonl').read_text(encoding='utf-8').strip())
             self.assertEqual(row['reason'],'unrecognized_xnb_header')
             self.assertEqual(row['kind'],'unknown_binary')
 

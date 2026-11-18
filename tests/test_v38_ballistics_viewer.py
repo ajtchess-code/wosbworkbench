@@ -34,13 +34,13 @@ vt 0 0
 vt 1 0
 vt 0 1
 f 1/1 2/2 3/3
-''')
+''',encoding='utf-8')
    mesh=read_obj(obj)
    self.assertEqual(len(mesh['triangle_uvs']),3)
    self.assertEqual(mesh['groups'][0]['category'],'hull')
    self.assertEqual(mesh['groups'][0]['material'],'Texture')
    out=export_viewer(root/'view.html',{'EnglishName':'</script><script>alert(9)</script>'},obj)
-   text=out.read_text()
+   text=out.read_text(encoding='utf-8')
    self.assertIn('Ballistics',text)
    self.assertIn('u003c',text)
    self.assertNotIn('</script><script>alert(9)</script>',text)

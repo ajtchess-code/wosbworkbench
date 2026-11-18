@@ -52,10 +52,10 @@ def test_events_export_redacted(tmp_path):
     conn=sqlite3.connect(':memory:');sid=n.save_session(conn,summary,path)
     n.add_event(conn,sid,summary['first_utc'],'cannon impact','impact 250 damage')
     dest=n.export_research(conn,sid,tmp_path/'research.json')
-    data=json.loads(dest.read_text())
+    data=json.loads(dest.read_text(encoding='utf-8'))
     assert data['temporal_correlations'][0]['packets']==1
-    assert '10.0.0.0/24' not in dest.read_text()
-    assert str(path) not in dest.read_text()
+    assert '10.0.0.0/24' not in dest.read_text(encoding='utf-8')
+    assert str(path) not in dest.read_text(encoding='utf-8')
     assert len(n.list_sessions(conn))==1
 
 def test_unsafe_pcap(tmp_path):

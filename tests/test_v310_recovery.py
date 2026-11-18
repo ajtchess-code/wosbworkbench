@@ -108,7 +108,7 @@ class V310Tests(unittest.TestCase):
             recovery=Recovery(game,out,catalog=False,code=False,preserve=False,payloads=True)
             result=recovery.run()
             self.assertEqual(result['result'],'completed')
-            row=json.loads((out/'Reports/AssetLedger.jsonl').read_text().strip())
+            row=json.loads((out/'Reports/AssetLedger.jsonl').read_text(encoding='utf-8').strip())
             self.assertEqual(row['status'],'decoded')
             self.assertEqual(row['kind'],'texture')
             self.assertTrue((out/row['output']).exists())
@@ -116,7 +116,7 @@ class V310Tests(unittest.TestCase):
             recovery=Recovery(game,out,catalog=False,code=False,preserve=False,payloads=True)
             again=recovery.run()
             self.assertEqual(again['result'],'completed')
-            self.assertEqual(json.loads((out/'Reports/AssetLedger.jsonl').read_text().strip())['sha256'],row['sha256'])
+            self.assertEqual(json.loads((out/'Reports/AssetLedger.jsonl').read_text(encoding='utf-8').strip())['sha256'],row['sha256'])
 
     def test_output_inside_game_is_rejected(self):
         with tempfile.TemporaryDirectory() as td:
