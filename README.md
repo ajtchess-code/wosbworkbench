@@ -14,6 +14,12 @@ ship 3D, and passive capture/protocol analysis of your own game traffic.
 
 ## Publish an update (maintainers)
 
+**No command line:** edit `workbench_db.py` (`VERSION = '4.3.7'`) and add `RELEASE-NOTES-v4.3.7.md` on GitHub,
+commit to `main`, then open **Actions → Build and release → Run workflow**, tick **Publish**, and run it.
+GitHub builds the installer and creates the `v4.3.7` release.
+
+**Or from a terminal:**
+
 ```
 py -3.13 packaging/New-Release.py 4.3.7 --push
 ```

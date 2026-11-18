@@ -2,7 +2,8 @@
 #   * Every push to main / pull request: unit tests + Windows build + frozen self-test (artifacts kept 14 days).
 #     (Windows minutes count double on private repos, so other branches are not built automatically;
 #      use "Run workflow" on the Actions tab to build any branch.)
-#   * Pushing a tag vX.Y.Z (matching workbench_db.VERSION): also publishes a GitHub Release with
+#   * Pushing a tag vX.Y.Z (matching workbench_db.VERSION) — or Actions → "Build and release" →
+#     Run workflow with "Publish" ticked — also publishes a GitHub Release with
 #       WoSBWorkbench-X.Y.Z-Setup.exe     <- download this and double-click to install
 #       WoSBWorkbench-X.Y.Z-Update.zip    <- used by the app's built-in updater
 #       WoSBWorkbench-X.Y.Z-Portable.zip
@@ -15,6 +16,11 @@ on:
     tags: ['v*']
   pull_request:
   workflow_dispatch:
+    inputs:
+      publish:
+        description: 'Publish a GitHub Release (creates tag vVERSION from workbench_db.VERSION)'
+        type: boolean
+        default: false
 
 concurrency:
   group: build-${{ github.ref }}
@@ -86,7 +92,7 @@ jobs:
             dist/Self-Test.json
 
   publish:
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: startsWith(github.ref, 'refs/tags/v') || (github.event_name == 'workflow_dispatch' && inputs.publish)
     needs: windows
     runs-on: ubuntu-latest
     permissions:
@@ -104,9 +110,15 @@ jobs:
         run: |
           notes="RELEASE-NOTES-v${VERSION}.md"
           if [ ! -f "$notes" ]; then echo "WoSB Workbench ${VERSION}" > /tmp/notes.md; notes=/tmp/notes.md; fi
-          gh release create "$GITHUB_REF_NAME" \
+          tag="v${VERSION}"
+          extra="--verify-tag"
+          if [ "$GITHUB_REF_TYPE" != "tag" ]; then
+            if gh release view "$tag" >/dev/null 2>&1; then echo "Release $tag already exists; bump VERSION first." >&2; exit 1; fi
+            extra="--target $GITHUB_SHA"   # creates the tag on this commit
+          fi
+          gh release create "$tag" \
             "release/WoSBWorkbench-${VERSION}-Setup.exe" \
             "release/WoSBWorkbench-${VERSION}-Update.zip" \
             "release/WoSBWorkbench-${VERSION}-Portable.zip" \
             "release/wosb-release.json" \
-            --title "WoSB Workbench ${VERSION}" --notes-file "$notes" --verify-tag
+            --title "WoSB Workbench ${VERSION}" --notes-file "$notes" $extra
