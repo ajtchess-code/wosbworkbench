@@ -21,6 +21,31 @@ MAX_REPORT_FILES = 80000
 MAX_JSON_BYTES = 64 * 1024 * 1024
 
 
+# Only these are ever read by the audit; extracted assets (XNB, PNG, WAV,
+# models...) that share the Reports tree are skipped instead of counted.
+REPORT_SUFFIXES = {'.json', '.jsonl', '.csv', '.md', '.txt'}
+# Bulky asset trees never hold report metadata, so the walk doesn't descend into them.
+SKIP_DIRS = {'assets', 'extracted', 'images', 'textures', 'models', 'audio', 'raw', 'xnb', 'decompiled', '__pycache__'}
+
+
+def _is_report_file(name):
+    return Path(name).suffix.lower() in REPORT_SUFFIXES
+
+
+def _walk_reports(root):
+    import os
+    root = Path(root); raw = {}
+    for dirpath, dirnames, filenames in os.walk(root):
+        dirnames[:] = [d for d in dirnames if d.casefold() not in SKIP_DIRS]
+        for f in filenames:
+            if _is_report_file(f):
+                path = Path(dirpath) / f
+                raw[path.relative_to(root).as_posix()] = path
+                if len(raw) > MAX_REPORT_FILES:
+                    raise ValueError(f'More than {MAX_REPORT_FILES:,} report files under {root}; choose a single scan folder or ZIP')
+    return raw
+
+
 class ReportSource:
     """Read selected diagnostic reports from ZIP/folder, including Workbench Scan1-3.
 
@@ -32,15 +57,15 @@ class ReportSource:
         self.path = Path(path)
         self.z = zipfile.ZipFile(self.path) if self.path.is_file() and self.path.suffix.lower() == '.zip' else None
         if self.z:
-            info = self.z.infolist()
-            if len(info) > MAX_REPORT_FILES:
-                self.z.close()
-                raise ValueError('Too many report entries')
-            raw = {x.filename.replace('\\', '/'): x.filename for x in info if not x.is_dir()}
+            raw = {}
+            for x in self.z.infolist():
+                if x.is_dir() or not _is_report_file(x.filename):continue
+                raw[x.filename.replace('\\', '/')] = x.filename
+                if len(raw) > MAX_REPORT_FILES:
+                    self.z.close()
+                    raise ValueError(f'More than {MAX_REPORT_FILES:,} report files in this archive')
         elif self.path.is_dir():
-            raw = {p.relative_to(self.path).as_posix(): p for p in self.path.rglob('*') if p.is_file()}
-            if len(raw) > MAX_REPORT_FILES:
-                raise ValueError('Too many report entries')
+            raw = _walk_reports(self.path)
         else:
             raise ValueError('Choose a report ZIP or report folder')
         labels = self._scan_labels(raw, self.z)

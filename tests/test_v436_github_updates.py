@@ -256,3 +256,24 @@ class WindowsSharingViolationTests(unittest.TestCase):
         with mock.patch.object(fsutil.os, 'replace', flaky):
             app_settings.Settings(self.tmp / 's.json').set('ui.theme', 'light')
         self.assertEqual(app_settings.Settings(self.tmp / 's.json').get('ui.theme'), 'light')
+
+
+class ReportAuditLargeTreeTests(unittest.TestCase):
+    def test_reports_folder_with_many_asset_files_is_accepted(self):
+        import tempfile, discovery_center as dc
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            (root / 'Scan1' / 'Analysis').mkdir(parents=True)
+            (root / 'Scan1' / 'Analysis' / 'Summary.json').write_text('{}', encoding='utf-8')
+            assets = root / 'Scan1' / 'Assets'; assets.mkdir()
+            loose = root / 'Scan1' / 'Loose'; loose.mkdir()
+            old = dc.MAX_REPORT_FILES; dc.MAX_REPORT_FILES = 50
+            try:
+                for i in range(120):
+                    (assets / f'{i}.xnb').write_bytes(b'')
+                    (loose / f'{i}.png').write_bytes(b'')
+                src = dc.ReportSource(root)
+                self.assertIn('Game/Analysis/Summary.json', src.names)
+                self.assertEqual(len(src.names), 1)
+            finally:
+                dc.MAX_REPORT_FILES = old
