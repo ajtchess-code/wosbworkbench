@@ -26,7 +26,7 @@ def _utc():
 
 class GameWatcher:
     def __init__(self, output_root, *, find_connections=None, pick_interface=None, start=None, stop=None,
-                 analyze=None, on_event=None, interval=5.0, grace_polls=3, interface=None):
+                 analyze=None, on_event=None, interval=8.0, grace_polls=3, interface=None):
         from gameplay_capture import discover_game_ports, detect_game_capture_interface
         from network_lab import start_capture, stop_capture
         self.output_root = Path(output_root)

@@ -13,7 +13,7 @@ from workbench_db import bundled_path
 WORKERS = {'analyze_one', 'extract_wosb', 'full_recovery'}
 SELF_TEST_MODULES = [
     'workbench_db', 'workbench_import', 'offline_updates', 'workbench_updates', 'update_signing', 'applog',
-    'app_settings', 'install_detect', 'jobs', 'theme', 'wiki_engine', 'wiki_server', 'wiki_expanded', 'wiki_next',
+    'app_settings', 'install_detect', 'win_proc', 'github_updates', 'secret_store', 'jobs', 'theme', 'wiki_engine', 'wiki_server', 'wiki_expanded', 'wiki_next',
     'network_lab', 'protocol_lab', 'protocol_schema', 'game_watcher', 'gameplay_capture', 'datamine',
     'ship_viewer', 'model_lab', 'appearance_lab', 'gltf_export', 'discovery_center', 'research_suite',
     'advanced_network', 'advanced_assets', 'advanced_catalog', 'advanced_release', 'workbench_ui', 'ui_extras',
@@ -59,6 +59,9 @@ def self_test(dest=None):
 
 
 def main():
+    # GUI build: child processes (PowerShell, TShark, FFmpeg, workers) must not pop up console windows.
+    import win_proc
+    win_proc.hide_console_windows()
     if len(sys.argv) >= 3 and sys.argv[1] == '--worker':
         worker = sys.argv[2]
         if worker not in WORKERS:

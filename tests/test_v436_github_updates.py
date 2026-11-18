@@ -178,3 +178,37 @@ class ScriptEncodingTests(unittest.TestCase):
         for path in files:
             data = path.read_bytes()
             self.assertTrue(all(b < 128 for b in data), f'{path.name} contains non-ASCII bytes')
+
+
+class ConsoleWindowTests(unittest.TestCase):
+    """The GUI must not flash console windows for background commands (user report)."""
+
+    def test_children_get_create_no_window(self):
+        import subprocess as sp
+        import win_proc
+        seen = {}
+        original = sp.Popen.__init__
+
+        def fake_init(self, *args, **kwargs):
+            seen.update(kwargs)
+        try:
+            sp.Popen.__init__ = fake_init
+            with mock.patch.object(win_proc.os, 'name', 'nt'), mock.patch.object(win_proc, '_patched', False):
+                self.assertTrue(win_proc.hide_console_windows())
+                sp.Popen(['powershell.exe', '-Command', 'x'])
+                self.assertEqual(seen['creationflags'] & win_proc.CREATE_NO_WINDOW, win_proc.CREATE_NO_WINDOW)
+                seen.clear()
+                sp.Popen(['updater.exe'], creationflags=win_proc.CREATE_NEW_CONSOLE)   # explicit console kept
+                self.assertEqual(seen['creationflags'], win_proc.CREATE_NEW_CONSOLE)
+        finally:
+            sp.Popen.__init__ = original
+
+    def test_watcher_poll_uses_native_api_not_powershell(self):
+        import gameplay_capture
+        import win_proc
+        native = [{'confirmed': True, 'pid': 42, 'port': 23771, 'process': 'WorldOfSeaBattleClient'}]
+        with mock.patch.object(gameplay_capture.os, 'name', 'nt'), \
+             mock.patch.object(win_proc, 'game_connections', return_value=native), \
+             mock.patch.object(gameplay_capture.subprocess, 'run', side_effect=AssertionError('PowerShell started')):
+            self.assertEqual(gameplay_capture.discover_game_ports(), native)
+            self.assertTrue(gameplay_capture.game_process_connection(23771)['confirmed'])

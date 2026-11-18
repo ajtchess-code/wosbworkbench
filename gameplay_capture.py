@@ -163,6 +163,14 @@ def game_process_connection(port=KNOWN_PORT, *,runner=None):
     """Read-only ownership check. No remote IP or authentication information saved."""
     if os.name!='nt' and runner is None:return {'confirmed':False,'reason':'Windows only; owner check unavailable'}
     if not 1<=int(port)<=65535:raise ValueError('Invalid game port')
+    if runner is None:
+        try:
+            import win_proc
+            found=win_proc.game_connections(GAME_PROCESS,port=int(port))
+            if found:return {'confirmed':True,'process':GAME_PROCESS,'pid':found[0]['pid'],'port':int(port)}
+            return {'confirmed':False,'reason':'No matching established game connection'}
+        except (OSError,AttributeError,ValueError):
+            pass
     ps=("Get-NetTCPConnection -RemotePort %d -State Established -ErrorAction SilentlyContinue | "
         "ForEach-Object { $p=Get-Process -Id $_.OwningProcess -ErrorAction SilentlyContinue; "
         "if ($p.ProcessName -eq '%s') { [PSCustomObject]@{ PID=$p.Id; Name=$p.ProcessName; Port=$_.RemotePort } } } | ConvertTo-Json -Compress" %
@@ -183,6 +191,13 @@ def game_process_connection(port=KNOWN_PORT, *,runner=None):
 def discover_game_ports(*,runner=None):
     """List established game-process TCP ports without returning remote addresses."""
     if os.name!='nt' and runner is None:return []
+    if runner is None:
+        # Native IP Helper query: no PowerShell process (and no console window) per poll.
+        try:
+            import win_proc
+            return sorted(win_proc.game_connections(GAME_PROCESS),key=lambda x:(x['port']!=KNOWN_PORT,x['port']))
+        except (OSError,AttributeError,ValueError):
+            pass
     ps=("Get-NetTCPConnection -State Established -ErrorAction SilentlyContinue | "
         "ForEach-Object { $p=Get-Process -Id $_.OwningProcess -ErrorAction SilentlyContinue; "
         "if ($p.ProcessName -eq 'WorldOfSeaBattleClient') { "
