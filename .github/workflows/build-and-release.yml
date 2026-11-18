@@ -65,6 +65,7 @@ jobs:
         shell: pwsh
         env:
           WOSB_SKIP_TESTS: '1'
+          WOSB_STRICT_TESTS: '1'
           WOSB_PYTHON: python
           WOSB_SIGNING_KEY_HEX: ${{ secrets.WOSB_SIGNING_KEY_HEX }}
         run: |

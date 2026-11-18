@@ -168,3 +168,13 @@ class ToolingTests(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class ScriptEncodingTests(unittest.TestCase):
+    def test_windows_scripts_are_ascii(self):
+        """Windows PowerShell 5.1 and cmd read scripts as ANSI: a UTF-8 em dash in a .ps1
+        becomes a stray closing quote and the build script fails to parse."""
+        files = list((ROOT / 'packaging').glob('*.ps1')) + list(ROOT.glob('*.cmd')) + list((ROOT / 'packaging').glob('*.iss'))
+        for path in files:
+            data = path.read_bytes()
+            self.assertTrue(all(b < 128 for b in data), f'{path.name} contains non-ASCII bytes')

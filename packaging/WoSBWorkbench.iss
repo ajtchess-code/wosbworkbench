@@ -107,10 +107,10 @@ procedure InitializeWizard;
 begin
   ToolsPage := CreateOutputMsgMemoPage(wpSelectTasks, 'Optional helper tools',
     'WoSB Workbench works without these; they enable recording and capture features.',
-    'Missing tools can be installed later. Download links are offered on the last page, and Settings → Run setup wizard re-checks them.',
-    Mark('ffmpeg', 'FFmpeg — gameplay video recording and evidence clips') + #13#10 +
-    Mark('tshark', 'Wireshark / TShark — passive packet capture and auto-capture') + #13#10 +
-    Mark('npcap', 'Npcap — capture driver used by TShark') + #13#10#13#10 +
+    'Missing tools can be installed later. Download links are offered on the last page, and Settings > Run setup wizard re-checks them.',
+    Mark('ffmpeg', 'FFmpeg - gameplay video recording and evidence clips') + #13#10 +
+    Mark('tshark', 'Wireshark / TShark - passive packet capture and auto-capture') + #13#10 +
+    Mark('npcap', 'Npcap - capture driver used by TShark') + #13#10#13#10 +
     '  Optional for datamining: .NET SDK + "dotnet tool install --global ilspycmd" (C# decompile).');
 end;
 
