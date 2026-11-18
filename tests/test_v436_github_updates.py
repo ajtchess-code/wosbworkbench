@@ -212,3 +212,47 @@ class ConsoleWindowTests(unittest.TestCase):
              mock.patch.object(gameplay_capture.subprocess, 'run', side_effect=AssertionError('PowerShell started')):
             self.assertEqual(gameplay_capture.discover_game_ports(), native)
             self.assertTrue(gameplay_capture.game_process_connection(23771)['confirmed'])
+
+
+class WindowsSharingViolationTests(unittest.TestCase):
+    """User report: scan aborted with WinError 5 replacing CombinedStatus.json while the GUI read it."""
+
+    def setUp(self):
+        self.tmp = Path(tempfile.mkdtemp()); self.addCleanup(shutil.rmtree, self.tmp, True)
+        sys.path.insert(0, str(ROOT / 'engine'))
+
+    def test_transient_lock_is_retried(self):
+        import v3_progress
+        real = os.replace; calls = {'n': 0}
+
+        def flaky(src, dst):
+            calls['n'] += 1
+            if calls['n'] < 3:
+                raise PermissionError(5, 'Access is denied')
+            return real(src, dst)
+        with mock.patch.object(v3_progress.os, 'replace', flaky):
+            v3_progress.atomic_json(self.tmp / 'CombinedStatus.json', {'ok': 1})
+        self.assertEqual(json.loads((self.tmp / 'CombinedStatus.json').read_text(encoding='utf-8')), {'ok': 1})
+        self.assertEqual(calls['n'], 3)
+
+    def test_status_write_never_aborts(self):
+        import v3_progress
+        with mock.patch.object(v3_progress.os, 'replace', side_effect=PermissionError(5, 'Access is denied')), \
+             mock.patch.object(v3_progress, 'replace_with_retry',
+                               lambda s, d, attempts=12: (_ for _ in ()).throw(PermissionError(5, 'denied'))):
+            self.assertFalse(v3_progress.status_json(self.tmp / 'CombinedStatus.json', {'ok': 1}))
+        self.assertEqual(list(self.tmp.glob('*.tmp')), [])       # temp file cleaned up
+
+    def test_app_writers_use_retry(self):
+        import fsutil
+        real = os.replace; calls = {'n': 0}
+
+        def flaky(src, dst):
+            calls['n'] += 1
+            if calls['n'] == 1:
+                raise PermissionError(32, 'in use')
+            return real(src, dst)
+        import app_settings
+        with mock.patch.object(fsutil.os, 'replace', flaky):
+            app_settings.Settings(self.tmp / 's.json').set('ui.theme', 'light')
+        self.assertEqual(app_settings.Settings(self.tmp / 's.json').get('ui.theme'), 'light')

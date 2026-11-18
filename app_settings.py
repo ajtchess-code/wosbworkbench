@@ -5,6 +5,7 @@ are preserved so older/newer versions can share the file.
 """
 from __future__ import annotations
 
+from fsutil import replace_with_retry
 import copy
 import json
 import os
@@ -85,7 +86,7 @@ class Settings:
             with tempfile.NamedTemporaryFile('w', encoding='utf-8', dir=self.path.parent,
                                              delete=False, suffix='.tmp') as fh:
                 fh.write(payload); tmp = Path(fh.name)
-            os.replace(tmp, self.path)
+            replace_with_retry(tmp, self.path)
 
     def game_roots(self):
         """All configured install folders that exist, Game first."""

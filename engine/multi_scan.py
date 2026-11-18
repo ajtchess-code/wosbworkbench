@@ -13,7 +13,7 @@ import sys
 import time
 from datetime import datetime, timezone
 from pathlib import Path
-from v3_progress import atomic_json
+from v3_progress import atomic_json, status_json
 
 DEFAULTS = [
     ('Game', r'C:\Games\World of Sea Battle'),
@@ -94,7 +94,7 @@ def run(output, paths=None, *, poll=3, extra_args=None):
                 row['status']='complete' if code==0 else 'failed'
                 row['exit_code']=code
                 worker['stream'].close()
-        atomic_json(out/'CombinedStatus.json',{'version':'3.0.0','updated_utc':datetime.now(timezone.utc).isoformat(),
+        status_json(out/'CombinedStatus.json',{'version':'3.0.0','updated_utc':datetime.now(timezone.utc).isoformat(),
                                                'targets':all_status})
         (out/'CombinedReport.html').write_text(status_html(all_status),encoding='utf-8')
         if time.monotonic()-last_print>=5 or not active:

@@ -10,6 +10,7 @@ which can be adjusted by video_offset_seconds using a visible sync flash.
 """
 from __future__ import annotations
 
+from fsutil import replace_with_retry
 import argparse
 import tempfile
 import math
@@ -225,7 +226,7 @@ def _write_atomic(path, data):
     path=Path(path);path.parent.mkdir(parents=True,exist_ok=True)
     temp=path.with_suffix(path.suffix+'.tmp')
     temp.write_text(json.dumps(data,ensure_ascii=False,indent=2),encoding='utf-8')
-    temp.replace(path)
+    replace_with_retry(temp,path)
 
 
 def _exe_probe(path):

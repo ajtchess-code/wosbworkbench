@@ -1,5 +1,6 @@
 """Bounded atomic report writes, preserving the previous valid output on failure."""
 from __future__ import annotations
+from fsutil import replace_with_retry
 import json,os,tempfile
 from pathlib import Path
 
@@ -14,6 +15,6 @@ def write_json_atomic(path,report,*,limit=160*1024*1024):
             f.write(payload);f.flush();os.fsync(f.fileno())
         except BaseException:
             tmp.unlink(missing_ok=True);raise
-    try:os.replace(tmp,dest)
+    try:replace_with_retry(tmp,dest)
     except BaseException:tmp.unlink(missing_ok=True);raise
     return dest

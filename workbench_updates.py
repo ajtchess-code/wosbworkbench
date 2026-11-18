@@ -1,4 +1,5 @@
 """Explicit opt-in verified update downloads, never silent client-code execution."""
+from fsutil import replace_with_retry
 import hashlib
 import json
 import os
@@ -75,7 +76,7 @@ def download_verified(manifest,on_progress=None,folder=None):
                     if on_progress:on_progress(size,total)
         if hashed.hexdigest().lower()!=manifest['sha256'].lower():
             raise ValueError('SHA-256 mismatch. Update rejected.')
-        os.replace(temp,target)
+        replace_with_retry(temp,target)
         return target
     except Exception:
         temp.unlink(missing_ok=True)

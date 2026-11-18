@@ -5,6 +5,7 @@ Every result includes evidence and a decoder status. No DLL or game code is exec
 no anti-cheat bypass, network interception, credential extraction or game mutation.
 """
 from __future__ import annotations
+from v3_progress import replace_with_retry, status_json
 import argparse
 import csv
 import hashlib
@@ -47,7 +48,7 @@ def atomic_json(path, val):
     path=Path(path);path.parent.mkdir(parents=True,exist_ok=True)
     with tempfile.NamedTemporaryFile('w',encoding='utf-8',dir=path.parent,delete=False,suffix='.tmp') as f:
         json.dump(val,f,indent=2,ensure_ascii=False);tmp=Path(f.name)
-    os.replace(tmp,path)
+    replace_with_retry(tmp,path)
 
 
 def safe_rel(path,root):
@@ -130,7 +131,7 @@ class Recovery:
                            'Encrypted/wrapped archives are handled only by a valid local client metadata extractor.']}
         self._write()
 
-    def _write(self):atomic_json(self.out/'Recovery-Status.json',self.report)
+    def _write(self):status_json(self.out/'Recovery-Status.json',self.report)
 
     def phase(self,name,status,details=''):
         self.report['phases'][name]={'status':status,'details':str(details)[:2000],'updated_utc':utc()}

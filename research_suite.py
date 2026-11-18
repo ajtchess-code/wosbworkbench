@@ -4,6 +4,7 @@ No game executable/DLL is executed. All scanning is read-only. User data lives i
 an explicit output directory. This module never guesses official game mechanics.
 """
 from __future__ import annotations
+from fsutil import replace_with_retry
 from collections import Counter
 from datetime import datetime, timezone
 from pathlib import Path
@@ -78,7 +79,7 @@ def save_workspace(path, workspace):
     if file.exists():shutil.copy2(file,file.with_suffix(file.suffix+'.bak'))
     with tempfile.NamedTemporaryFile(dir=file.parent,mode='wb',delete=False) as fp:
         tmp=Path(fp.name);fp.write(blob)
-    tmp.replace(file)
+    replace_with_retry(tmp,file)
     return file
 
 

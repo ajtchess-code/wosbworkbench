@@ -16,6 +16,7 @@ permission for that repo; it is stored with secret_store (DPAPI on Windows).
 """
 from __future__ import annotations
 
+from fsutil import replace_with_retry
 import hashlib
 import http.client
 import json
@@ -140,7 +141,7 @@ def _download_asset(asset, dest, *, token=None, progress=None):
                 fh.write(chunk); digest.update(chunk)
             _request(asset['api_url'], token=token, accept='application/octet-stream', limit=MAX_ASSET,
                      sink=sink, progress=progress, timeout=120)
-        os.replace(partial, dest)
+        replace_with_retry(partial, dest)
     except BaseException:
         partial.unlink(missing_ok=True)
         raise

@@ -6,6 +6,7 @@ reverse-mapped from the user-supplied Vasa XNB; unknown readers fail closed.
 Original UV coordinates are now exported where valid; actual material/texture mappings, animations, hitboxes, and damage multipliers are NOT inferred.
 """
 from __future__ import annotations
+from v3_progress import replace_with_retry
 from dataclasses import dataclass
 import argparse
 import hashlib
@@ -309,7 +310,7 @@ def export_obj(data, output_path, *, include_meshes=None):
             f.close();tmp.unlink(missing_ok=True);raise
     if not total_t:
         tmp.unlink(missing_ok=True);raise MeshDecodeError('No geometry was selected')
-    os.replace(tmp,target)
+    replace_with_retry(tmp,target)
     return {'geometry_status':'triangles verified from XNB vertex/index buffers; visual alignment pending',
             'output':str(target),'vertices':total_v,'triangles':total_t,'part_count':len(stats),
             'mesh_count':len(meta['meshes']),'bone_count':len(meta['bones']),

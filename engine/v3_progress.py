@@ -12,6 +12,24 @@ def stamp():
     return datetime.now(timezone.utc).isoformat(timespec='seconds')
 
 
+def status_json(path, value):
+    """Best-effort atomic write for progress/status files the GUI polls.
+
+    If Windows still refuses the replace after retries (the reader or an
+    antivirus scanner holds the file), skip this update: the next one a few
+    seconds later will succeed. A status file must never abort the work.
+    """
+    try:
+        atomic_json(path, value)
+        return True
+    except PermissionError:
+        try:
+            Path(path).with_name(Path(path).name + f'.{os.getpid()}.tmp').unlink(missing_ok=True)
+        except OSError:
+            pass
+        return False
+
+
 def atomic_json(path, value):
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -20,7 +38,7 @@ def atomic_json(path, value):
         json.dump(value, stream, ensure_ascii=False, indent=2, default=str)
         stream.flush()
         os.fsync(stream.fileno())
-    os.replace(tmp, path)
+    replace_with_retry(tmp, path)
 
 
 class Progress:
@@ -40,7 +58,7 @@ class Progress:
         if force or now - self.last_update >= 2:
             self.data['updated_utc'] = stamp()
             self.data['elapsed_seconds'] = round(now - self.started, 1)
-            atomic_json(self.out / 'Progress.json', self.data)
+            status_json(self.out / 'Progress.json', self.data)
             self.last_update = now
         if force or now - self.last_print >= 5:
             print(f"[{self.data['stage']}] {self.data['done']}/{self.data['total']} "
@@ -88,3 +106,24 @@ def single_run(out):
         except (OSError, ValueError):
             pass
         stream.close()
+
+
+def replace_with_retry(source, target, attempts=12):
+    """os.replace that tolerates Windows sharing violations.
+
+    On Windows a file cannot be replaced while another process has it open
+    (the GUI polling a status file, antivirus, the search indexer), which
+    raises PermissionError / WinError 5 or 32. Retry with a short backoff
+    (about 3 s in total) before giving up.
+    """
+    import time as _time
+    delay = 0.02
+    for attempt in range(attempts):
+        try:
+            os.replace(source, target)
+            return
+        except PermissionError:
+            if attempt == attempts - 1:
+                raise
+            _time.sleep(delay)
+            delay = min(delay * 2, 0.5)

@@ -5,6 +5,7 @@ references. Content-reader and LZX support must be validated on game-owned files
 before XNB assets can be represented as meshes.
 """
 from __future__ import annotations
+from fsutil import replace_with_retry
 import hashlib
 import json
 import os
@@ -69,7 +70,7 @@ class ModelLibrary:
     def _write(self,data):
         with tempfile.NamedTemporaryFile('w',encoding='utf-8',dir=self.root,delete=False,suffix='.tmp') as temp:
             name=Path(temp.name);json.dump(data,temp,indent=2,ensure_ascii=False)
-        os.replace(name,self.index_file)
+        replace_with_retry(name,self.index_file)
 
     @staticmethod
     def key(ship,build):
@@ -94,7 +95,7 @@ class ModelLibrary:
         with tempfile.NamedTemporaryFile('wb',dir=directory,delete=False,suffix='.tmp') as tmp:
             tmp_path=Path(tmp.name)
             with obj.open('rb') as inp:shutil.copyfileobj(inp,tmp,1024*1024)
-        os.replace(tmp_path,target)
+        replace_with_retry(tmp_path,target)
         zones_file=None
         if zones is not None:
             zones_file=directory/'zones.json'
@@ -130,7 +131,7 @@ class ModelLibrary:
             'linked_utc':datetime.now(timezone.utc).isoformat()}
         with tempfile.NamedTemporaryFile('w',encoding='utf-8',dir=self.root,delete=False,suffix='.tmp') as temp:
             temporary=Path(temp.name);json.dump(index,temp,indent=2,ensure_ascii=False)
-        os.replace(temporary,self.root/'candidate_links.json')
+        replace_with_retry(temporary,self.root/'candidate_links.json')
         return index[self.key(ship,build)]
 
     def linked_candidate(self,ship,build):

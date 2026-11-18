@@ -15,7 +15,7 @@ import threading
 from datetime import datetime, timezone
 from pathlib import Path
 from multi_scan import targets
-from v3_progress import atomic_json
+from v3_progress import atomic_json, status_json
 
 
 def catalog_inputs(root):
@@ -81,53 +81,63 @@ def run(output, paths=None, *, poll=2, analysis_extra=None, extraction_extra=Non
                 running.append((proc,log,row,dest))
             except OSError as exc:
                 row.update(status='failed',detail=str(exc));log.close()
-    stop_requested = False
-    while True:
-        if cancel_event is not None and cancel_event.is_set() and not stop_requested:
-            stop_requested=True
+    try:
+        stop_requested = False
+        while True:
+            if cancel_event is not None and cancel_event.is_set() and not stop_requested:
+                stop_requested=True
+                for proc,log,row,dest in running:
+                    if proc.poll() is None:
+                        proc.terminate()
+                        row['detail']='Stop requested; completed output retained'
+            active=False
             for proc,log,row,dest in running:
-                if proc.poll() is None:
-                    proc.terminate()
-                    row['detail']='Stop requested; completed output retained'
-        active=False
-        for proc,log,row,dest in running:
-            code=proc.poll()
-            if code is None:
-                active=True
-                if row['job']=='Analysis':
-                    progress=dest/'Progress.json'
-                    if progress.exists():
+                code=proc.poll()
+                if code is None:
+                    active=True
+                    if row['job']=='Analysis':
+                        progress=dest/'Progress.json'
+                        if progress.exists():
+                            try:
+                                p=json.loads(progress.read_text(encoding='utf-8'))
+                                for k in ('stage','done','total','current','updated_utc'):
+                                    if k in p: row[k]=p[k]
+                            except (OSError,ValueError):pass
+                    else:
+                        # Extraction progress is collected from stdout, not fabricated as percentages.
                         try:
-                            p=json.loads(progress.read_text(encoding='utf-8'))
-                            for k in ('stage','done','total','current','updated_utc'):
-                                if k in p: row[k]=p[k]
-                        except (OSError,ValueError):pass
-                else:
-                    # Extraction progress is collected from stdout, not fabricated as percentages.
-                    try:
-                        last=(dest/'Worker.log').read_text(encoding='utf-8',errors='replace').splitlines()
-                        if last: row['stage']=last[-1][:150]
-                    except OSError:pass
-            elif row['status']=='running':
-                row['status']=('cancelled' if stop_requested else ('complete' if code==0 else 'failed'))
-                row['exit_code']=code
-                row['detail']=('Finished' if code==0 else 'See Worker.log for error')
-                log.close()
-        payload={'version':'3.1','updated_utc':datetime.now(timezone.utc).isoformat(),
-                 'targets':states}
-        atomic_json(out/'CombinedStatus.json',payload)
-        rows=''.join('<tr>'+''.join('<td>'+html.escape(str(s.get(k,'')))+'</td>'
-                    for k in ('label','job','status','stage','detail'))+'</tr>' for s in states)
-        (out/'CombinedReport.html').write_text('<!doctype html><html><meta charset="utf-8">'
-             '<title>WoSB Analyzer + Extractor</title><style>body{background:#152033;color:#eef;'
-             'font:16px system-ui;padding:25px}td,th{padding:9px;border-bottom:1px solid #667}'
-             'table{border-collapse:collapse}</style><h1>WoSB Concurrent Analysis + Extraction</h1>'
-             '<p>Refresh for updates. Extraction requires a full game data archive; analysis can scan launcher-only folders.</p>'
-             '<table><tr><th>Folder</th><th>Job</th><th>Status</th><th>Stage</th><th>Details</th></tr>'
-             +rows+'</table></html>',encoding='utf-8')
-        print(' | '.join(f"{s['label']}/{s['job']}: {s['status']} ({s.get('stage','')})" for s in states),flush=True)
-        if not active: break
-        time.sleep(poll)
+                            last=(dest/'Worker.log').read_text(encoding='utf-8',errors='replace').splitlines()
+                            if last: row['stage']=last[-1][:150]
+                        except OSError:pass
+                elif row['status']=='running':
+                    row['status']=('cancelled' if stop_requested else ('complete' if code==0 else 'failed'))
+                    row['exit_code']=code
+                    row['detail']=('Finished' if code==0 else 'See Worker.log for error')
+                    log.close()
+            payload={'version':'3.1','updated_utc':datetime.now(timezone.utc).isoformat(),
+                     'targets':states}
+            status_json(out/'CombinedStatus.json',payload)
+            rows=''.join('<tr>'+''.join('<td>'+html.escape(str(s.get(k,'')))+'</td>'
+                        for k in ('label','job','status','stage','detail'))+'</tr>' for s in states)
+            (out/'CombinedReport.html').write_text('<!doctype html><html><meta charset="utf-8">'
+                 '<title>WoSB Analyzer + Extractor</title><style>body{background:#152033;color:#eef;'
+                 'font:16px system-ui;padding:25px}td,th{padding:9px;border-bottom:1px solid #667}'
+                 'table{border-collapse:collapse}</style><h1>WoSB Concurrent Analysis + Extraction</h1>'
+                 '<p>Refresh for updates. Extraction requires a full game data archive; analysis can scan launcher-only folders.</p>'
+                 '<table><tr><th>Folder</th><th>Job</th><th>Status</th><th>Stage</th><th>Details</th></tr>'
+                 +rows+'</table></html>',encoding='utf-8')
+            print(' | '.join(f"{s['label']}/{s['job']}: {s['status']} ({s.get('stage','')})" for s in states),flush=True)
+            if not active: break
+            time.sleep(poll)
+    except BaseException:
+        # Never leave scan workers running unattended if the coordinator itself fails.
+        for proc,log,row,dest in running:
+            try:
+                if proc.poll() is None:proc.terminate()
+            except OSError:pass
+            try:log.close()
+            except OSError:pass
+        raise
     return 1 if any(s['status'] in ('failed','cancelled') for s in states) else 0
 
 
