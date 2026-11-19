@@ -193,7 +193,30 @@ def load_entities(db, *, build='Steam'):
 
 # --------------------------------------------------------------- page chrome
 
+STUB_SOURCE_KINDS = {'ontology', 'discovery-audit', 'research-outline', 'auto-capture', 'client-static-evidence', 'derived-research'}
+STUB_MARKERS = ('Research status: not yet verified', '*Add verified findings here', 'explanatory text has not yet been')
+GUIDE_ORDER = ['Game guide', 'Mechanics', 'Data overviews']
+GAMEPEDIA_SEE_ALSO = {
+    'boarding': [('Boarding mechanics', '../wiki/boarding.html'), ('Boarding simulator', '../tools/boarding-simulator.html')],
+    'windandspeed': [('Sailing and wind', '../wiki/sailing-and-wind.html'), ('Wind & sailing tool', '../tools/wind-rose.html')],
+    'windrose': [('Sailing and wind', '../wiki/sailing-and-wind.html'), ('Wind & sailing tool', '../tools/wind-rose.html')],
+    'weapons': [('Cannons compared', '../guide/cannons-compared.html'), ('Damage formula', '../wiki/damage-formula.html')],
+    'ammonition': [('Ammunition compared', '../wiki/ammunition-compared.html')],
+    'portscapturing': [('Port battle rules', '../guide/port-battle-rules.html'), ('Battle simulator', '../tools/battle-simulator.html?preset=pbfleet')],
+    'buildingships': [('Ships by rank', '../guide/ships-by-rank.html')],
+    'crew': [('Boarding mechanics', '../wiki/boarding.html')],
+    'shipscapturing': [('Boarding mechanics', '../wiki/boarding.html')],
+    'workshop': [('Crafting recipes', '../category/recipes.html')], 'factories': [('Crafting recipes', '../category/recipes.html')],
+}
+
 CSS = r'''
+.tfilter{width:320px;max-width:100%;padding:6px 8px;border:1px solid #a2a9b1;border-radius:3px;font:inherit}
+
+.vbar{position:relative;min-width:90px;height:18px;background:#eef2f5;border-radius:3px;overflow:hidden}.vbar i{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,#9cc3dc,#4f8fb8)}.vbar b{position:relative;padding-left:5px;font-weight:600;font-size:12px;line-height:18px;color:#16324a}
+.vbar.warm i{background:linear-gradient(90deg,#f3c58a,#d9782f)}.vbar.green i{background:linear-gradient(90deg,#b7dfa0,#5aa144)}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin:10px 0}.cards a.cardl{display:block;border:1px solid #c9d3dd;border-radius:6px;padding:10px;text-decoration:none;background:#f8fafc}.cards a.cardl b{display:block;color:#20486b}.cards a.cardl span{color:#555;font-size:13px}
+.keyfacts{background:#f4f8fb;border-left:4px solid #4f8fb8;padding:8px 12px;margin:8px 0}
+
 :root{--link:#0645ad;--visited:#0b0080;--border:#a2a9b1;--side:#f6f6f6;--head:#eaecf0;--ink:#202122;--muted:#54595d;--accent:#1d4e6f}
 *{box-sizing:border-box}html{background:#f6f6f6}body{margin:0;font:14px/1.6 "Segoe UI",system-ui,Arial,sans-serif;color:var(--ink)}
 a{color:var(--link);text-decoration:none}a:hover{text-decoration:underline}a.new{color:#ba0000}
@@ -231,6 +254,8 @@ code{background:#f8f9fa;border:1px solid #eaecf0;padding:1px 4px}footer{margin:3
 '''
 
 SITE_JS = r'''
+function wikiFilter(inp){const q=inp.value.toLowerCase();document.querySelectorAll('main table.wikitable tbody tr').forEach(tr=>{tr.style.display=tr.innerText.toLowerCase().includes(q)?'':'none'})}
+
 (function(){
 const base=document.body.dataset.base||'';
 const box=document.querySelector('#search input'),res=document.getElementById('results');let idx=null;
@@ -304,9 +329,45 @@ class SiteBuilder:
 
     def _articles(self):
         rows = self.db.conn.execute('SELECT slug,title,section,body,source_kind,updated_utc FROM articles ORDER BY section,title').fetchall()
-        return [dict(zip(('slug', 'title', 'section', 'body', 'source_kind', 'updated'), r)) for r in rows
-                if r[2] not in PRIVATE_SECTIONS and r[4] not in PRIVATE_SOURCE_KINDS
-                and not str(r[0]).startswith('research-') and 'research' not in str(r[2]).casefold()]
+        out = []
+        for r in rows:
+            a = dict(zip(('slug', 'title', 'section', 'body', 'source_kind', 'updated'), r))
+            if (a['section'] in PRIVATE_SECTIONS or a['source_kind'] in PRIVATE_SOURCE_KINDS or a['source_kind'] in STUB_SOURCE_KINDS
+                    or str(a['slug']).startswith('research-') or 'research' in str(a['section']).casefold()):
+                continue
+            if a['source_kind'] == 'client-gamepedia':
+                body = self._gamepedia_body(a['slug'], a['title'])
+                if not body:
+                    continue
+                a['body'] = body; a['section'] = 'Game guide'
+            elif any(marker in (a['body'] or '') for marker in STUB_MARKERS):
+                continue            # empty research outlines: nothing a reader can use
+            out.append(a)
+        return out
+
+    def _gamepedia_body(self, slug, title):
+        """The game's own help text for a Gamepedia entry (English_Text keys <id>_text1, _text2, …)."""
+        if not hasattr(self, '_gp_text'):
+            self._gp_text = {}
+            for raw, in self.db.conn.execute("SELECT raw_json FROM records WHERE dataset='English_Text'"):
+                r = json.loads(raw); k = str(r.get('Key', ''))
+                if k.startswith('gamewiki_'):
+                    self._gp_text[k] = r.get('English') or ''          # later rows (newer client) win
+        base = 'gamewiki_' + str(slug).split('gamewiki-', 1)[-1].replace('-', '_')
+        parts = sorted(((int(m.group(1)), v) for k, v in self._gp_text.items()
+                        for m in [re.fullmatch(re.escape(base) + r'_text(\d+)', k)] if m and v.strip()), key=lambda kv: kv[0])
+        if not parts:
+            return ''
+        paras = []
+        for _, v in parts:
+            v = re.sub(r'\{\d+\}', '…', v).replace('$$', '\n\n').replace('$', '\n')
+            # in-game highlight markup: #word #word → **word word**
+            v = re.sub(r'#([\w’\'-]+(?:[\s–-]+#[\w’\'-]+)*)', lambda m: '**' + m.group(1).replace('#', '') + '**', v)
+            paras.append(v.strip())
+        key = base.replace('gamewiki_', '')
+        see = GAMEPEDIA_SEE_ALSO.get(key, [])
+        tail = ('\n\n**See also:** ' + ' · '.join(f'[{t}]({u})' for t, u in see)) if see else ''
+        return f'# {title}\n\n' + '\n\n'.join(paras) + tail + '\n\n*From the in-game Gamepedia.*'
 
     def _write(self, rel, content):
         path = self.out / rel; path.parent.mkdir(parents=True, exist_ok=True)
@@ -339,7 +400,7 @@ class SiteBuilder:
     def build_site(self):
         if self.out.exists():
             for child in ('ship', 'cannon', 'ammo', 'upgrade', 'crew', 'skill', 'resource', 'port', 'achievement', 'cosmetic', 'decoration', 'recipe', 'mission',
-                          'category', 'wiki', 'tools', 'assets', 'data'):
+                          'category', 'wiki', 'tools', 'assets', 'data', 'guide'):
                 shutil.rmtree(self.out / child, ignore_errors=True)
         self.out.mkdir(parents=True, exist_ok=True)
         self._write('assets/site.css', CSS); self._write('assets/site.js', SITE_JS)
@@ -380,7 +441,7 @@ class SiteBuilder:
             zones += [{'t': 'mast', 'b': m['box']} for m in d['masts']]
             for z in zones:
                 z['b'] = {'min': [round(v, 3) for v in z['b']['min']], 'max': [round(v, 3) for v in z['b']['max']]}
-            out[f.name.replace('.hitboxes.json', '')] = {'zones': zones, 'sails': len(d['sails']), 'masts': len(d['masts'])}
+            out[f.name.replace('.hitboxes.json', '')] = {'zones': zones, 'sails': len(d['sails']), 'masts': len(d['masts']), 'ports': d.get('port_counts')}
         return out
 
     def _model_for(self, ship):
@@ -521,34 +582,85 @@ class SiteBuilder:
         self._write('map.html', _page('World map', body))
         self.search.append({'t': 'World map', 'u': 'map.html', 'c': 'Map', 'k': 'map ports forts towers port battle'})
 
+    def _sim_ships(self):
+        if not hasattr(self, '_simships'):
+            try:
+                import battle_sim
+                self._simships = {x['n']: x for x in battle_sim.catalog_data(self.db, build=self.build)['ships']}
+            except Exception:
+                self._simships = {}
+        return self._simships
+
     def _ship_sections(self, rec, hitboxes):
+        import combat_sim
         out = []
-        hp = rec.get('Health')
-        out.append('<h2>Combat</h2><p>Hull HP and armor come from the ship\'s base stats; upgrades, skills and crew change them. '
-                   f'When HP reaches zero the ship begins to sink (13 s) - see <a href="../{self.article_urls.get("damage-and-sinking", "wiki/damage-and-sinking.html")}">Damage and sinking</a>.</p>'
-                   f'<p><a href="../tools/damage-simulator.html?hp={_e(hp)}">Simulate damage against this ship</a></p>')
+        ships = self._sim_ships(); me = ships.get(rec.get('_title'))
         model = self._model_for(rec)
         hb = hitboxes.get(model) if model else None
+        if me and me.get('rank'):
+            peers = [x for x in ships.values() if x.get('rank') == me['rank'] and x.get('hp')]
+            rows = []
+            for key, label, fmt, cls in (('hp', 'Hull HP', '{:,.0f}', ''), ('armor', 'Armor', '{:.1f}', 'warm'),
+                                         ('speed', 'Speed', '{:.1f}', 'green'), ('mob', 'Turn (° per 10 s)', '{:.0f}', ''), ('crew', 'Crew', '{:,.0f}', '')):
+                vals = [x[key] or 0 for x in peers]; top = max(vals) if vals else 0; avg = sum(vals) / len(vals) if vals else 0
+                better = sorted(vals, reverse=True).index(me[key] or 0) + 1 if (me[key] or 0) in vals else None
+                rows.append(f'<tr><td>{label}</td>' + _bar(me[key], top, fmt=fmt, cls=cls) +
+                            f'<td>{fmt.format(avg)}</td><td>{f"#{better} of {len(peers)}" if better else ""}</td></tr>')
+            out.append(f'<h2>Compared with rank {me["rank"]}</h2><table class="wikitable"><tr><th>Stat</th><th>{_e(rec.get("_title"))}</th>'
+                       f'<th>Rank average</th><th>Place</th></tr>' + ''.join(rows) + '</table>'
+                       f'<p><a href="../guide/ships-by-rank.html#rank-{me["rank"]}">All rank {me["rank"]} ships side by side</a></p>')
+        facts = []
+        if hb and hb.get('ports'):
+            p = hb['ports']; facts.append(f'<tr><td>Broadside guns</td><td>{p.get("left", 0)} per side' + (f', {p["swivel"]} swivels' if p.get('swivel') else '') + '</td></tr>')
+        if me:
+            _, hard = combat_sim.hull_factors(me.get('weight') or 0, me.get('sid'))
+            uniq = me.get('sid') in combat_sim.UNIQUE_ROSE_STATIC_IDS
+            facts.append(f'<tr><td>Wind rose</td><td>{"Unique (points higher on one tack)" if uniq else "Regular"}</td></tr>')
+            facts.append(f'<tr><td>Hardness</td><td>{hard:.2f} (0 = light and nimble, 1 = heavy, keeps speed at poor wind angles)</td></tr>')
+        if facts:
+            out.append('<h2>Handling</h2><table class="wikitable">' + ''.join(facts) + '</table>')
         if hb:
-            out.append(f'<h2>Hit zones</h2><p>{hb["sails"]} sails (each split into 4 slices) and {hb["masts"]} masts, plus the hull. '
-                       'Drag to rotate; scroll to zoom.</p><canvas class="hitbox" width="640" height="360" '
+            out.append(f'<h2>Hit zones</h2><p>The blue box is the hull hitbox cannonballs are tested against first; then the {hb["masts"]} masts; '
+                       f'then the {hb["sails"]} sails (4 slices each). Drag to rotate; scroll to zoom.</p><canvas class="hitbox" width="640" height="360" '
                        f'data-zones="{_e(json.dumps(hb["zones"], separators=(",", ":")))}"></canvas>'
                        '<script src="../assets/hitboxes.js"></script>')
-        out.append('<h2>Sailing</h2><p>Speed depends on the angle to the wind. See the '
-                   '<a href="../tools/wind-rose.html">wind &amp; sailing calculator</a> for the regular and unique wind roses.</p>')
+        name = rec.get('_title') or ''
+        out.append('<h2>Try it</h2><p>'
+                   f'<a href="../tools/battle-simulator.html?ship={_e(name)}">Battle simulator with the {_e(name)}</a> · '
+                   f'<a href="../tools/damage-simulator.html?hp={_e(rec.get("Health"))}">Damage simulator</a> · '
+                   '<a href="../tools/wind-rose.html">Wind &amp; sailing</a> · '
+                   f'<a href="../tools/boarding-simulator.html">Boarding</a></p>')
         return out
 
     def _category_page(self, kind, recs):
         dataset, plural, fields, cols = ENTITIES[kind]
         labels = {label: (field, fmt) for field, label, fmt in fields}
+        def num(v):
+            try:
+                return float(str(v).replace(',', '')) if v not in (None, '', True, False) else None
+            except (TypeError, ValueError):
+                return None
+        numeric = {c for c in cols if sum(num(r.get(labels[c][0])) is not None for r in recs) >= max(3, len(recs) * 0.6)
+                   and c not in ('Rank', 'Required rank', 'Tier', 'In shop', 'Hours', 'Makes')}
+        tops = {c: max((num(r.get(labels[c][0])) or 0 for r in recs), default=0) for c in numeric}
+        palette = {'Armor': 'warm', 'Speed': 'green', 'Penetration': 'warm', 'Range': 'green'}
         rows = []
+        if kind == 'ship':
+            recs = sorted(recs, key=lambda r: (num(r.get('ShipRank')) or 9, -(num(r.get('Health')) or 0)))
         for r in recs:
             cells = [f'<a href="../{self.urls[(kind, r["_title"].casefold())]}">{_e(r["_title"])}</a>']
             for c in cols:
                 field, fmt = labels[c]
-                cells.append(_e(_fmt(r.get(field), fmt) or ''))
+                text = _e(_fmt(r.get(field), fmt) or '')
+                v = num(r.get(field))
+                if c in numeric and v is not None and tops.get(c):
+                    w = max(0, min(100, 100 * v / tops[c]))
+                    cells.append(f'<div class="vbar {palette.get(c, "")}"><i style="width:{w:.0f}%"></i><b>{text}</b></div>')
+                else:
+                    cells.append(text)
             rows.append(cells)
-        intro = f'<p>All {len(recs)} {_e(plural.lower())}. Click a column heading to sort.</p>'
+        intro = (f'<p>All {len(recs)} {_e(plural.lower())}. Bars compare each value with the highest in the list; click a heading to sort.</p>'
+                 f'<p><input class="tfilter" type="search" placeholder="Filter {_e(plural.lower())}…" oninput="wikiFilter(this)"></p>')
         if kind == 'ship':
             groups = defaultdict(list)
             for r, cells in zip(recs, rows):
@@ -580,9 +692,22 @@ class SiteBuilder:
         groups = defaultdict(list)
         for a in self.articles:
             groups[a['section']].append(a)
-        body = [f'<p>{len(self.articles)} guides and mechanics articles.</p>']
-        for sec in sorted(groups):
-            body.append(f'<h2 id="{_e(_slug(sec))}">{_e(sec)}</h2><ul>' + ''.join(
+        try:
+            ov = _Overviews(self).pages()
+        except Exception:
+            ov = []
+        for slug, title, blurb, body in ov:
+            self._write(f'guide/{slug}.html', _page(title, body, depth=1, crumbs=[('Guides & mechanics', '../category/articles.html'), (title, None)]))
+            self.search.append({'t': title, 'u': f'guide/{slug}.html', 'c': 'Guide', 'k': 'overview data compare ' + blurb})
+        if ov:
+            groups['Data overviews'] = [{'title': t, 'slug': None, 'url': f'guide/{sl}.html', 'blurb': b} for sl, t, b, _ in ov]
+        body = [f'<p>{len(self.articles)} guides: the game\'s own help pages, verified mechanics, and data overviews built from the game files.</p>']
+        for sec in [x for x in GUIDE_ORDER if x in groups] + sorted(x for x in groups if x not in GUIDE_ORDER):
+            if sec == 'Data overviews':
+                body.append(f'<h2 id="{_e(_slug(sec))}">{_e(sec)}</h2><div class="cards">' + ''.join(
+                    f'<a class="cardl" href="../{a["url"]}"><b>{_e(a["title"])}</b><span>{_e(a["blurb"])}</span></a>' for a in groups[sec]) + '</div>')
+                continue
+            body.append(f'<h2 id="{_e(_slug(sec))}">{_e(sec)}</h2><ul class="cols">' + ''.join(
                 f'<li><a href="../{self.article_urls[a["slug"]]}">{_e(a["title"])}</a></li>' for a in groups[sec]) + '</ul>')
         self._write('category/articles.html', _page('Guides & mechanics', ''.join(body), depth=1, crumbs=[('Main page', 'index.html'), ('Guides & mechanics', None)]))
 
@@ -596,6 +721,9 @@ class SiteBuilder:
                    ('Crafting', 'category/recipes.html', f'{counts.get("recipe", 0)} workshop recipes with ingredients.'),
                    ('World map', 'map.html', 'Every port, guild fort, tower and imperial fort, with port-battle layouts.'),
                    ('Missions & NPCs', 'category/missions.html', 'PvE missions wave by wave, and the kinds of NPC ships.'),
+                   ('Ships by rank', 'guide/ships-by-rank.html', 'Every ship side by side: hull, armor, speed and turning, with bars.'),
+                   ('Cannons compared', 'guide/cannons-compared.html', 'Damage per ball and per minute, range and reload by gun type.'),
+                   ('Port battle rules', 'guide/port-battle-rules.html', 'Tower HP, battle clock, respawn points and capture rules.'),
                    ('Ship upgrades', 'category/upgrades.html', f'{counts.get("upgrade", 0)} upgrades by slot.'),
                    ('Crew', 'category/crew.html', f'{counts.get("crew", 0)} crew and boarding units.'),
                    ('Captain skills', 'category/skills.html', f'{counts.get("skill", 0)} skills.'),
@@ -801,3 +929,170 @@ pick.addEventListener('change',render);
 
 def build_site(db, out, **kw):
     return SiteBuilder(db, out, **kw).build_site()
+
+
+# ---------------------------------------------------------------- data overview pages
+def fx_label(token):
+    """'PReduceFireAreaDamage +25' -> ('Reduce fire area damage', '+25%');  B-flags -> ('…', 'yes')."""
+    m = re.match(r'\s*([PMB])([A-Za-z]+)\s*(.*)$', token or '')
+    if not m:
+        return (token or '').strip(), ''
+    kind, name, val = m.groups()
+    words = re.sub(r'(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])', ' ', name).lower().replace('cballs', 'cannonballs').replace('sailes', 'sails')
+    words = words[:1].upper() + words[1:]
+    val = val.strip()
+    if kind == 'B':
+        return words, 'yes'
+    if ',' in val:
+        vals = [v.strip() for v in val.split(',') if v.strip()]
+        val = (vals[0] + ' … ' + vals[-1] + ' by rank') if len(set(vals)) > 1 else vals[0]
+    return words, (val + '%' if kind == 'P' and val else val)
+
+
+def _bar(value, top, *, fmt='{:,.0f}', cls=''):
+    try:
+        v = float(value)
+    except (TypeError, ValueError):
+        return '<td></td>'
+    w = max(0.0, min(100.0, 100.0 * v / top)) if top else 0
+    return f'<td><div class="vbar {cls}"><i style="width:{w:.0f}%"></i><b>{fmt.format(v)}</b></div></td>'
+
+
+CANNON_CLASS_TEXT = {
+    'LiteCannon': ('Cannons', 'All-round broadside guns: balanced range, penetration and reload.'),
+    'HeavyCannon': ('Carronades', 'Short-range, heavy-hitting guns: high penetration, short reach.'),
+    'DistanceCannon': ('Long guns', 'Long-range guns: more reach, usually less penetration per ball.'),
+    'Bombardier': ('Bow & stern guns', 'Chase guns fitted at the bow or stern, including special multi-shot weapons.'),
+    'Mortar': ('Mortars', 'Indirect fire with splash damage, long reload, and a minimum range.'),
+    'Special': ('Special weapons', 'Unique weapons with their own firing rules.'),
+}
+
+
+class _Overviews:
+    """Readable, data-first pages built from the catalog (ranks, guns, upgrades, port battles)."""
+
+    def __init__(self, site):
+        import battle_sim
+        self.site = site
+        self.d = battle_sim.catalog_data(site.db, build=site.build)
+
+    def link(self, kind, name):
+        url = self.site.urls.get((kind, str(name).casefold()))
+        return f'<a href="../{url}">{_e(name)}</a>' if url else _e(name)
+
+    def pages(self):
+        out = []
+        for slug, title, blurb, fn in (
+                ('ships-by-rank', 'Ships by rank', 'Every ship side by side within its rank: hull, armor, speed and turning.', self.ships_by_rank),
+                ('cannons-compared', 'Cannons compared', 'Penetration, damage per ball and per minute, range and reload, grouped by gun type.', self.cannons),
+                ('upgrades-by-effect', 'Upgrades by effect', 'What each ship upgrade actually changes, grouped by slot and by effect.', self.upgrades),
+                ('port-battle-rules', 'Port battle rules', 'Tower and fort HP, battle clock, respawn points, capture rules in tables.', self.port_battles)):
+            try:
+                body = fn()
+            except Exception:
+                continue
+            if body:
+                out.append((slug, title, blurb, body))
+        return out
+
+    def ships_by_rank(self):
+        ships = [s for s in self.d['ships'] if s.get('hp')]
+        if not ships:
+            return ''
+        top = {k: max(s[k] or 0 for s in ships) for k in ('hp', 'armor', 'speed', 'mob')}
+        html = ['<div class="keyfacts">Rank 1 is the largest class. Bars compare each value with the best ship in the game. '
+                'Click a column heading to sort.</div>']
+        summ = []
+        for rank in sorted({s['rank'] for s in ships if s['rank']}):
+            grp = [s for s in ships if s['rank'] == rank]
+            avg = lambda k: sum(s[k] or 0 for s in grp) / len(grp)
+            summ.append(f'<tr><td><a href="#rank-{rank}">Rank {rank}</a></td><td>{len(grp)}</td>' + _bar(avg('hp'), top['hp']) +
+                        _bar(avg('armor'), top['armor'], fmt='{:.1f}', cls='warm') + _bar(avg('speed'), top['speed'], fmt='{:.1f}', cls='green') + _bar(avg('mob'), top['mob']) + '</tr>')
+        html.append('<h2>Average by rank</h2><table class="wikitable"><tr><th>Rank</th><th>Ships</th><th>HP</th><th>Armor</th><th>Speed</th><th>Turn (°/10 s)</th></tr>' + ''.join(summ) + '</table>')
+        for rank in sorted({s['rank'] for s in ships if s['rank']}):
+            rows = []
+            for s in sorted((s for s in ships if s['rank'] == rank), key=lambda s: -(s['hp'] or 0)):
+                rows.append(f'<tr><td>{self.link("ship", s["n"])}</td><td>{_e(_camel(s["cls"] or ""))}</td>' + _bar(s['hp'], top['hp']) +
+                            _bar(s['armor'], top['armor'], fmt='{:.1f}', cls='warm') + _bar(s['speed'], top['speed'], fmt='{:.1f}', cls='green') +
+                            _bar(s['mob'], top['mob']) + f'<td>{_e(int(s["crew"] or 0))}</td><td>{_e(s["places"] or "")}</td></tr>')
+            html.append(f'<h2 id="rank-{rank}">Rank {rank}</h2><table class="wikitable sortable"><tr><th>Ship</th><th>Type</th><th>HP</th><th>Armor</th>'
+                        f'<th>Speed</th><th>Turn</th><th>Crew</th><th>Crew places</th></tr>' + ''.join(rows) + '</table>')
+        return ''.join(html)
+
+    def cannons(self):
+        guns = [c for c in self.d['cannons'] if c.get('pen')]
+        if not guns:
+            return ''
+        ball = next((a for a in self.d['ammo'] if re.search('cast-iron', a['n'], re.I)), {'pen': 0, 'df': 1})
+        per = lambda c, arm=0: max(0.0, (c['pen'] + (ball.get('pen') or 0) - 2.1 - arm) * (ball.get('df') or 1))
+        dpm = lambda c: max(0.0, (c['pen'] - 2) * 60 / c['reload']) if c.get('reload') else 0
+        top = {'pen': max(c['pen'] for c in guns if not c.get('mortar')), 'max': max(c['max'] or 0 for c in guns),
+               'dpm': max(dpm(c) for c in guns if not c.get('mortar')), 'per': max(per(c) for c in guns if not c.get('mortar'))}
+        html = ['<div class="keyfacts">Damage per ball is the in-game figure with cast-iron shot: (penetration − 2.1) × ammo factor, before the target\'s armor. '
+                'Against armor A, subtract A (more at an angle). Per minute = (penetration − 2) × 60 ÷ reload, per gun. '
+                'Try them on real ships in the <a href="../tools/battle-simulator.html">battle simulator</a>.</div>']
+        for cls in ['LiteCannon', 'HeavyCannon', 'DistanceCannon', 'Bombardier', 'Special', 'Mortar']:
+            grp = [c for c in guns if c['cls'] == cls]
+            if not grp:
+                continue
+            name, text = CANNON_CLASS_TEXT.get(cls, (_camel(cls), ''))
+            rows = []
+            for c in sorted(grp, key=lambda c: (c['pen'] or 0)):
+                feat = '' if c.get('feature') in (None, '', 'Default') else _camel(c['feature'])
+                if c.get('mortar'):
+                    rows.append(f'<tr><td>{self.link("cannon", c["n"])}</td><td>{c["pen"]:.0f}</td><td>{c.get("splash") or ""}</td><td>{(c.get("min") or 0):.0f}–{(c["max"] or 0):.0f}</td><td>{c["reload"]:.0f} s</td><td>{_e(feat)}</td></tr>')
+                else:
+                    rows.append(f'<tr><td>{self.link("cannon", c["n"])}</td>' + _bar(c['pen'], top['pen'], fmt='{:.1f}', cls='warm') + _bar(per(c), top['per'], fmt='{:.1f}') +
+                                _bar(per(c, 6), top['per'], fmt='{:.1f}') + _bar(dpm(c), top['dpm'], fmt='{:.0f}', cls='green') + _bar(c['max'], top['max']) +
+                                f'<td>{c["reload"]:.1f} s</td><td>±{c.get("angle") or 0:.0f}°</td><td>{_e(feat)}</td></tr>')
+            head = ('<tr><th>Mortar</th><th>Damage</th><th>Splash</th><th>Range</th><th>Reload</th><th>Feature</th></tr>' if cls == 'Mortar' else
+                    '<tr><th>Gun</th><th>Penetration</th><th>Dmg / ball</th><th>vs armor 6</th><th>Per minute</th><th>Range</th><th>Reload</th><th>Arc</th><th>Feature</th></tr>')
+            html.append(f'<h2>{_e(name)}</h2><p>{_e(text)}</p><table class="wikitable sortable">{head}{"".join(rows)}</table>')
+        return ''.join(html)
+
+    def upgrades(self):
+        ups = [u for u in self.d['upgrades'] if u.get('fx')]
+        if not ups:
+            return ''
+        by_slot = defaultdict(list); by_fx = defaultdict(list)
+        for u in ups:
+            effects = [fx_label(t) for t in re.split(r';', u['fx']) if t.strip()]
+            by_slot[_camel(u.get('slot') or 'Other').replace('Sailes', 'Sails')].append((u['n'], effects))
+            for lab, val in effects:
+                by_fx[lab].append((u['n'], val))
+        html = ['<div class="keyfacts">Percent effects add together across upgrades, crew, skills and items; flat effects add directly. '
+                'Effects listed "by rank" scale with the ship\'s rank.</div><h2>By slot</h2>']
+        for slot in sorted(by_slot):
+            rows = ''.join(f'<tr><td>{self.link("upgrade", n)}</td><td>' + '<br>'.join(f'{_e(l)} <b>{_e(v)}</b>' for l, v in eff) + '</td></tr>' for n, eff in sorted(by_slot[slot]))
+            html.append(f'<h3>{_e(slot)}</h3><table class="wikitable"><tr><th>Upgrade</th><th>Effects</th></tr>{rows}</table>')
+        html.append('<h2>By effect</h2><table class="wikitable sortable"><tr><th>Effect</th><th>Upgrades</th></tr>' + ''.join(
+            f'<tr><td>{_e(lab)}</td><td>' + ', '.join(f'{self.link("upgrade", n)} ({_e(v)})' for n, v in sorted(items)) + '</td></tr>'
+            for lab, items in sorted(by_fx.items())) + '</table>')
+        return ''.join(html)
+
+    def port_battles(self):
+        base = {1: (12100, 26400), 2: (10000, 21700), 3: (9100, 20000), 4: (7700, 16700), 5: (6600, 14500), 6: (4500, 10000)}
+        teams = [(40, 1.15), (20, 1.0), (15, 0.85), (10, 0.7), (7, 0.6), (5, 0.5)]
+        lvl = [1, 1, 1.04, 1.08, 1.12, 1.16, 1.2, 1.24]
+        rnd = lambda v: int(round(v / 100) * 100)
+        t1 = ''.join(f'<tr><td>Rank {r}+</td>' + ''.join(f'<td>{rnd(t * base[r][0]):,} / {rnd(t * base[r][1]):,}</td>' for _, t in teams) + '</tr>' for r in sorted(base))
+        cost = lambda r, cls: ({5: 3, 4: 4, 3: 5, 2: 6, 1: 7}.get(r, 2) + ((1 if r >= 4 else 2) if cls == 'Hardship' else 0) + (1 if cls == 'Battleship' else 0))
+        t3 = ''.join(f'<tr><td>Rank {r}</td>' + ''.join(f'<td>{cost(r, c)}</td>' for c in ('CargoShip', 'Destroyer', 'Battleship', 'Hardship')) + '</tr>' for r in range(1, 8))
+        return ('<div class="keyfacts">These are the client\'s port-battle rules. See them play out in the '
+                '<a href="../tools/battle-simulator.html?preset=pbfleet">battle simulator</a>, or pick a site on the <a href="../map.html">world map</a>.</div>'
+                '<h2>Tower and fort HP (city level 1)</h2><p>Tower / fort strength by the shallows rank limit and the team limit.</p>'
+                '<table class="wikitable"><tr><th>Ships allowed</th>' + ''.join(f'<th>{n} v {n}</th>' for n, _ in teams) + '</tr>' + t1 + '</table>'
+                '<p>Higher city levels multiply this: ' + ', '.join(f'level {i} ×{lvl[i]:.2f}' for i in range(2, 8)) + '.</p>'
+                '<h2>Battle clock</h2><table class="wikitable"><tr><th>Event</th><th>Effect</th></tr>'
+                '<tr><td>Start</td><td>25 minutes</td></tr><tr><td>Tower destroyed</td><td>+10 minutes</td></tr>'
+                '<tr><td>Ship sunk</td><td>1–2 minutes of extra time</td></tr><tr><td>Maximum</td><td>90 minutes</td></tr></table>'
+                '<h2>Respawn points</h2><p>Each side starts with 25 + (team size − 1) × 2.5 × the cost of a cargo ship of the allowed rank; defenders get 85% of that. '
+                'Respawns are instant while points last. Each sinking costs:</p><table class="wikitable"><tr><th></th><th>Cargo</th><th>Destroyer</th><th>Battleship</th><th>Heavy</th></tr>' + t3 + '</table>'
+                '<h2>Towers and the fort</h2><table class="wikitable"><tr><th>Rule</th><th>Value</th></tr>'
+                '<tr><td>Attack timer</td><td>15 s inside a tower\'s range before it can be damaged</td></tr>'
+                '<tr><td>Capture a destroyed tower</td><td>stay within 30 for 30 s</td></tr>'
+                '<tr><td>Towers you can capture</td><td>at most half of them</td></tr>'
+                '<tr><td>Board the fort</td><td>25 s, once the fort is at 0 and no tower stands</td></tr>'
+                '<tr><td>Mortar tower</td><td>120 damage every 15 s, 50–190 range</td></tr>'
+                '<tr><td>Fire (Prometheus) tower</td><td>30 damage every 0.5 s, ±45°, 14–115 range</td></tr>'
+                '<tr><td>Unique ships per team</td><td>1 per 10 players</td></tr></table>')

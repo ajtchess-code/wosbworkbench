@@ -745,5 +745,7 @@ $('replay').oninput=e=>{const i=+e.target.value;if(i>=rec.pos.length-1){goLive()
 try{glInit()}catch(err){console.warn(err);GL.gl=null}packStatus();
 showRows();
 {const q=new URLSearchParams(location.search);if(q.get('preset')&&[...$('preset').options].some(o=>o.value===q.get('preset')))$('preset').value=q.get('preset');if(q.get('site')!==null)$('portSel').value=q.get('site');showRows()}
-if(!fromHash())reset($('preset').value);requestAnimationFrame(frame);
+if(!fromHash()){reset($('preset').value);const q=new URLSearchParams(location.search).get('ship');const def=q&&D.ships.find(x=>x.n.toLowerCase()===q.toLowerCase());
+ if(def&&units[0]&&units[0].type==='ship'){const u=units[0],n=makeShip(def.n,u.team,u.x,u.z,u.h);Object.assign(u,{def:n.def,st:n.st,ports:n.ports,hardness:n.hardness,inertion:n.inertion,unique:n.unique});ensureModels();selPanel()}}
+requestAnimationFrame(frame);
 </script></body></html>

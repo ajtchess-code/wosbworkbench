@@ -335,3 +335,24 @@ class TerrainAndEnvironmentPackTests(TempDir):
         (ships / 'Ship_1_test.obj').write_text(CUBE_OBJ)
         hb = battle_sim.ensure_hitboxes(home)
         self.assertTrue(hb and any(Path(hb).glob('*.hitboxes.json')) or (Path(hb) / 'Hitbox-Summary.json').is_file())
+
+
+@unittest.skipUnless(STARTER.exists(), 'starter catalog not bundled')
+class WikiContentQualityTests(TempDir):
+    def test_no_empty_outlines_and_overviews_present(self):
+        import wiki_site
+        dbp = self.tmp / 'c.sqlite3'; shutil.copy2(STARTER, dbp)
+        db = CatalogDB(str(dbp))
+        db.upsert_article('outline-x', 'Some outline', 'Damage, armor & mitigation',
+                          '# X\n\n**Research status: not yet verified.**\n\n*Add verified findings here.*', source_kind='ontology')
+        db.conn.commit()
+        wiki_site.build_site(db, self.tmp / 'site', model_pack=False)
+        pages = list((self.tmp / 'site').rglob('*.html'))
+        self.assertFalse([p for p in pages if 'Research status: not yet verified' in p.read_text(encoding='utf-8')])
+        self.assertTrue((self.tmp / 'site' / 'guide' / 'port-battle-rules.html').is_file())
+
+    def test_effect_labels(self):
+        import wiki_site
+        self.assertEqual(wiki_site.fx_label('PReduceFireAreaDamage +25'), ('Reduce fire area damage', '+25%'))
+        self.assertEqual(wiki_site.fx_label('MCapacity +3000,+3000,+6500'), ('Capacity', '+3000 … +6500 by rank'))
+        self.assertEqual(wiki_site.fx_label('BBoardingStartsWithNoTarget')[1], 'yes')
