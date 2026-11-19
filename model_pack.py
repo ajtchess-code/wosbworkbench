@@ -27,7 +27,7 @@ SHIP_LOW_SKIP = re.compile(r'Connection\w*Control|AverageBox|DeckStuff|ShipMin|^
 WORLD_SKIP = re.compile(r'shape|hitbox|collision|dummy|^SPAWN_|^ConnectionNpc', re.I)
 
 
-PACK_FORMAT = 2   # 2: terrain groups, environment textures
+PACK_FORMAT = 3   # 2: terrain groups, environment textures; 3: island footprints for collisions
 TERRAIN_MAT = re.compile(r'^TERRAIN\d+$', re.I)
 # Terrain materials are drawn by the game's terrain shader from up to three ground textures. The material-to-texture
 # table isn't recoverable as plain data, so the simulator blends the game's own ground textures by height and
@@ -145,6 +145,44 @@ def _decimate(pos, uv, idx, max_tris):
     return npos, nuv, nidx
 
 
+def footprint(obj_path, *, n=48, sea_level=0.0):
+    """Top-down grid of where a world model stands above the water (what a ship would run into).
+
+    Built from the model's collision shape when one exists (<name>_shape.obj), else from its mesh.
+    Returns {'min': [x, z], 'size': [w, h], 'n': n, 'bits': base64 of n*n bytes (1 = blocked)} in model units.
+    """
+    tris = []
+    for (_, _), (pos, _, idx) in read_obj(obj_path, skip=re.compile(r'^ConnectionNpc|^SPAWN_', re.I)).items():
+        for i in range(0, len(idx), 3):
+            a, b, c = (pos[idx[i + k] * 3:idx[i + k] * 3 + 3] for k in range(3))
+            if max(a[1], b[1], c[1]) > sea_level:
+                tris.append((a, b, c))
+    if not tris:
+        return None
+    xs = [p[0] for t in tris for p in t]; zs = [p[2] for t in tris for p in t]
+    x0, z0 = min(xs), min(zs); w, h = (max(xs) - x0) or 1.0, (max(zs) - z0) or 1.0
+    grid = bytearray(n * n); cw, ch = w / n, h / n
+    for a, b, c in tris:
+        ax, az, bx, bz, qx, qz = a[0], a[2], b[0], b[2], c[0], c[2]
+        den = (bz - qz) * (ax - qx) + (qx - bx) * (az - qz)
+        if abs(den) < 1e-12:
+            continue
+        i0 = max(0, int((min(ax, bx, qx) - x0) / cw)); i1 = min(n - 1, int((max(ax, bx, qx) - x0) / cw))
+        j0 = max(0, int((min(az, bz, qz) - z0) / ch)); j1 = min(n - 1, int((max(az, bz, qz) - z0) / ch))
+        for i in range(i0, i1 + 1):
+            px = x0 + (i + 0.5) * cw
+            for j in range(j0, j1 + 1):
+                if grid[j * n + i]:
+                    continue
+                pz = z0 + (j + 0.5) * ch
+                l1 = ((bz - qz) * (px - qx) + (qx - bx) * (pz - qz)) / den
+                l2 = ((qz - az) * (px - qx) + (ax - qx) * (pz - qz)) / den
+                if l1 >= -0.05 and l2 >= -0.05 and 1 - l1 - l2 >= -0.05:
+                    grid[j * n + i] = 1
+    return {'min': [round(x0, 3), round(z0, 3)], 'size': [round(w, 3), round(h, 3)], 'n': n,
+            'bits': base64.b64encode(bytes(grid)).decode('ascii')}
+
+
 def pack_model(obj_path, *, kind='ship', lod='high', max_tris=60000):
     skip = (SHIP_LOW_SKIP if lod == 'low' else SHIP_SKIP) if kind == 'ship' else WORLD_SKIP
     groups = read_obj(obj_path, skip=skip)
@@ -170,7 +208,15 @@ def pack_model(obj_path, *, kind='ship', lod='high', max_tris=60000):
         out.append({'mesh': mesh, 'mat': mat, 'kind': _kind(mesh, mat), 'n': len(idx) // 3,
                     'p': _b64(q), 'nr': _b64(_normals(pos, idx)), 'uq': _b64(uq), 'umin': umin, 'usc': usc,
                     'i': _b64(ia), 'i32': ia.typecode == 'I'})
-    return {'min': mn, 'scale': sc, 'bounds': [mn, mx], 'groups': out, 'tris': sum(g['n'] for g in out)}
+    res = {'min': mn, 'scale': sc, 'bounds': [mn, mx], 'groups': out, 'tris': sum(g['n'] for g in out)}
+    if kind == 'world':
+        shape = Path(obj_path).with_name(Path(obj_path).stem + '_shape.obj')
+        try:
+            res['foot'] = footprint(shape if shape.is_file() else obj_path)
+            res['foot_source'] = 'collision shape' if shape.is_file() else 'mesh'
+        except (OSError, ValueError):
+            pass
+    return res
 
 
 class TextureIndex:

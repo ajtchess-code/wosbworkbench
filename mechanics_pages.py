@@ -196,6 +196,20 @@ Damage per ball ≈ (cannon penetration + ammo penetration − armor at the impa
   Very flat (glancing) hits do little.
 * Some ammo has a minimum damage through any hit zone.
 
+## How a hit is detected
+
+A cannonball doesn't have to touch the visible hull. Each frame, the game draws a line from the ball's last position to
+its new one, and tests that line against three kinds of invisible boxes, in this order:
+
+1. **The hull box**: one box around the hull, from the waterline to the deck. If the line crosses it, it's a hull
+   hit, even where the curved hull is narrower than the box (near the bow, for example).
+2. **Mast boxes**: if the hull box was missed.
+3. **Sail boxes**: up to three sails per ball. Each sail slows the ball.
+
+The box can stand in for a curved hull because the game also keeps a table of hull **surface directions** all the way
+around the outline: a pointed bow, curved shoulders, flat sides, and a wide flat stern. Where the ball meets the box
+tells the game which part of the hull it struck and how steeply. That's what makes angling, bow and stern matter.
+
 ## Where you hit
 
 * **Bow**: the sturdiest part of the ship; hits there do less.

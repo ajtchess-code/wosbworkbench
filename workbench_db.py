@@ -13,7 +13,7 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-VERSION = '4.5.4'
+VERSION = '4.5.5'
 
 def utcnow():
     return datetime.now(timezone.utc).isoformat(timespec='seconds')

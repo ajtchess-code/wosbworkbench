@@ -156,7 +156,7 @@ function pickTarget(u,enemies){if(!enemies.length)return null;const p=u.roe.prio
  let pool=enemies;if(p==='towers'){const tw=enemies.filter(e=>e.type!=='ship');if(tw.length)pool=tw}else if(p==='ships'){const sh=enemies.filter(e=>e.type==='ship');if(sh.length)pool=sh}
  if(p==='weakest')return pool.reduce((a,b)=>b.st.hp<a.st.hp?b:a);if(p==='biggest')return pool.reduce((a,b)=>b.st.max>a.st.max?b:a);
  return pool.reduce((a,b)=>dist2(b,u)<dist2(a,u)?b:a)}
-function steerTo(u,hdg){const wind=windDir();let want=hdg;const off=angDiff(want,wind);           // 180 = into the wind
+function steerTo(u,hdg){hdg=clearHeading(u,hdg);const wind=windDir();let want=hdg;const off=angDiff(want,wind);           // 180 = into the wind
  if(Math.abs(off)>140){if(!u.tack||t>u.tackUntil){u.tack=off<0?-1:1;u.tackUntil=t+25}want=wind+u.tack*140}
  u.rudder=Math.max(-1,Math.min(1,angDiff(want,u.h)/25))}
 function slotPoint(leader,slot){const c=Math.cos(leader.h*DEG),s=Math.sin(leader.h*DEG);return [leader.x+slot[0]*c-slot[1]*s,leader.z+slot[0]*s+slot[1]*c]}
@@ -179,11 +179,30 @@ function sailStep(u,dt){
  const eff=S.windEff(theta,{unique:u.unique,hardness:u.hardness,tack});
  const sails=S.sailsHp(u.st),sinking=u.st.sinkMs>0;
  const speed=u.def.speed*eff*(0.55+0.45*sails)*sailF*(sinking?0.3:1);
- u.h+=u.rudder*u.def.mob/10*dt;u.vx=Math.cos(u.h*DEG)*speed;u.vz=Math.sin(u.h*DEG)*speed;u.x+=u.vx*dt;u.z+=u.vz*dt;u.eff=eff;u.speedNow=speed}
+ if(u.mode!=='hold'&&u.mode!=='move'&&u.mode!=='retreat'&&u.mode!=='follow'&&!(u.target))avoidLand(u);
+ u.h+=u.rudder*u.def.mob/10*dt;u.vx=Math.cos(u.h*DEG)*speed;u.vz=Math.sin(u.h*DEG)*speed;const nx=u.x+u.vx*dt,nz=u.z+u.vz*dt;
+ if(landAt(nx,nz)){u.vx=u.vz=0;u.speedNow=0;u.aground=true}else{u.x=nx;u.z=nz;u.aground=false;u.speedNow=speed}u.eff=eff}
+// ---- islands: ships can't sail through land (footprint grid from each island's collision shape, else its bounds)
+const FOOT={};
+function footOf(is){const m=GL.models&&GL.models[is.m];if(!m||!m.foot)return null;if(!FOOT[is.m]){const f=m.foot;FOOT[is.m]={...f,g:Uint8Array.from(atob(f.bits),c=>c.charCodeAt(0))}}return FOOT[is.m]}
+function solids(){if(!solids.c||solids.t!==t){solids.c=islands.concat(units.filter(u=>u.type==='tower').map(u=>({m:u.model,x:u.x,z:u.z,r:-u.h*DEG,s:u.s,b:u.bounds})));solids.t=t}return solids.c}
+function landAt(x,z){for(const is of solids()){if(!is.b)continue;const sc=(is.s||1)*WORLD_SCALE,R=Math.max(Math.abs(is.b[0][0]),is.b[1][0],Math.abs(is.b[0][2]),is.b[1][2])*sc;
+  const dx=x-is.x,dz=z-is.z;if(dx*dx+dz*dz>R*R)continue;const h=-is.r,c=Math.cos(-h),sn=Math.sin(-h);const lx=(dx*c-dz*sn)/sc,lz=(dx*sn+dz*c)/sc;
+  const f=footOf(is);if(f){const i=Math.floor((lx-f.min[0])/f.size[0]*f.n),j=Math.floor((lz-f.min[1])/f.size[1]*f.n);if(i>=0&&j>=0&&i<f.n&&j<f.n&&f.g[j*f.n+i])return is}
+  else{const ex=(is.b[1][0]-is.b[0][0])/2*0.8,ez=(is.b[1][2]-is.b[0][2])/2*0.8,ox=(is.b[1][0]+is.b[0][0])/2,oz=(is.b[1][2]+is.b[0][2])/2;if(((lx-ox)/ex)**2+((lz-oz)/ez)**2<1)return is}}
+ return null}
+function lineFree(u,a,look){for(const f of [0.35,0.7,1]){if(landAt(u.x+Math.cos(a*DEG)*look*f,u.z+Math.sin(a*DEG)*look*f))return false}return true}
+function clearHeading(u,hdg){if(!solids().length)return hdg;const look=30+(u.speedNow||0)*5;
+ if(lineFree(u,hdg,look)){if(u.detour&&t>u.detourT)u.detour=0;return hdg}
+ // follow the coast: keep turning the same way (chosen once) until a clear heading is found
+ if(!u.detour){for(let d=20;d<=180;d+=20){if(lineFree(u,hdg+d,look)){u.detour=1;break}if(lineFree(u,hdg-d,look)){u.detour=-1;break}}u.detour=u.detour||1}
+ u.detourT=t+4;for(let d=20;d<=180;d+=20){const a=hdg+u.detour*d;if(lineFree(u,a,look))return a}return hdg+u.detour*180}
+function avoidLand(u){if(!solids().length)return;const look=18+(u.speedNow||0)*4;const probe=a=>landAt(u.x+Math.cos(a*DEG)*look,u.z+Math.sin(a*DEG)*look)||landAt(u.x+Math.cos(a*DEG)*look*0.5,u.z+Math.sin(a*DEG)*look*0.5);
+ if(!probe(u.h))return;for(const d of [35,-35,70,-70,110,-110]){if(!probe(u.h+d)){u.rudder=Math.sign(d);u.avoidUntil=t+1.5;return}}u.rudder=1;u.avoidUntil=t+2}
 function separate(){const ships=units.filter(u=>u.type==='ship'&&!u.st.destroyed);
  for(let i=0;i<ships.length;i++)for(let j=i+1;j<ships.length;j++){const a=ships[i],b=ships[j];const dx=b.x-a.x,dz=b.z-a.z,d=Math.hypot(dx,dz),m=12;
   if(d<m&&d>0.01){const k=(m-d)/2/d;a.x-=dx*k;a.z-=dz*k;b.x+=dx*k;b.z+=dz*k}}
- for(const u of ships)for(const is of islands){if(!is.rad)continue;const dx=u.x-is.x,dz=u.z-is.z,d=Math.hypot(dx,dz);if(d<is.rad&&d>0.01){u.x=is.x+dx/d*is.rad;u.z=is.z+dz/d*is.rad}}}
+}
 function issue(list,cmd,arg,append){
  const ships=list.filter(u=>u.type==='ship'&&!u.st.destroyed);if(!ships.length)return;
  const form=$('formation').value,sp=+$('spacing').value||30;
@@ -200,6 +219,16 @@ function issue(list,cmd,arg,append){
  else if(cmd==='clear')ships.forEach(u=>{u.path=[];if(u.mode==='move')u.mode='auto'})}
 function formSlot(form,i,sp){if(form==='line')return [-i*sp,0];if(form==='abreast'){const k=Math.ceil(i/2);return [0,(i%2?1:-1)*k*sp]}
  if(form==='column2')return [-Math.floor((i+1)/2)*sp,(i%2?1:0)*sp*0.8];const k=Math.ceil(i/2);return [-k*sp*0.8,(i%2?1:-1)*k*sp*0.8]}
+
+// Hull surface normals around the hull outline, from the client's shared physics code (ProjectedShipNormals):
+// bow tip → shoulders → flat sides → stern quarter → wide flat transom. The hull box decides whether a ball hits;
+// this table gives the surface direction at the spot it hits, so a box can stand in for a curved hull.
+const HULL_NORMALS=[[1,0],[0.70710677,0.70710677],[0.7269121,0.6867306],[0.3794607,0.9252079],[0.00884719,0.9999609],[0.04054236,0.9991779],[-0.02138744,0.9997712],
+ [-0.04306768,0.9990721],[-0.281508,0.9595589],[-0.2177823,0.9759973],[-0.1870278,0.9823547],[-0.4435308,0.8962591],[-0.4962481,0.8681807],[-0.7269121,0.6867306],
+ [-0.9873866,0.158328],[-0.9873866,0.158328],[-0.9999427,0.01071631],[-1,0],[-1,0],[-1,0]];
+function hullNormal(box,px,pz){const cx=(box.min[0]+box.max[0])/2,cz=(box.min[2]+box.max[2])/2,hl=(box.max[0]-box.min[0])/2||1,hw=(box.max[2]-box.min[2])/2||1;
+ const th=Math.atan2(Math.abs(pz-cz)/hw,(px-cx)/hl);const f=Math.min(19,th/(2*Math.PI)*38);const i0=Math.floor(f),i1=Math.min(19,i0+1),k=f-i0;
+ const a=HULL_NORMALS[i0],b=HULL_NORMALS[i1];let nx=a[0]+(b[0]-a[0])*k,nz=(a[1]+(b[1]-a[1])*k)*(pz<cz?-1:1);const l=Math.hypot(nx,nz)||1;return {n:[nx/l,nz/l],idx:f}}
 
 // ------------------------------------------------------------------ visual effects (smoke, flashes, splashes, debris, wakes)
 let fx=[];
@@ -284,9 +313,10 @@ function ballStep(b,dt){
   const la=toLocal(v,prev),lb=toLocal(v,cur),box=shipBox(v);const src=units.find(u=>u.id===b.from)||{stats:{dmg:0,hit:0},id:b.from};
   if(segBox(la,lb,box)!==null){
    if(PB.on&&!PB.attackable(src,v))return false;
-   const len=box.max[0]-box.min[0];const lx=la[0]+(lb[0]-la[0])*0.5;
-   const zone=v.type!=='ship'?'side':lx<box.min[0]+0.18*len?'stern':lx>box.max[0]-0.18*len?'bow':'side';
-   const dl=[lb[0]-la[0],lb[2]-la[2]];const n=zone==='side'?[0,1]:[1,0];const cosI=Math.abs(dl[0]*n[0]+dl[1]*n[1])/Math.hypot(dl[0],dl[1]);const angle=Math.acos(Math.min(1,cosI))/DEG;
+   const t0=segBox(la,lb,box);const lx=la[0]+(lb[0]-la[0])*t0,lz=la[2]+(lb[2]-la[2])*t0;
+   const hn=v.type==='ship'?hullNormal(box,lx,lz):{n:[0,Math.sign(lz)||1],idx:9};
+   const zone=v.type!=='ship'?'side':hn.idx<2.5?'bow':hn.idx>13.5?'stern':'side';
+   const dl=[lb[0]-la[0],lb[2]-la[2]],dn=Math.hypot(dl[0],dl[1])||1;const cosI=Math.abs(dl[0]*hn.n[0]+dl[1]*hn.n[1])/dn;const angle=Math.acos(Math.min(1,cosI))/DEG;
    const armor=v.type==='ship'?v.def.armor:3;const dmg=estimate(b.c,b.a,armor,angle,zone,src,v)*b.energy;
    const fire=/CanMakeAnyBurnings/.test(b.a.fx)&&Math.random()<(/ExtraMicroburning/.test(b.a.fx)?0.25:0.1);
    damage(v,{damage:dmg,source:'cannonball',stern:zone==='stern',micro:fire},src,`${zone}, ${angle.toFixed(0)}° off normal`);
@@ -299,6 +329,7 @@ function ballStep(b,dt){
    if(!/IgnoreSailes/.test(b.a.fx))h.sails.forEach((s,i)=>{if(b.passed.includes(i)||b.passed.length>=3)return;if(s.lv.some(bx=>segBox(la,lb,bx)!==null)){b.passed.push(i);
      const sd=(b.a.sail||3.5)/100*b.energy/(s.w*h.sails.length);v.st.sail[i]=Math.max(0,v.st.sail[i]-sd);b.energy=1/(1+b.passed.length);if(b.passed.length>=3)b.energy=0}})
    if(b.energy<=0)return false}}
+ if(cur[1]<6&&islands.length&&landAt(cur[0],cur[2])&&!units.some(v=>v.type==='tower'&&Math.hypot(v.x-cur[0],v.z-cur[2])<80)){if(!quiet)fxHit(cur[0],Math.max(0.5,cur[1]),cur[2],false);return false}
  if(tt>=1){if(!quiet)fxWater(cur[0],cur[2]);return false}
  return true}
 
@@ -579,7 +610,7 @@ function drawLanding(u){const tg=units.find(v=>v.id===u.target);if(!tg)return;co
   const g=S.gunDispersion(ports.indexOf(pt),S.scatterFactor(0.03,c.scatter,c.max,ports.length),shot,c.max,0);const ang=(Math.atan2(tg.z-w[2],tg.x-w[0])+g.yaw);
   const p=proj([w[0]+Math.cos(ang)*g.dist,0,w[2]+Math.sin(ang)*g.dist]);if(p){ctx.fillStyle='rgba(255,60,60,.9)';ctx.fillRect(p[0]-2,p[1]-2,4,4)}}}
 function hud(){const u=selected;let s=(replayIdx>=0?`<b>REPLAY</b> ${fmt(rec.pos[replayIdx]?.t||0)} · `:'')+`t = ${fmt(t)} · wind from ${Math.round(windNow)}° · ${units.filter(x=>!x.st.destroyed&&!x.down).length} units · ${balls.length} balls in flight`+(sel.size>1?` · <b>${sel.size} selected</b>`:'');
- if(u&&u.type==='ship')s+=`<br><b>${u.def.n}</b> · ${u.mode}${u.mode==='move'?` (${u.path.length} waypoints)`:''} · HP ${u.st.hp.toFixed(0)}/${u.st.max} · sails ${(S.sailsHp(u.st)*100).toFixed(0)}% · wind ${((u.eff??1)*100).toFixed(0)}%${u.unique?' (unique rose)':''} · speed ${(u.speedNow||0).toFixed(1)}`+(u.st.sinkMs>0?' · <b style="color:#ff6a5a">SINKING</b>':'')+(u.st.fire?' · 🔥':'');
+ if(u&&u.type==='ship')s+=`<br><b>${u.def.n}</b> · ${u.mode}${u.mode==='move'?` (${u.path.length} waypoints)`:''} · HP ${u.st.hp.toFixed(0)}/${u.st.max} · sails ${(S.sailsHp(u.st)*100).toFixed(0)}% · wind ${((u.eff??1)*100).toFixed(0)}%${u.unique?' (unique rose)':''} · speed ${(u.speedNow||0).toFixed(1)}`+(u.aground?' · <b>aground (blocked by land)</b>':'')+(u.st.sinkMs>0?' · <b style="color:#ff6a5a">SINKING</b>':'')+(u.st.fire?' · 🔥':'');
  $('hud').innerHTML=s}
 
 // ------------------------------------------------------------------ panels

@@ -356,3 +356,20 @@ class WikiContentQualityTests(TempDir):
         self.assertEqual(wiki_site.fx_label('PReduceFireAreaDamage +25'), ('Reduce fire area damage', '+25%'))
         self.assertEqual(wiki_site.fx_label('MCapacity +3000,+3000,+6500'), ('Capacity', '+3000 … +6500 by rank'))
         self.assertEqual(wiki_site.fx_label('BBoardingStartsWithNoTarget')[1], 'yes')
+
+
+class IslandFootprintTests(TempDir):
+    def test_footprint_marks_land_above_water_only(self):
+        obj = self.tmp / 'isle_x.obj'
+        obj.write_text("o land\nusemtl TERRAIN1\nv 0 5 0\nv 10 5 0\nv 10 5 10\nv 0 5 10\nv 20 -3 20\nv 30 -3 20\nv 30 -3 30\n"
+                       "f 1 2 3\nf 1 3 4\nf 5 6 7\n")
+        f = model_pack.footprint(obj, n=8)
+        g = base64.b64decode(f['bits'])
+        self.assertEqual(f['min'], [0.0, 0.0]); self.assertEqual(f['size'], [10.0, 10.0])
+        self.assertGreater(sum(g), 40)                      # the raised square fills most of its own grid
+
+    def test_world_models_carry_footprint_from_shape(self):
+        obj = self.tmp / 'isle_y.obj'; obj.write_text("o a\nusemtl X\nv 0 5 0\nv 4 5 0\nv 0 5 4\nf 1 2 3\n")
+        (self.tmp / 'isle_y_shape.obj').write_text("o s\nv 0 5 0\nv 4 5 0\nv 4 5 4\nv 0 5 4\nf 1 2 3\nf 1 3 4\n")
+        m = model_pack.pack_model(obj, kind='world')
+        self.assertEqual(m['foot_source'], 'collision shape')
