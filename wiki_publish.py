@@ -15,7 +15,8 @@ class PublishError(RuntimeError):
 
 
 def _git(args, cwd):
-    r = subprocess.run(['git', *args], cwd=cwd, capture_output=True, text=True)
+    import git_push
+    r = subprocess.run([git_push.find_git() or 'git', *args], cwd=cwd, capture_output=True, text=True)
     if r.returncode:
         raise PublishError((r.stderr or r.stdout or 'git failed').strip()[-600:])
     return r.stdout.strip()
@@ -26,7 +27,8 @@ def publish(site_dir, remote, *, branch='gh-pages', message=None, snapshot=False
 
     ``snapshot`` keeps a single commit (no history), so a host such as Cloudflare Pages always gets a small repository.
     """
-    if not shutil.which('git'):
+    import git_push
+    if not git_push.find_git():
         raise PublishError('git is not installed (https://git-scm.com/download/win)')
     site = Path(site_dir)
     if not (site / 'index.html').is_file():

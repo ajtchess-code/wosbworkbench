@@ -1001,13 +1001,32 @@ class App:
         site=home()/'WikiSite'
         if not (site/'index.html').is_file():
             return self._notice('Build the wiki first','Run “Build wiki website”, then publish.',kind='warning')
-        remote=(self.settings.get('wiki.cloudflare_remote') or '').strip()
+        remote=(self.settings.get('wiki.cloudflare_remote') or 'https://github.com/ajtchess-code/wosbwiki.git').strip()
         if not remote:
             remote=(simpledialog.askstring('Publish to wosbwiki.org','URL of the PRIVATE GitHub repository that Cloudflare Pages deploys from:\n'
                                            'e.g. https://github.com/ajtchess-code/wosbwiki-site.git',parent=self.root) or '').strip()
             if not remote:return
             self.settings.update({'wiki.cloudflare_remote':remote})
-        def task():return wiki_publish.publish(site,remote,branch='main',snapshot=True)
+        import git_push,secret_store
+        token=None
+        if not git_push.find_git():
+            # No Git on this PC: push straight to GitHub with an access token instead.
+            token=secret_store.load('wiki_publish_token')
+            if not token:
+                token=(simpledialog.askstring('Publish to wosbwiki.org',
+                    'Git isn\'t installed, so Workbench uploads to GitHub directly. Paste a GitHub access token for this repository:\n\n'
+                    'GitHub → Settings → Developer settings → Fine-grained tokens → Generate new token\n'
+                    '• Repository access: Only select repositories → the wiki repository\n'
+                    '• Permissions → Contents: Read and write\n\nThe token is stored encrypted for your Windows account.',parent=self.root,show='•') or '').strip()
+                if not token:return
+                secret_store.save('wiki_publish_token',token)
+        def task(ctx=None):
+            if token:
+                try:return git_push.push(site,remote,token,branch='main',progress=(lambda msg:ctx.progress(None,msg)) if ctx else None)
+                except git_push.PushError as e:
+                    if 'refused the token' in str(e) or 'HTTP 404' in str(e):secret_store.save('wiki_publish_token','')
+                    raise
+            return wiki_publish.publish(site,remote,branch='main',snapshot=True)
         def done(m):
             live=(self.settings.get('wiki.site_url') or 'https://wosbwiki.org/')
             self._notice('Wiki sent to Cloudflare',f"Pushed {m['commit']} to {m['branch']}. Cloudflare Pages deploys it in a minute or two; then it is live at {live}",
