@@ -17,12 +17,37 @@ import json
 import math
 import re
 import shutil
+
+import site_legal
 from collections import defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
 
 SITE_NAME = 'WoSB Wiki'
-SITE_URL = 'https://bandofmisfits.org/'
+SITE_URL = 'https://wosbwiki.org/'
+# Who runs the public site and how it is paid for. SiteBuilder fills this from its ``hosting`` argument.
+HOSTING_DEFAULTS = {'site_url': SITE_URL, 'site_name': SITE_NAME, 'ad_client': 'ca-pub-6442579332215350', 'donate_url': 'https://paypal.me/litefootz',
+                    'discord_url': '', 'contact_email': 'contact@wosbwiki.org', 'standalone': True}
+HOSTING = dict(HOSTING_DEFAULTS)
+COSMETIC_KIND = {'ShipFullDesign': 'Ship design (skin)', 'SailTexture': 'Sail cloth', 'Decal1': 'Paint', 'Decal2': 'Sail pattern', 'Decal3': 'Premium sail pattern',
+                 'Flag': 'Flag', 'Flag2': 'Second flag', 'BowFigure': 'Figurehead', 'Satellite': 'Lantern', 'MastColor': 'Mast colour'}
+# Short game-guide pages folded into one topic page each: target slug -> (title or None to extend an existing page, intro, source keys)
+GUIDE_MERGE = {
+    'ships-guns-and-consumables': ('Ships, guns and consumables', 'How ships, artillery, special weapons and consumables work, from the game\'s own help pages.',
+                                   ['buildingships', 'weapons', 'ammonition', 'powerupitems']),
+    'boarding': (None, '', ['boarding', 'shipscapturing', 'crew']),
+    'sailing-and-wind': (None, '', ['windandspeed', 'windrose', 'storm']),
+    'ports-and-port-battles': ('Ports and port battles', 'Ports, town growth, tension, plunder and port battles, from the game\'s own help pages.',
+                               ['ports', 'hqs', 'tensity', 'portsrobbing', 'portscapturing']),
+    'guilds-and-factions': ('Guilds and factions', 'How guilds and factions work: development, influence, the vault and treasury, and the social menu.',
+                            ['guildsfractions', 'guildsgrow', 'treasury', 'socialmenu']),
+    'trading-and-crafting': ('Trading, crafting and making money', 'Ways to earn gold: trading, merchants at sea, mines, the workshop and your hold.',
+                             ['earning', 'trading', 'tradersinsea', 'factories', 'workshop', 'hold']),
+    'pvp-and-reputation': ('PvP, flags and notoriety', 'Fighting other captains, choosing a flag and what raises your notoriety.', ['pvp', 'flags', 'wanted-level']),
+    'the-world-and-npc-ships': ('The world, adventures and NPC ships', 'The Archipelago\'s story, water danger and adventures, and the ships the game sails itself.',
+                                ['cataclysm', 'travallingandhazard', 'nps']),
+}
+MECHANICS_MERGE = {'damage-formula': ['damage-formula-calibration']}
 PRIVATE_SECTIONS = {'Research', 'Research backlog', 'Client metadata & research evidence', 'Networking and protocols'}
 PRIVATE_SOURCE_KINDS = {'decompiled-client'}
 HIDDEN_FIELDS = {'Source', 'SourceRecord', 'Name', 'IconName', 'IconTexture', 'IconTextureName', 'Icon', 'Texture',
@@ -71,7 +96,7 @@ ENTITIES = {
     'achievement': ('Achievements', 'Achievements', [
         ('UiCategory', 'Category', None), ('CommonRatingWeight', 'Rating weight', None)], ['Category', 'Rating weight']),
     'cosmetic': ('ShipDesingElements', 'Ship cosmetics', [
-        ('Category', 'Kind', 'camel'), ('InShop', 'In shop', 'shop'), ('BonusEffectType', 'Bonus', 'camel'),
+        ('Category', 'Kind', 'cosmetic'), ('InShop', 'In shop', 'shop'), ('BonusEffectType', 'Bonus', 'fxname'),
         ('BonusEffectValue', 'Bonus value', None), ('EnglishDescription', 'Description', None)], ['Kind', 'In shop', 'Bonus']),
     'decoration': ('EnvDesingElements', 'Island decorations', [
         ('InShop', 'How to get', 'shop'), ('EnglishDescription', 'Description', None)], ['How to get']),
@@ -109,7 +134,7 @@ def _camel(text):
 def humanize_effect(text):
     """'PSightSpeed +50' -> 'Sight speed +50%'; 'MMarchingSpeed +4' -> 'Marching speed +4'."""
     parts = []
-    for m in re.finditer(r'([PMB]?)([A-Z][A-Za-z]+)\s*([+-]?\d+(?:\.\d+)?)?', str(text or '')):
+    for m in re.finditer(r'([PMBC]?)([A-Z][A-Za-z]+)\s*([+-]?\d+(?:\.\d+)?)?', str(text or '')):
         prefix, name, value = m.groups()
         words = _camel(name).split()
         words = [EFFECT_WORDS.get(w, w) for w in words]
@@ -150,6 +175,10 @@ def _fmt(value, kind):
         return _camel(value)
     if kind == 'category':
         return SLOT_NAMES.get(str(value), _camel(value))
+    if kind == 'cosmetic':
+        return COSMETIC_KIND.get(str(value), _camel(value))
+    if kind == 'fxname':
+        return None if str(value) in ('None', '') else fx_label(str(value))[0]
     if isinstance(value, float):
         return f'{value:g}'
     return str(value)
@@ -182,7 +211,8 @@ def load_entities(db, *, build='Steam'):
                 if m:
                     english = (rec.get('EnglishName') or '').strip()
                     title = f"{m.group(1).capitalize()} unit {m.group(2)}" + (f' ({english})' if english and english.casefold() not in (m.group(1), 'special') else '')
-            if not title or title.startswith('(') or 'test' in title.casefold() or (kind == 'ship' and title.isupper()):
+            if not title or title.startswith('(') or 'test' in title.casefold() or (kind == 'ship' and title.isupper()) \
+                    or re.fullmatch(r'(removed|deleted|unused|placeholder)\b.*', title.casefold()):
                 continue
             if kind == 'ship' and not rec.get('EnglishDescription'):
                 rec['EnglishDescription'] = descriptions.get(f"ship_{rec.get('ID')}", '')
@@ -284,22 +314,54 @@ table.wikitable{border-collapse:collapse;background:#f8f9fa;margin:10px 0;font-s
 .portal div{border:1px solid var(--border);background:#f8f9fa;padding:10px 12px}.portal h3{margin:0 0 4px;color:var(--accent)}
 .welcome{border:1px solid #a3bfb1;background:#f5fffa;padding:12px 16px;margin-bottom:14px}
 .note{border-left:4px solid #fc3;background:#fef6e7;padding:8px 12px;margin:10px 0}.toc{display:inline-block;border:1px solid var(--border);background:#f8f9fa;padding:8px 16px;margin:6px 0 10px;font-size:13px}
-.toc b{display:block;text-align:center}.toc ul{margin:4px 0;padding-left:18px}
+.toc b{display:block;text-align:center}.toc ul{margin:4px 0;padding-left:18px}.toc li.l1{margin-left:14px;font-size:12px}
 .tool{border:1px solid var(--border);background:#f8f9fa;padding:12px 14px;margin:10px 0}
 .tool label{display:inline-block;margin:4px 12px 4px 0}.tool input,.tool select,.tool textarea{font:inherit;padding:4px 6px;border:1px solid var(--border)}
 .tool button{background:var(--accent);color:#fff;border:0;padding:6px 14px;cursor:pointer;font:inherit}.tool textarea{width:100%;font-family:Consolas,monospace}
 canvas{background:#fff;border:1px solid var(--border);max-width:100%}
 .bar{height:10px;background:#d33;display:inline-block;vertical-align:middle}.barwrap{display:inline-block;width:160px;background:#eee;margin-right:8px}
-code{background:#f8f9fa;border:1px solid #eaecf0;padding:1px 4px}footer{margin:30px 0 0 176px;padding:10px 26px;font-size:12px;color:var(--muted)}
+code{background:#f8f9fa;border:1px solid #eaecf0;padding:1px 4px}
+footer{margin:0 0 0 176px;padding:16px 26px 28px;font-size:12px;color:var(--muted);border-top:1px solid var(--border);background:#f6f6f6}footer p{margin:6px 0;max-width:980px}
+footer .legal a{margin-right:14px}.donate{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;background:#fff8e6;border:1px solid #ecd9a8;border-radius:8px;padding:10px 14px;margin-bottom:10px;font-size:13px;color:#4a3d1c}
+.donatebtn{background:#f2c14e;color:#1b1b1b!important;border-radius:999px;padding:6px 16px;font-weight:700;text-decoration:none!important;margin-left:auto}
+.skip{position:absolute;left:-999px;top:0;background:#fff;padding:6px 10px;z-index:99}.skip:focus{left:8px}
+#menu,#toplogo{display:none}#scrim{display:none}.tw{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}.tw>table.wikitable{margin:0}.tw{margin:10px 0}
+.entries{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;margin:10px 0}.entry{border:1px solid var(--border);background:#fbfcfd;border-radius:6px;padding:8px 12px;scroll-margin-top:70px}
+.entry:target{outline:3px solid #f2c14e;background:#fffbea}.entry h3{margin:2px 0 6px;font:600 16px/1.3 Georgia,serif}.entry .infobox{float:none;width:100%;margin:0 0 8px}.entry .infobox caption{display:none}
+.entry h4{margin:8px 0 2px;font-size:13px}.entry p,.entry ul{margin:4px 0;font-size:13px}.entry img{max-width:100%;height:auto}
 .tag{display:inline-block;background:#eaf3ff;border:1px solid #c5d9f1;border-radius:2px;padding:0 6px;margin:2px;font-size:12px}
-@media(max-width:820px){#side{position:static;width:auto}#content,footer{margin-left:0}#top{padding-left:12px}#search input{width:180px}.infobox{float:none;width:100%;margin:0 0 12px}}
+@media(max-width:1100px){#search input{width:240px}#results{width:360px}}
+@media(max-width:820px){
+#top{position:sticky;top:0;z-index:20;height:56px;padding:0 10px;gap:8px}#top .tabs{display:none}
+#menu{display:inline-grid;gap:4px;align-content:center;justify-items:center;width:44px;height:44px;border:1px solid var(--border);border-radius:8px;background:#fff;cursor:pointer;padding:0}
+#menu span{display:block;width:20px;height:2px;background:var(--ink);border-radius:2px}
+#toplogo{display:flex;align-items:center;gap:6px;color:var(--accent);font:700 16px Georgia,serif;white-space:nowrap}#toplogo:hover{text-decoration:none}
+#search{flex:1;min-width:0}#search input{width:100%;font-size:16px;padding:9px 10px;border-radius:6px}
+#results{position:fixed;left:8px;right:8px;top:58px;width:auto;max-height:70vh}#results a{padding:10px 12px;font-size:15px}
+#side{position:fixed;top:0;bottom:0;left:0;width:280px;max-width:85vw;transform:translateX(-105%);transition:transform .2s ease;background:#f6f6f6;z-index:40;overflow-y:auto;
+ padding:10px 14px 40px;box-shadow:4px 0 18px rgba(0,0,0,.25)}
+body.menu-open #side{transform:none}body.menu-open #scrim{display:block;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:30}body.menu-open{overflow:hidden}
+#side a{padding:8px 4px;font-size:15px;border-bottom:1px solid #ebedef}#logo{height:auto}
+#content{margin:0;border:0;padding:12px 14px 24px;min-height:0}footer{margin:0;padding:16px 14px 28px}
+h1{font-size:24px}h2{font-size:19px}.infobox{float:none;width:100%;margin:0 0 12px}
+.tool label{display:block;margin:6px 0}.tool input,.tool select{max-width:100%;font-size:16px}
+ul.cols{columns:2 150px}.toc{display:block}.donatebtn{margin-left:0}.tfilter{width:100%;font-size:16px}
+.sv-stage{height:380px}.ha-side-col{min-width:0}.portal,.feature{grid-template-columns:1fr}
+}
+@media(max-width:480px){ul.cols{columns:1}#toplogo b{display:none}.entries{grid-template-columns:1fr}.wikitable{font-size:12px}}
 '''
 
 SITE_JS = r'''
 function wikiFilter(inp){const q=inp.value.toLowerCase();document.querySelectorAll('main table.wikitable tbody tr').forEach(tr=>{tr.style.display=tr.innerText.toLowerCase().includes(q)?'':'none'})}
 
+if(window.top!==window.self){try{window.top.location.replace(window.self.location.href)}catch(e){document.documentElement.style.display='none'}}
 (function(){
 const base=document.body.dataset.base||'';
+const menu=document.getElementById('menu'),scrim=document.getElementById('scrim');
+function setMenu(open){document.body.classList.toggle('menu-open',open);if(menu)menu.setAttribute('aria-expanded',open?'true':'false')}
+if(menu){menu.addEventListener('click',()=>setMenu(!document.body.classList.contains('menu-open')));scrim.addEventListener('click',()=>setMenu(false));
+ document.addEventListener('keydown',e=>{if(e.key==='Escape')setMenu(false)})}
+document.querySelectorAll('main table.wikitable').forEach(t=>{if(t.parentElement.classList.contains('tw'))return;const w=document.createElement('div');w.className='tw';t.parentNode.insertBefore(w,t);w.appendChild(t)});
 const box=document.querySelector('#search input'),res=document.getElementById('results');let idx=null;
 async function load(){if(idx)return idx;try{idx=await (await fetch(base+'search.json')).json()}catch(e){idx=window.SEARCH_INDEX||[]}return idx}
 if(box){box.addEventListener('input',async()=>{const q=box.value.trim().toLowerCase();if(!q){res.style.display='none';return}
@@ -320,21 +382,34 @@ LOGO = '<img src="{base}assets/brand/emblem.svg" alt="" width="72" height="72">'
 
 def _page(title, body, *, depth=0, crumbs=None, tab='Page'):
     base = '../' * depth
+    h = HOSTING
     side = [f'<a id="logo" href="{base}index.html">{LOGO.format(base=base)}{_e(SITE_NAME)}</a>', '<h3>Navigation</h3>']
     side += [f'<a href="{base}{u}">{_e(t)}</a>' for t, u in NAV]
     side += ['<h3>Tools</h3>'] + [f'<a href="{base}{u}">{_e(t)}</a>' for t, u in TOOLS]
-    side += ['<h3>Wiki</h3>', f'<a href="{base}recent.html">Recent changes</a>', f'<a href="{base}about.html">About</a>', f'<a href="{base}privacy.html">Privacy &amp; cookies</a>', f'<a href="{base}sitemap.html">All pages</a>']
+    side += ['<h3>Wiki</h3>', f'<a href="{base}about.html">About</a>', f'<a href="{base}sitemap.html">All pages</a>', f'<a href="{base}recent.html">Recent changes</a>',
+             f'<a href="{base}privacy.html">Privacy policy</a>', f'<a href="{base}terms.html">Terms of use</a>', f'<a href="{base}disclaimer.html">Copyright disclaimer</a>']
+    community = ([f'<a href="{_e(h["discord_url"])}" rel="noopener" target="_blank">Join our Discord</a>'] if h.get('discord_url') else []) + \
+                ([f'<a href="{_e(h["donate_url"])}" rel="noopener" target="_blank">Donate</a>'] if h.get('donate_url') else [])
+    if community:
+        side += ['<h3>Community</h3>'] + community
     crumb = ''
     if crumbs:
         crumb = '<div class="crumbs">' + ' › '.join(f'<a href="{base}{u}">{_e(t)}</a>' if u else _e(t) for t, u in crumbs) + '</div>'
+    donate = (f'<div class="donate"><b>Enjoying the wiki?</b> <span>It\'s free, ad-supported and run by volunteers. Donations keep it online and up to date.</span>'
+              f'<a class="donatebtn" href="{_e(h["donate_url"])}" target="_blank" rel="noopener">♥ Donate</a></div>') if h.get('donate_url') else ''
+    year = datetime.now(timezone.utc).year
     return ('<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
             f'<title>{_e(SITE_NAME + " · World of Sea Battle wiki: ships, guns, maps and battle tools" if title == "Main page" else title + " · " + SITE_NAME)}</title><link rel="stylesheet" href="{base}assets/site.css"></head>'
-            f'<body data-base="{base}"><div id="side">{"".join(side)}</div>'
-            f'<div id="top"><span class="tabs"><a class="on">{_e(tab)}</a></span>'
-            '<div id="search"><input type="search" placeholder="Search the WoSB Wiki" aria-label="Search"><div id="results"></div></div></div>'
+            f'<body data-base="{base}"{' data-host="standalone"' if h.get('standalone') else ''}><a class="skip" href="#content">Skip to content</a><nav id="side" aria-label="Site">{"".join(side)}</nav><div id="scrim"></div>'
+            f'<header id="top"><button id="menu" type="button" aria-label="Open menu" aria-controls="side" aria-expanded="false"><span></span><span></span><span></span></button>'
+            f'<a id="toplogo" href="{base}index.html"><img src="{base}assets/brand/emblem.svg" alt="" width="30" height="30"><b>{_e(SITE_NAME)}</b></a>'
+            f'<span class="tabs"><a class="on">{_e(tab)}</a></span>'
+            '<div id="search" role="search"><input type="search" placeholder="Search the WoSB Wiki" aria-label="Search the wiki" autocomplete="off"><div id="results"></div></div></header>'
             f'<main id="content">{crumb}<h1>{_e(SITE_NAME if title == "Main page" else title)}</h1>{body}</main>'
-            f'<footer>{_e(SITE_NAME)} is a community fan wiki for World of Sea Battle, run by Band of Misfits. Not affiliated with or endorsed by the game\'s developers; '
-            f'game names, models and artwork belong to their owners. Data comes from the public game client. <a href="{base}about.html">About</a> · <a href="{base}privacy.html">Privacy &amp; cookies</a></footer>'
+            f'<footer id="foot">{donate}<p>© {year} {_e(SITE_NAME)} · Band of Misfits. Our guides, tools and logo are our own work. <b>World of Sea Battle</b> and all of its imagery, '
+            '3D models, textures, designs, names and game data are the property of Thera Interactive. This is an unofficial fan site and is not affiliated with or endorsed by Thera Interactive.</p>'
+            f'<p class="legal"><a href="{base}about.html">About</a><a href="{base}privacy.html">Privacy policy</a><a href="{base}terms.html">Terms of use</a>'
+            f'<a href="{base}disclaimer.html">Copyright disclaimer</a><a href="{base}sitemap.html">All pages</a></p></footer>'
             f'<script src="{base}assets/site.js"></script></body></html>')
 
 
@@ -352,13 +427,16 @@ def _table(headers, rows, *, cls='wikitable sortable'):
 # --------------------------------------------------------------- builder
 
 class SiteBuilder:
-    def __init__(self, db, out, *, hitboxes_dir=None, build='Steam', include_models=False, recovery_dir=None, game_roots=(), progress=None, model_pack=True, damage_calibration=None, site_url=None):
+    def __init__(self, db, out, *, hitboxes_dir=None, build='Steam', include_models=False, recovery_dir=None, game_roots=(), progress=None, model_pack=True, damage_calibration=None, site_url=None, hosting=None):
         self.db = db; self.out = Path(out); self.hitboxes_dir = Path(hitboxes_dir) if hitboxes_dir else None
         self.build = build; self.include_models = include_models
         self.recovery_dir = Path(recovery_dir) if recovery_dir else None
         self.game_roots = list(game_roots or ()); self.progress = progress; self.model_pack = model_pack
         self.damage_calibration = damage_calibration
-        self.site_url = site_url or SITE_URL
+        self.site_url = site_url or (hosting or {}).get('site_url') or SITE_URL
+        HOSTING.clear(); HOSTING.update(HOSTING_DEFAULTS); HOSTING.update({k: v for k, v in (hosting or {}).items() if v is not None})
+        HOSTING['site_url'] = self.site_url
+        self.article_alias = {}; self.redirects = []
         self.search = []; self.pages = 0
         self.entities = load_entities(db, build=build)
         self.urls = {}
@@ -384,7 +462,61 @@ class SiteBuilder:
             elif any(marker in (a['body'] or '') for marker in STUB_MARKERS):
                 continue            # empty research outlines: nothing a reader can use
             out.append(a)
-        return out
+        return self._merge_guides(out)
+
+    @staticmethod
+    def _split_help(body):
+        """(text, see-also links) of one help page body, without its title and source line."""
+        body = re.sub(r'^#\s+.*\n+', '', body or '', count=1)
+        see = []
+        def grab(m):
+            see.extend(re.findall(r'\[([^\]]+)\]\(([^)]+)\)', m.group(0))); return ''
+        body = re.sub(r'(?m)^\*\*See also:\*\*.*$', grab, body)
+        body = re.sub(r'(?m)^\*From the in-game Gamepedia\.\*\s*$', '', body)
+        return body.strip(), see
+
+    def _merge_guides(self, arts):
+        """Fold short help pages into one topic page each (GUIDE_MERGE, MECHANICS_MERGE)."""
+        by_slug = {a['slug']: a for a in arts}
+        by_key = {a['slug'].split('gamewiki-', 1)[-1]: a for a in arts if a['source_kind'] == 'client-gamepedia'}
+        drop, new = set(), []
+        def absorb(target, title, intro, sources, section):
+            srcs = [a for a in sources if a and a['slug'] not in drop and a['slug'] != target]
+            if not srcs:
+                return
+            base = by_slug.get(target)
+            parts, see = [], []
+            for a in srcs:
+                text, links = self._split_help(a['body']) if a['source_kind'] == 'client-gamepedia' else (re.sub(r'^#\s+.*\n+', '', a['body'] or '', count=1).strip(), [])
+                text = re.sub(r'(?m)^(#{2,5})\s', lambda m: '#' + m.group(1) + ' ', text)        # nest its own headings one level down
+                parts.append(f'## {a["title"]}\n\n{text}'); see += links
+                drop.add(a['slug']); self.article_alias[a['slug']] = (a['title'], target)
+            urls = {f'../wiki/{_slug(target)}.html'} | {f'../wiki/{_slug(a["slug"])}.html' for a in srcs}
+            uniq = []
+            for t, u in see:
+                if u not in urls and (t, u) not in uniq:
+                    uniq.append((t, u))
+            tail = ('\n\n**See also:** ' + ' · '.join(f'[{t}]({u})' for t, u in uniq)) if uniq else ''
+            src_note = '\n\n*Text from the game\'s in-game help (Gamepedia).*' if any(a['source_kind'] == 'client-gamepedia' for a in srcs) else ''
+            if base:
+                lead = '\n\n## In the game\'s own words\n\nThe game\'s help pages on this topic, in full.\n\n' if any(a['source_kind'] == 'client-gamepedia' for a in srcs) else '\n\n'
+                demote = (lambda t: re.sub(r'(?m)^(#{2,5})\s', lambda m: '#' + m.group(1) + ' ', t)) if lead.strip() else (lambda t: t)
+                base['body'] = (base['body'] or '').rstrip() + lead + '\n\n'.join(demote(p) for p in parts) + tail
+                base['updated'] = max(filter(None, [base.get('updated')] + [a.get('updated') for a in srcs]), default=base.get('updated'))
+            else:
+                title = title or srcs[0]['title']
+                new.append({'slug': target, 'title': title, 'section': section, 'source_kind': 'merged',
+                            'body': f'# {title}\n\n{intro}\n\n' + '\n\n'.join(parts) + tail + src_note,
+                            'updated': max(filter(None, [a.get('updated') for a in srcs]), default=None)})
+        for target, (title, intro, keys) in GUIDE_MERGE.items():
+            absorb(target, title, intro, [by_key.get(k) for k in keys], 'Game guide')
+        for target, slugs in MECHANICS_MERGE.items():
+            if target in by_slug:
+                absorb(target, None, '', [by_slug.get(x) for x in slugs], by_slug[target]['section'])
+        out = [a for a in arts if a['slug'] not in drop] + new
+        for old, (_t, target) in self.article_alias.items():
+            self.redirects.append((f'/wiki/{_slug(old)}.html', f'/wiki/{_slug(target)}.html'))
+        return sorted(out, key=lambda a: (a['section'], a['title'].casefold()))
 
     def _gamepedia_body(self, slug, title):
         """The game's own help text for a Gamepedia entry (English_Text keys <id>_text1, _text2, …)."""
@@ -418,6 +550,9 @@ class SiteBuilder:
         """Wiki-link resolver for article Markdown: articles, then entity pages."""
         import wiki_engine
         key = wiki_engine.slugify(target)
+        for old, (title, new) in self.article_alias.items():
+            if key in (wiki_engine.slugify(old), wiki_engine.slugify(title)):
+                return f'../wiki/{_slug(new)}.html', True
         for a in self.articles:
             if wiki_engine.slugify(a['slug']) == key or wiki_engine.slugify(a['title']) == key:
                 return '../' + self.article_urls[a['slug']], True
@@ -467,9 +602,24 @@ class SiteBuilder:
         manifest = {'site': SITE_NAME, 'generated_utc': datetime.now(timezone.utc).isoformat(timespec='seconds'),
                     'pages': self.pages, 'entities': {k: len(v) for k, v in self.entities.items()},
                     'articles': len(self.articles), 'ships_with_hitboxes': len(hitboxes), 'build': self.build, 'models': (getattr(self, 'pack_info', {}) or {}).get('models', 0)}
+        # fold thin entity pages into their category, and point merged guides at their new page
+        import site_compact, site_host, site_seo
+        moved = site_compact.compact(self.out, {**CATEGORY_FILE, 'mission': 'missions'}, plural={**{k: v[1] for k, v in ENTITIES.items()}, 'mission': 'Missions'})
+        amoves = {o.lstrip('/'): n.lstrip('/') for o, n in self.redirects}
+        if amoves:
+            site_compact._rewrite(self.out, amoves)
+        moves = {**{o.lstrip('/'): n.lstrip('/') for o, n in moved['redirects']}, **amoves}
+        for it in self.search:
+            it['u'] = moves.get(it['u'], it['u'])
+        manifest['folded'] = moved['folded']; manifest['merged_guides'] = len(amoves)
         self._sitemap_page()
-        import site_seo
-        manifest['seo'] = site_seo.finalize(self.out, site_url=self.site_url, site_name=SITE_NAME)
+        manifest['seo'] = site_seo.finalize(self.out, site_url=self.site_url, site_name=SITE_NAME, ad_client=HOSTING.get('ad_client') or '',
+                                            inject_ads=bool(HOSTING.get('standalone')))
+        if HOSTING.get('standalone'):
+            nf = _page('Page not found', '<p>That page isn\'t here. It may have moved when similar pages were combined.</p>'
+                       '<p>Try the search box above, browse <a href="sitemap.html">all pages</a>, or go to the <a href="index.html">main page</a>.</p>')
+            manifest['host'] = site_host.write(self.out, redirects=self.redirects + moved['redirects'], ad_client=HOSTING.get('ad_client') or '', not_found_html=nf)
+        manifest['pages'] = sum(1 for f in self.out.rglob('*.html') if f.relative_to(self.out).parts[0] != 'pack')
         (self.out / 'site.json').write_text(json.dumps(manifest, indent=1), encoding='utf-8')
         return manifest
 
@@ -900,8 +1050,11 @@ class SiteBuilder:
         html_body = wiki_engine.render_markdown(md, self._link).replace('href="/tag/', 'href="../category/articles.html#')
         toc_html = ''
         if toc and len(toc) >= 3:
-            toc_html = '<div class="toc"><b>Contents</b><ul>' + ''.join(
-                f'<li><a href="#{_e(t.get("anchor", ""))}">{_e(t.get("title", ""))}</a></li>' for t in toc if isinstance(t, dict)) + '</ul></div>'
+            items = [(t['level'], t.get('title', ''), t.get('anchor', '')) if isinstance(t, dict) else tuple(t) for t in toc]
+            top = min(lv for lv, _, _ in items)
+            ids = set(re.findall(r'id="([^"]+)"', html_body))
+            lis = [f'<li class="l{lv - top}"><a href="#{_e(an)}">{_e(re.sub(r"[*_`]", "", tt))}</a></li>' for lv, tt, an in items if lv <= top + 1 and an in ids]
+            toc_html = ('<div class="toc"><b>Contents</b><ul>' + ''.join(lis) + '</ul></div>') if len(lis) >= 3 else ''
         url = self.article_urls[a['slug']]
         body = toc_html + html_body + f'<p><span class="tag"><a href="../category/articles.html#{_e(_slug(a["section"]))}">{_e(a["section"])}</a></span></p>'
         self._write(url, _page(a['title'], body, depth=1, crumbs=[('Main page', 'index.html'), ('Guides & mechanics', 'category/articles.html'), (a['section'], None)]))
@@ -975,21 +1128,14 @@ class SiteBuilder:
                 '<h2>Where the facts come from</h2><ul><li><b>Game data</b>: the client\'s own tables (stats, prices, recipes, map positions).</li>'
                 '<li><b>Mechanics</b>: the client\'s rules for hit zones, fires, sailing, boarding and port battles, explained in plain words.</li>'
                 '<li><b>Server-side values</b> (exact cannonball damage, fire chances) are not in the client; pages mark them as measured or estimated, and the tools let players measure them.</li></ul>'
-                '<h2>Models and artwork</h2><p>Ship models, textures and map art shown in the 3D viewer, simulators and shipyard come from the game and belong to its makers. '
-                'They are shown for reference on this non-profit community site.</p>'
-                '<h2>Contact</h2><p>Found a mistake or want to help? Join the Band of Misfits Discord from the bar at the top of the site, or use the dashboard\'s report form.</p>')
+                '<h2>Models and artwork</h2><p>Ship models, textures and map art shown in the 3D viewer, simulators and shipyard come from World of Sea Battle and belong to '
+                'Thera Interactive. They are shown for reference on this non-profit community site and are not offered for download; see the <a href="disclaimer.html">copyright disclaimer</a>.</p>'
+                '<h2>Contact</h2><p>Found a mistake, want to help, or represent the game\'s makers? ' + site_legal._contact(HOSTING).capitalize() + '.</p>'
+                '<p>See also the <a href="privacy.html">privacy policy</a>, <a href="terms.html">terms of use</a> and <a href="disclaimer.html">copyright disclaimer</a>.</p>')
         self._write('about.html', _page('About', body))
-        privacy = ('<p>This page explains what happens to your data when you visit the WoSB Wiki.</p>'
-                   '<h2>What we collect</h2><p>The wiki itself has no accounts and stores nothing about you. Tools that remember settings keep them in your own browser only. '
-                   'The web server keeps standard access logs (address, page, time) for security and troubleshooting, for a short time.</p>'
-                   '<h2>Advertising and cookies</h2><p>The wiki is paid for by donations and by ads from Google AdSense. Google and its partners use cookies to show ads, '
-                   'including ads based on your earlier visits to this and other websites. You can turn off personalised ads at '
-                   '<a href="https://adssettings.google.com" rel="noopener">Google Ads Settings</a>, and read how Google uses data at '
-                   '<a href="https://policies.google.com/technologies/partner-sites" rel="noopener">How Google uses information from sites that use its services</a>. '
-                   'Visitors in the European Economic Area, the UK and Switzerland are asked for consent before personalised ads are shown.</p>'
-                   '<h2>Member dashboard</h2><p>Logging in to the Band of Misfits dashboard uses Discord; that is covered by the dashboard and Discord\'s own terms.</p>'
-                   '<h2>Contact</h2><p>Questions about privacy: contact the Band of Misfits officers through the guild Discord.</p>')
-        self._write('privacy.html', _page('Privacy & cookies', privacy))
+        self._write('privacy.html', _page('Privacy policy', site_legal.privacy(HOSTING)))
+        self._write('terms.html', _page('Terms of use', site_legal.terms(HOSTING)))
+        self._write('disclaimer.html', _page('Copyright disclaimer', site_legal.disclaimer(HOSTING)))
 
     # ---- tools
     def _tools(self, hitboxes):
@@ -1310,7 +1456,7 @@ def build_site(db, out, **kw):
 # ---------------------------------------------------------------- data overview pages
 def fx_label(token):
     """'PReduceFireAreaDamage +25' -> ('Reduce fire area damage', '+25%');  B-flags -> ('…', 'yes')."""
-    m = re.match(r'\s*([PMB])([A-Za-z]+)\s*(.*)$', token or '')
+    m = re.match(r'\s*([PMBC](?=[A-Z]))([A-Za-z]+)\s*(.*)$', token or '')
     if not m:
         return (token or '').strip(), ''
     kind, name, val = m.groups()

@@ -670,6 +670,7 @@ class App:
                  ('Calibrate cannonball damage','Log measured hits (cannon, ammo, target, HP before/after) and fit the simulators\' damage to them.',self._dm_calibrate),
                  ('Battle & boarding simulators','3D battles with the real ship, tower and fort models: fleets, port battles, orders, scripts, batch runs; plus the boarding fight.',self._open_simulators),
                  ('Publish wiki to Band of Misfits','Upload the built wiki to bandofmisfits.org (needs an upload token from Dashboard → Wiki → Compendium).',self._publish_bom),
+                 ('Publish wiki to wosbwiki.org','Push the built wiki to its private GitHub repository; Cloudflare Pages deploys it to wosbwiki.org (docs/WOSBWIKI-HOSTING.md).',self._publish_cloudflare),
                  ('Publish wiki to GitHub Pages','Push the built wiki folder to a gh-pages branch so the community can use it at <you>.github.io.',self._publish_wiki),
                  ('Build wiki website','A public fan wiki: ship/cannon/item pages, categories, guides, battle/boarding/damage simulators, wind and comparison tools.',self._build_wiki_site)]
         for i,(title,desc,cmd) in enumerate(actions):
@@ -994,6 +995,25 @@ class App:
                          kind='success',action=('Open site',lambda:webbrowser.open(url)) if url else None)
         self._run_async(task,done,'Publishing wiki…')
 
+    def _publish_cloudflare(self):
+        import wiki_publish
+        from tkinter import simpledialog
+        site=home()/'WikiSite'
+        if not (site/'index.html').is_file():
+            return self._notice('Build the wiki first','Run “Build wiki website”, then publish.',kind='warning')
+        remote=(self.settings.get('wiki.cloudflare_remote') or '').strip()
+        if not remote:
+            remote=(simpledialog.askstring('Publish to wosbwiki.org','URL of the PRIVATE GitHub repository that Cloudflare Pages deploys from:\n'
+                                           'e.g. https://github.com/ajtchess-code/wosbwiki-site.git',parent=self.root) or '').strip()
+            if not remote:return
+            self.settings.update({'wiki.cloudflare_remote':remote})
+        def task():return wiki_publish.publish(site,remote,branch='main',snapshot=True)
+        def done(m):
+            live=(self.settings.get('wiki.site_url') or 'https://wosbwiki.org/')
+            self._notice('Wiki sent to Cloudflare',f"Pushed {m['commit']} to {m['branch']}. Cloudflare Pages deploys it in a minute or two; then it is live at {live}",
+                         kind='success',action=('Open site',lambda:webbrowser.open(live)))
+        self._run_async(task,done,'Publishing to wosbwiki.org…')
+
     def _publish_bom(self):
         import bom_publish
         from tkinter import simpledialog
@@ -1027,12 +1047,15 @@ class App:
                 hb=battle_sim.ensure_hitboxes(home(),progress=lambda f,name:ctx.progress(f,f'Rebuilding hitboxes: {name}')) or home()/'Research'/'Hitboxes'
                 return wiki_site.build_site(db,out,hitboxes_dir=hb if hb.is_dir() else None,recovery_dir=battle_sim.latest_recovery(home()),
                                             damage_calibration=battle_sim.load_calibration(home()),game_roots=installs,
-                                            site_url=(self.settings.get('wiki.site_url') or 'https://bandofmisfits.org/'),
+                                            site_url=(self.settings.get('wiki.site_url') or 'https://wosbwiki.org/'),
+                                            hosting={'ad_client':self.settings.get('wiki.ad_client'),'donate_url':self.settings.get('wiki.donate_url'),
+                                                     'discord_url':self.settings.get('wiki.discord_url'),'contact_email':self.settings.get('wiki.contact_email'),
+                                                     'standalone':self.settings.get('wiki.standalone',True)},
                                             progress=lambda i,n,name:ctx.progress(i/max(1,n),f'Packing model {i+1}/{n}: {name}'))
             finally:db.close()
         def done(m):
             self._notice('Wiki website built',f"{m['pages']:,} pages · {m['entities'].get('ship',0)} ships · {m['articles']} guides · "
-                         f"{m['ships_with_hitboxes']} ships with hit zones · {m.get('models',0)} 3D models. Open index.html, or upload the folder to GitHub Pages or any web host.",
+                         f"{m['ships_with_hitboxes']} ships with hit zones · {m.get('models',0)} 3D models. Open index.html, or run “Publish wiki to wosbwiki.org”.",
                          kind='success',action=('Open site',lambda:webbrowser.open((out/'index.html').as_uri())))
         self._run_async(task,done,'Building wiki website…')
 

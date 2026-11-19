@@ -21,8 +21,11 @@ def _git(args, cwd):
     return r.stdout.strip()
 
 
-def publish(site_dir, remote, *, branch='gh-pages', message=None):
-    """Commit the whole site folder as one snapshot and force-push it to ``remote`` ``branch``."""
+def publish(site_dir, remote, *, branch='gh-pages', message=None, snapshot=False):
+    """Commit the whole site folder as one snapshot and force-push it to ``remote`` ``branch``.
+
+    ``snapshot`` keeps a single commit (no history), so a host such as Cloudflare Pages always gets a small repository.
+    """
     if not shutil.which('git'):
         raise PublishError('git is not installed (https://git-scm.com/download/win)')
     site = Path(site_dir)
@@ -31,13 +34,20 @@ def publish(site_dir, remote, *, branch='gh-pages', message=None):
     (site / '.nojekyll').write_text('', encoding='utf-8')     # serve folders like assets/ as-is on GitHub Pages
     if not (site / '.git').is_dir():
         _git(['init', '-q'], site)
-    _git(['checkout', '-q', '-B', branch], site)
+    if snapshot:
+        _git(['checkout', '-q', '--orphan', '_wosb_snapshot'], site)
+    else:
+        _git(['checkout', '-q', '-B', branch], site)
     _git(['config', 'user.name', 'WoSB Workbench'], site)
     _git(['config', 'user.email', 'workbench@localhost'], site)
     _git(['add', '-A'], site)
     status = _git(['status', '--porcelain'], site)
-    if status:
-        _git(['commit', '-q', '-m', message or f'Wiki update {datetime.now(timezone.utc):%Y-%m-%d %H:%M} UTC'], site)
+    if status or snapshot:
+        _git(['commit', '-q', '--allow-empty', '-m', message or f'Wiki update {datetime.now(timezone.utc):%Y-%m-%d %H:%M} UTC'], site)
+    if snapshot:
+        _git(['branch', '-q', '-M', branch], site)
+        subprocess.run(['git', 'reflog', 'expire', '--expire=now', '--all'], cwd=site, capture_output=True)
+        subprocess.run(['git', 'gc', '-q', '--prune=now'], cwd=site, capture_output=True)
     _git(['push', '-q', '--force', remote, f'{branch}:{branch}'], site)
     return {'remote': remote, 'branch': branch, 'commit': _git(['rev-parse', '--short', 'HEAD'], site), 'changed': bool(status)}
 

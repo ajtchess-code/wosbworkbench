@@ -13,10 +13,14 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 BRAND = Path(__file__).resolve().parent / 'viewer' / 'brand'
-DEFAULT_URL = 'https://bandofmisfits.org/'
+DEFAULT_URL = 'https://wosbwiki.org/'
 THIN_WORDS = 80           # pages with less text (tables included) than this are kept out of search results and ads
 ALWAYS_INDEX = re.compile(r'^(index\.html|map\.html|about\.html|privacy\.html|category/|tools/|wiki/|guide/|ship/|cannon/)')
-NEVER_INDEX = re.compile(r'^(recent\.html|tools/(battle|boarding)-simulator\.html)$')
+NEVER_INDEX = re.compile(r'^(recent\.html|404\.html|tools/(battle|boarding)-simulator\.html)$')
+ALWAYS_INDEX_EXTRA = re.compile(r'^(terms|disclaimer|sitemap)\.html$')
+# Crawlers that collect pages to train AI models. Search engines (Googlebot, Bingbot) and the AdSense crawler are unaffected.
+AI_CRAWLERS = ['GPTBot', 'ChatGPT-User', 'OAI-SearchBot', 'CCBot', 'ClaudeBot', 'Claude-Web', 'anthropic-ai', 'Google-Extended', 'Applebot-Extended',
+               'Bytespider', 'PerplexityBot', 'meta-externalagent', 'FacebookBot', 'Amazonbot', 'cohere-ai', 'Diffbot', 'ImagesiftBot', 'Timpibot', 'omgili', 'YouBot']
 PRIORITY = [(r'^index\.html$', '1.0'), (r'^(category/|map\.html|tools/)', '0.8'), (r'^(ship|cannon|wiki|guide)/', '0.7')]
 
 
@@ -34,7 +38,7 @@ def _description(page_html, title, site_name):
     return d if len(d) <= 160 else d[:157].rsplit(' ', 1)[0] + '…'
 
 
-def finalize(out, *, site_url=DEFAULT_URL, site_name='WoSB Wiki', lastmod=None):
+def finalize(out, *, site_url=DEFAULT_URL, site_name='WoSB Wiki', lastmod=None, ad_client='', inject_ads=False):
     """Add head metadata to every page and write the brand files, sitemap.xml and robots.txt. Returns counts."""
     out = Path(out)
     site_url = site_url.rstrip('/') + '/'
@@ -62,7 +66,7 @@ def finalize(out, *, site_url=DEFAULT_URL, site_name='WoSB Wiki', lastmod=None):
         tm = re.search(r'<title>(.*?)</title>', page, re.S)
         title = html.unescape(tm.group(1)).split(' · ')[0].strip() if tm else site_name
         words = len(_text(page).split())
-        noindex = bool(NEVER_INDEX.match(rel)) or (words < THIN_WORDS and not ALWAYS_INDEX.match(rel))
+        noindex = bool(NEVER_INDEX.match(rel)) or (words < THIN_WORDS and not ALWAYS_INDEX.match(rel) and not ALWAYS_INDEX_EXTRA.match(rel))
         url = site_url + ('' if rel == 'index.html' else rel)
         desc = _description(page, title, site_name)
         e = lambda s: html.escape(s, quote=True)
@@ -78,6 +82,11 @@ def finalize(out, *, site_url=DEFAULT_URL, site_name='WoSB Wiki', lastmod=None):
                 '<meta name="theme-color" content="#123f60">', '<meta name="color-scheme" content="light">',
                 f'<link rel="icon" href="{base}favicon.ico" sizes="any">', f'<link rel="icon" href="{base}assets/brand/favicon.svg" type="image/svg+xml">',
                 f'<link rel="apple-touch-icon" href="{base}apple-touch-icon.png">', f'<link rel="manifest" href="{base}site.webmanifest">']
+        if ad_client:
+            head.append(f'<meta name="google-adsense-account" content="{e(ad_client)}">')
+            # Auto ads only beside real content: thin and utility pages stay ad-free, as AdSense asks.
+            if inject_ads and not noindex:
+                head.append(f'<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={e(ad_client)}" crossorigin="anonymous"></script>')
         if rel == 'index.html':
             head.append('<script type="application/ld+json">' + json.dumps({
                 '@context': 'https://schema.org', '@graph': [
@@ -95,5 +104,7 @@ def finalize(out, *, site_url=DEFAULT_URL, site_name='WoSB Wiki', lastmod=None):
     xml += [f'<url><loc>{html.escape(u)}</loc><lastmod>{lastmod}</lastmod><priority>{p}</priority></url>' for u, p in indexed]
     xml.append('</urlset>')
     (out / 'sitemap.xml').write_text('\n'.join(xml) + '\n', encoding='utf-8')
-    (out / 'robots.txt').write_text(f'User-agent: *\nAllow: /\nDisallow: /pack/\n\nSitemap: {site_url}sitemap.xml\n', encoding='utf-8')
+    ai = ''.join(f'User-agent: {b}\n' for b in AI_CRAWLERS) + 'Disallow: /\n\n'
+    (out / 'robots.txt').write_text('User-agent: Mediapartners-Google\nAllow: /\n\n' + ai +
+                                    f'User-agent: *\nAllow: /\nDisallow: /pack/\nDisallow: /search.json\n\nSitemap: {site_url}sitemap.xml\n', encoding='utf-8')
     return {'indexed': len(indexed), 'noindex': hidden}
