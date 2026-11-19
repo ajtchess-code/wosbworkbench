@@ -32,7 +32,7 @@ HEADERS = """/*
 
 /assets/*
   Cross-Origin-Resource-Policy: same-site
-  Cache-Control: public, max-age=86400
+  Cache-Control: public, max-age=3600, must-revalidate
 
 /search.json
   Cross-Origin-Resource-Policy: same-site

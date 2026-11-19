@@ -767,6 +767,7 @@ class SiteBuilder:
             manifest['host'] = site_host.write(self.out, redirects=self.redirects + moved['redirects'], ad_client=HOSTING.get('ad_client') or '',
                                                not_found_html=site_titlecase.apply_html(nf))
         manifest['pages'] = sum(1 for f in self.out.rglob('*.html') if f.relative_to(self.out).parts[0] != 'pack')
+        manifest['asset_version'] = _version_assets(self.out)
         (self.out / 'site.json').write_text(json.dumps(manifest, indent=1), encoding='utf-8')
         return manifest
 
@@ -1693,6 +1694,26 @@ function render(){const chosen=[...pick.querySelectorAll('select')].map(s=>s.val
 pick.addEventListener('change',render);
 </script>
 '''
+
+
+def _version_assets(out):
+    """Add ?v=<content hash> to every page's links to assets/*.css and *.js, so a new publish is never mixed with the
+    browser's saved copy of an older stylesheet or script."""
+    import hashlib
+    out = Path(out); ver = {}
+    for f in (out / 'assets').rglob('*'):
+        if f.is_file() and f.suffix in ('.css', '.js'):
+            ver[f.relative_to(out / 'assets').as_posix()] = hashlib.sha1(f.read_bytes()).hexdigest()[:10]
+    rx = re.compile(r'((?:src|href)="(?:\.\./)*assets/)([^"?#]+\.(?:css|js))"')
+    n = 0
+    for f in out.rglob('*.html'):
+        if f.relative_to(out).parts[0] == 'pack':
+            continue
+        s = f.read_text(encoding='utf-8')
+        t = rx.sub(lambda m: f'{m.group(1)}{m.group(2)}?v={ver[m.group(2)]}"' if m.group(2) in ver else m.group(0), s)
+        if t != s:
+            f.write_text(t, encoding='utf-8'); n += 1
+    return n
 
 
 def build_site(db, out, **kw):

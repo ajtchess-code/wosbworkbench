@@ -73,3 +73,18 @@ def test_icons_copied(tmp_path):
     assert 'adsbygoogle' not in (out / 'admin' / 'index.html').read_text(encoding='utf-8')
     assert 'noindex' in (out / 'admin' / 'index.html').read_text(encoding='utf-8')
     assert '>Captain Skills<' in idx
+
+
+def test_assets_are_versioned(tmp_path):
+    (tmp_path / 'assets').mkdir(); (tmp_path / 'assets' / 'site.css').write_text('a{}'); (tmp_path / 'tools').mkdir()
+    (tmp_path / 'index.html').write_text('<link rel="stylesheet" href="assets/site.css"><script src="assets/missing.js"></script>')
+    (tmp_path / 'tools' / 'x.html').write_text('<link rel="stylesheet" href="../assets/site.css">')
+    assert wiki_site._version_assets(tmp_path) == 2
+    import re
+    v = re.search(r'site\.css\?v=([0-9a-f]{10})"', (tmp_path / 'index.html').read_text()).group(1)
+    assert f'../assets/site.css?v={v}"' in (tmp_path / 'tools' / 'x.html').read_text()
+    assert 'assets/missing.js"' in (tmp_path / 'index.html').read_text()
+    (tmp_path / 'assets' / 'site.css').write_text('b{}')
+    (tmp_path / 'index.html').write_text('<link rel="stylesheet" href="assets/site.css">')
+    wiki_site._version_assets(tmp_path)
+    assert v not in (tmp_path / 'index.html').read_text()           # new content, new address
