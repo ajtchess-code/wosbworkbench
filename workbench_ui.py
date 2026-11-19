@@ -2124,7 +2124,7 @@ class App:
         ttk.Button(row,text='Create short video clips',command=self._gameplay_clips_export).pack(side='left',padx=6)
         ttk.Button(row,text='Combat evidence ZIP',command=self._gameplay_evidence_export).pack(side='left',padx=6)
         ttk.Button(row,text='Open recording folder',command=self._gameplay_open_folder).pack(side='left',padx=6)
-        ttk.Label(studio,text='Requires FFmpeg (video) and TShark/Npcap (passive packets). Audio is OFF. Overlay buttons and optional Ctrl+Alt+F1–F8 hotkeys mark shots, regions, HP and sinking. A colored Sync flash helps align the video with packet time. Raw video/PCAP stays local unless you explicitly share it.',
+        ttk.Label(studio,text='Requires FFmpeg (video) and TShark/Npcap (passive packets). Audio is OFF. Overlay buttons and optional Ctrl+Alt+F1–F10 hotkeys mark shots, regions, HP, sinking and fires. A colored Sync flash helps align the video with packet time. Raw video/PCAP stays local unless you explicitly share it.',
                   style='Muted.TLabel',wraplength=980).pack(anchor='w',pady=(7,0))
         offsetrow=ttk.Frame(studio);offsetrow.pack(fill='x',pady=(3,1))
         ttk.Label(offsetrow,text='Video sync correction (seconds)').pack(side='left')
@@ -2249,7 +2249,7 @@ class App:
             self._gameplay_show_overlay()
             self.gameplay_hotkeys=CaptureHotkeys(lambda event:self.status_events.put(('game-hotkey',event)))
             hotkeys_active=self.gameplay_hotkeys.start()
-            if hotkeys_active:self.gameplay_status.set('Recording · Ctrl+Alt+F1 Single · F2 Broadside · F3 Stern · F4 Side · F5 Sails · F6 Sunk · F7 Sync · F8 Hit')
+            if hotkeys_active:self.gameplay_status.set('Recording · Ctrl+Alt+F1 Single · F2 Broadside · F3 Stern · F4 Side · F5 Sails · F6 Sunk · F7 Sync · F8 Hit · F9 Minor fire · F10 Large fire')
             self._gameplay_mark('sync-flash','Recording start / visual alignment')
         except Exception as exc:
             self.gameplay_start.configure(state='normal')
@@ -2262,14 +2262,15 @@ class App:
         win=tk.Toplevel(self.root);win.title('WoSB · Shot Markers');win.attributes('-topmost',True)
         try:win.attributes('-alpha',0.92)
         except tk.TclError:pass
-        win.configure(bg='#10202a');win.geometry('480x280+80+100')
+        win.configure(bg='#10202a');win.geometry('480x320+80+100')
         def close():self.gameplay_overlay=None;win.destroy()
         win.protocol('WM_DELETE_WINDOW',close)
         tk.Label(win,text='⚓  WoSB CAPTURE  ·  MARK THE FIGHT',font=('Segoe UI Semibold',12),
                  bg='#10202a',fg='#e8f7ff').pack(fill='x',pady=(10,3))
         for items in ((('Single shot','single-shot'),('Broadside','broadside'),('Mortar','mortar'),('Barrel','barrel')),
                       (('Stern','stern'),('Side','side'),('Bow','bow'),('Sails','sails')),
-                      (('Hit','hit'),('Miss','miss'),('HP reading','health'),('Target sunk','target-sunk'))):
+                      (('Hit','hit'),('Miss','miss'),('HP reading','health'),('Target sunk','target-sunk')),
+                      (('Minor fire','minor-fire'),('Large fire','large-fire'))):
             row=tk.Frame(win,bg='#10202a');row.pack(fill='x',padx=8,pady=3)
             for label,kind in items:
                 tk.Button(row,text=label,command=lambda k=kind:self._gameplay_mark(k),

@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import html
 import json
+import math
 import re
 import shutil
 from collections import defaultdict
@@ -86,6 +87,7 @@ NAV = [('Main page', 'index.html'), ('Ships', 'category/ships.html'), ('Cannons'
        ('Guides & mechanics', 'category/articles.html')]
 TOOLS = [('Damage simulator', 'tools/damage-simulator.html'), ('Wind & sailing', 'tools/wind-rose.html'),
          ('Ship comparison', 'tools/compare-ships.html'), ('Hitbox viewer', 'tools/hitboxes.html'),
+         ('Hit analysis', 'tools/hit-analysis.html'), ('Towers, forts & mortars', 'tools/defenses.html'), ('Fire calculator', 'tools/fire-calculator.html'),
          ('Battle simulator', 'tools/battle-simulator.html'), ('Boarding simulator', 'tools/boarding-simulator.html')]
 CATEGORY_FILE = {'ship': 'ships', 'cannon': 'cannons', 'ammo': 'ammo', 'upgrade': 'upgrades', 'crew': 'crew',
                  'skill': 'skills', 'resource': 'resources', 'port': 'ports', 'achievement': 'achievements',
@@ -210,6 +212,14 @@ GAMEPEDIA_SEE_ALSO = {
 }
 
 CSS = r'''
+.ha-controls{display:flex;flex-wrap:wrap;gap:12px 18px;margin:8px 0;align-items:center}.ha-controls select,.ha-controls input{font:inherit;padding:3px 5px}
+.ha-grid{display:flex;flex-wrap:wrap;gap:20px;align-items:flex-start}.ha-legend{font-size:12px;color:#555;max-width:600px}.ha-legend i{display:inline-block;width:160px;height:10px;margin:0 6px;vertical-align:middle;background:linear-gradient(90deg,#28325a,#3c6ebe,#5abe78,#f0c83c,#dc3228)}
+.ha-side-col{flex:1;min-width:320px}.ha-note{font-size:12px;color:#555}.ha canvas{max-width:100%;height:auto;border:1px solid #e3e6ea;border-radius:4px;background:#fff}
+.ha-stats{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0}.ha-stats div{background:#f4f7fa;border:1px solid #dde3ea;border-radius:6px;padding:5px 10px;min-width:92px}.ha-stats span{display:block;font-size:11px;color:#667}.ha-stats b{font-size:15px}
+.ha-bar{position:relative;min-width:90px}.ha-bar span{position:absolute;left:0;top:3px;bottom:3px;opacity:.28;border-radius:2px}.ha-bar b{position:relative}
+.ha-cur{background:#fff7d6}.ha-more{margin:10px 0;border:1px solid #dde3ea;border-radius:6px;padding:6px 10px}.ha-more summary{cursor:pointer;font-weight:600}
+.sw{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px}img.infographic{max-width:100%;border:1px solid #ddd;border-radius:6px;margin:8px 0}
+
 .tfilter{width:320px;max-width:100%;padding:6px 8px;border:1px solid #a2a9b1;border-radius:3px;font:inherit}
 
 .vbar{position:relative;min-width:90px;height:18px;background:#eef2f5;border-radius:3px;overflow:hidden}.vbar i{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,#9cc3dc,#4f8fb8)}.vbar b{position:relative;padding-left:5px;font-weight:600;font-size:12px;line-height:18px;color:#16324a}
@@ -405,6 +415,10 @@ class SiteBuilder:
         self.out.mkdir(parents=True, exist_ok=True)
         self._write('assets/site.css', CSS); self._write('assets/site.js', SITE_JS)
         hitboxes = self._hitboxes()
+        try:
+            self._hit_data(hitboxes)
+        except Exception as exc:  # keep the rest of the wiki building
+            self._hd = None; self.progress and self.progress(f'Hit analysis data skipped: {exc}')
         for kind, recs in self.entities.items():
             for r in recs:
                 self._entity_page(kind, r, hitboxes)
@@ -467,6 +481,8 @@ class SiteBuilder:
             body.append(f'<p><b>{_e(title)}</b> is {"an" if plural[0] in "AEIOU" else "a"} {_e(plural[:-1].lower() if plural.endswith("s") else plural.lower())} in World of Sea Battle.</p>')
         if kind == 'ship':
             body += self._ship_sections(rec, hitboxes)
+        if kind == 'cannon':
+            body += self._cannon_vs_ships(rec)
         if kind == 'recipe':
             body += self._recipe_sections(rec)
         if kind in ('ammo', 'upgrade', 'skill', 'crew') and rec.get('Effects') or rec.get('EffectsBoost') or rec.get('Effect'):
@@ -625,6 +641,11 @@ class SiteBuilder:
                        f'data-zones="{_e(json.dumps(hb["zones"], separators=(",", ":")))}"></canvas>'
                        '<script src="../assets/hitboxes.js"></script>')
         name = rec.get('_title') or ''
+        if getattr(self, '_hd', None):
+            out.append('<h2>Where to hit it</h2><p>Damage per ball from every direction, from this ship\'s real hull box, with every ammo, gun and mortar.</p>'
+                       f'<div class="ha-mount" data-ship="{_e(name)}"></div><script src="../assets/hit-data.js"></script><script src="../assets/hit_analysis.js"></script>'
+                       '<script>document.querySelectorAll(".ha-mount").forEach(e=>HitAnalysis.mount(e,{ship:e.dataset.ship,compact:true}))</script>'
+                       f'<p><a href="../tools/hit-analysis.html?ship={_e(name)}">Open the full hit analysis</a> · <a href="../tools/fire-calculator.html">Fire calculator</a></p>')
         out.append('<h2>Try it</h2><p>'
                    f'<a href="../tools/battle-simulator.html?ship={_e(name)}">Battle simulator with the {_e(name)}</a> · '
                    f'<a href="../tools/damage-simulator.html?hp={_e(rec.get("Health"))}">Damage simulator</a> · '
@@ -787,9 +808,113 @@ class SiteBuilder:
                    if hb_ships else '<p class="note">No hit zones in this build yet. In WoSB Workbench run <b>Datamining → Rebuild ship hitboxes</b>, then rebuild the site.</p>'))
         self._write('tools/hitboxes.html', _page('Hitbox viewer', hb_body, depth=1, crumbs=crumbs, tab='Tool'))
         self._write('assets/wosb_sim.js', (Path(__file__).resolve().parent / 'viewer' / 'wosb_sim.js').read_text(encoding='utf-8'))
+        if getattr(self, '_hd', None):
+            self._hit_tools(hitboxes, crumbs)
         self._sim_tools()
         for t, u in TOOLS:
             self.search.append({'t': t, 'u': u, 'c': 'Tool', 'k': 'tool calculator simulator'})
+
+    def _hit_data(self, hitboxes):
+        if getattr(self, '_hd', None) is not None:
+            return self._hd
+        import battle_sim
+        d = battle_sim.catalog_data(self.db, build=self.build)
+        ships = []
+        for s_ in d['ships']:
+            hb = hitboxes.get(s_.get('model')) if s_.get('model') else None
+            ships.append({'n': s_['n'], 'armor': s_['armor'], 'hp': s_['hp'], 'rank': s_['rank'], 'cls': s_['cls'], 'crew': s_['crew'], 'speed': s_['speed'],
+                          'box': hb['zones'][0]['b'] if hb and hb.get('zones') else None,
+                          'ports': hb.get('ports') if hb else None, 'masts': hb.get('masts') if hb else None, 'sails': hb.get('sails') if hb else None})
+        cal = self.damage_calibration or {}
+        towers = []
+        names = {'t_mortar': ('Mortar tower', 'Lobs shells over everything; can\'t hit ships inside its dead zone.'),
+                 't_fire': ('Prometheus (fire) tower', 'Short-range flamethrowers, each covering ±45°; sets ships on fire.'),
+                 't_cannonsstr': ('Cannon tower', 'Long guns covering ±30° per gun; damage depends on your armor.')}
+        for key, spec in battle_sim.TOWER_SPECS.items():
+            n, note = names.get(key, (key, ''))
+            t = dict(spec, n=n, note=note)
+            if spec['kind'] == 'cannon':
+                t.update(gun='32-pdr Long Gun', range=145)
+            towers.append(t)
+        self._hd = {'ships': sorted(ships, key=lambda x: x['n']),
+                    'cannons': [{k: c.get(k) for k in ('n', 'pen', 'min', 'max', 'reload', 'splash', 'scatter', 'mortar', 'cls', 'feature', 'mount')} for c in d['cannons'] if c.get('pen')],
+                    'ammo': [{'n': a['n'], 'pen': a.get('pen') or 0, 'df': a.get('df') or 1, 'min': a.get('min') or 0, 'sail': a.get('sail'), 'crew': a.get('crew'),
+                              'reload': a.get('reload') or 1, 'fx': a.get('fx') or ''} for a in d['ammo']],
+                    'calib': {'calibrated': bool(cal.get('calibrated')), 'armor_weight': cal.get('armor_weight', 1), 'scale': cal.get('scale', 1), 'samples': cal.get('samples', 0)},
+                    'towers': towers,
+                    'pb': {'base': {1: [12100, 26400], 2: [10000, 21700], 3: [9100, 20000], 4: [7700, 16700], 5: [6600, 14500]}, 'base_low': [4500, 10000],
+                           'team': {5: 0.5, 7: 0.6, 10: 0.7, 15: 0.85, 20: 1, 40: 1.15}, 'level': [1, 1, 1, 1.04, 1.08, 1.12, 1.16, 1.2, 1.24],
+                           'capture_r': 30, 'capture_s': 30, 'fort_board_s': 25, 'tower_armor': 3}}
+        return self._hd
+
+    def _hit_tools(self, hitboxes, crumbs):
+        """Hit analysis, towers/forts/mortars and fire calculator: data in assets/hit-data.js, logic in viewer/*.js."""
+        data = self._hit_data(hitboxes)
+        viewer = Path(__file__).resolve().parent / 'viewer'
+        self._write('assets/hit-data.js', 'window.HIT_DATA=' + json.dumps(data, separators=(',', ':')) + ';\n')
+        for f in ('hit_analysis.js', 'defenses.js', 'fire_tool.js'):
+            self._write('assets/' + f, (viewer / f).read_text(encoding='utf-8'))
+        scripts = lambda f: f'<script src="../assets/hit-data.js"></script><script src="../assets/{f}"></script>'
+        body = ('<p>Where a ship can be hurt and from which direction, with every gun and ammo. Built from each ship\'s real hull hitbox and the game\'s own '
+                'table of hull surface directions: a pointed bow, curved shoulders, flat sides and a wide flat stern.</p><div id="ha"></div>' + scripts('hit_analysis.js') +
+                '<script>HitAnalysis.mount(document.getElementById("ha"),{ship:new URLSearchParams(location.search).get("ship")})</script>'
+                '<h2>How hits work</h2><ul><li>The game tests the ball\'s path against invisible boxes, not the visible model: the hull box first, then the '
+                'masts, then up to three sails (each sail slows the ball).</li><li>Where the path crosses the hull box decides the zone: <b style="color:#2e9650">bow</b> is only the '
+                'middle of the front face; <b style="color:#d23737">stern</b> is the whole back face plus the last ~11% of each side; everything else is <b style="color:#e18c28">side</b>.</li>'
+                '<li>Hitting at an angle makes the armor count thicker. Past a certain angle a ball does nothing: a glancing blow.</li>'
+                '<li>Height on the hull box makes no difference.</li><li>A stern hit, a mortar or a keg sinks a ship that is already sinking.</li></ul>'
+                '<p>See also <a href="../wiki/damage-formula.html">Damage formula</a>, <a href="defenses.html">Towers, forts &amp; mortars</a>, <a href="hitboxes.html">Hitbox viewer</a>.</p>')
+        self._write('tools/hit-analysis.html', _page('Hit analysis', body, depth=1, crumbs=crumbs, tab='Tool'))
+        body = ('<p>Port-battle towers and forts, their reach and strength, and how mortars and the keg launcher spread their damage.</p><div id="df"></div>' +
+                scripts('defenses.js') + '<script>Defenses.mount(document.getElementById("df"))</script>'
+                '<h2>Capturing and storming</h2><ul><li>Stay within <b>30</b> of a tower for <b>30 s</b> to capture it (at most half the towers can be captured).</li>'
+                '<li>Boarding the guild fort takes <b>25 s</b>. Towers start attacking 15 s after you come into range.</li>'
+                '<li>Each destroyed tower adds <b>10 minutes</b> to the battle (up to 90). Ships respawn instantly from the team\'s respawn pool.</li></ul>'
+                '<p>See also <a href="../guide/port-battle-rules.html">Port battle rules</a> and the <a href="battle-simulator.html?preset=pbfleet">port battle simulator</a>.</p>')
+        self._write('tools/defenses.html', _page('Towers, forts & mortars', body, depth=1, crumbs=crumbs, tab='Tool'))
+        body = ('<p>How minor fires turn into a large fire on your ship, and what changes the odds. Rules are read from the game client; the ignition chance per hit is '
+                'rolled by the server, so it has to be measured.</p><img class="infographic" src="../assets/fire-infographic.png" alt="Fire mechanics infographic" loading="lazy">'
+                '<div id="ft"></div>' + scripts('fire_tool.js') + '<script>FireTool.mount(document.getElementById("ft"))</script>'
+                '<p>Full explanation: <a href="../wiki/large-and-minor-fires.html">Large and minor fires</a>.</p>')
+        self._write('tools/fire-calculator.html', _page('Fire calculator', body, depth=1, crumbs=crumbs, tab='Tool'))
+        info = viewer / 'fire_infographic.png'
+        if info.is_file():
+            dst = self.out / 'assets' / 'fire-infographic.png'; dst.parent.mkdir(parents=True, exist_ok=True); shutil.copyfile(info, dst)
+
+    def _cannon_vs_ships(self, rec):
+        """What this gun can hurt: per-ship damage per ball square on the side, raking the stern, and the glancing limit."""
+        d = getattr(self, '_hd', None)
+        if not d:
+            return []
+        gun = next((c for c in d['cannons'] if c['n'] == rec.get('_title')), None)
+        if not gun:
+            return []
+        cal = d['calib']; w = cal.get('armor_weight') or 1; sc = cal.get('scale') or 1
+        ball = next((a for a in d['ammo'] if 'cast-iron' in (a['n'] or '').lower()), {'pen': 0, 'df': 1, 'min': 0})
+        pen = (gun['pen'] or 0) + (ball.get('pen') or 0)
+        rows, top = [], 1
+        for sh in sorted((x for x in d['ships'] if x['hp']), key=lambda x: -(x['armor'] or 0)):
+            arm = sh['armor'] or 0
+            if gun['mortar']:
+                side = stern = max(0, pen - w * arm) * sc; lim = None
+            else:
+                side = max(ball.get('min') or 0, pen - w * arm) * (ball.get('df') or 1) * sc
+                stern = max(ball.get('min') or 0, pen - w * arm * 0.5) * (ball.get('df') or 1) * sc
+                lim = math.degrees(math.acos(min(1, w * arm / pen))) if pen > w * arm else 0
+            top = max(top, side, stern); rows.append((sh, arm, side, stern, lim))
+        def link(n):
+            u = self.urls.get(('ship', n.casefold()))
+            return f'<a href="../{u}">{_e(n)}</a>' if u else _e(n)
+        trs = ''.join(f'<tr><td>{link(sh["n"])}</td><td>{arm:.1f}</td>' + _bar(side, top, fmt='{:.1f}') +
+                      ('' if gun['mortar'] else _bar(stern, top, fmt='{:.1f}', cls='warm') + f'<td>{"none" if not lim else f"{lim:.0f}°"}</td>') +
+                      f'<td><a href="../tools/hit-analysis.html?ship={_e(sh["n"])}">map</a></td></tr>' for sh, arm, side, stern, lim in rows)
+        head = ('<th>Ship</th><th>Armor</th><th>Direct hit</th><th></th>' if gun['mortar'] else
+                '<th>Ship</th><th>Armor</th><th>Side, square on</th><th>Stern rake</th><th>Glancing limit</th><th></th>')
+        intro = ('Damage at the centre of the burst against every ship (it falls off toward the edge of the splash; see <a href="../tools/defenses.html">Towers, forts &amp; mortars</a>).'
+                 if gun['mortar'] else 'Damage per cast-iron ball against every ship, strongest armor first. "Glancing limit" is how far off square a side hit can be and still do damage.')
+        return [f'<h2>What it can damage</h2><p>{intro} Estimates until calibrated.</p>'
+                '<input class="tfilter" type="search" placeholder="Filter ships…" oninput="wikiFilter(this)">'
+                f'<table class="wikitable sortable"><thead><tr>{head}</tr></thead><tbody>{trs}</tbody></table>']
 
     def _sim_tools(self):
         """Battle and boarding simulators: full-screen pages sharing assets/wosb_sim.js (no meshes published)."""

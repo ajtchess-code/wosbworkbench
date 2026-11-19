@@ -8,74 +8,87 @@ from __future__ import annotations
 
 FIRES_PAGE = '''# Large and minor fires
 
-Fire in World of Sea Battle comes in two sizes: short **minor fires** (micro-fires)
-that tick small amounts of damage, and a **large fire** that can grow and burn a
-ship down. A large fire can only start from minor fires, so you prevent one by
-keeping the minor fires down.
+Fire comes in two sizes. **Minor fires** are short and tick small amounts of damage.
+A **large fire** can grow and burn a ship down. A large fire almost always grows out
+of minor fires, so you prevent one by keeping the minor fires down. Try the numbers
+in the [[Fire calculator]].
 
-## Minor fires (micro-fires)
+Everything below is read from the game client. The **chance that a hit starts a fire**
+is rolled by the server and is not in the client, so it has to be measured (the Fire
+calculator turns your own counts into a rate).
 
-* **What starts them:** incendiary hits. Ammo marked *can make burnings*
-  (cast-iron shot, carcass shells, Saxon shot and others) has a chance to light
-  one per hit; ammo with *extra micro-burning* (carcass, Saxon) has a higher chance.
-  Fire tower (Prometheus) hits and some specials also light them.
-* **Damage:** each minor fire burns for **4 HP per second**.
-* **Duration:** **6–10 seconds** each. Crew bonuses for micro-fire fighting
-  (PMicrofireFightingSpeed, such as the fire-fighting special crew) shorten it.
-* Several can burn at once, and their damage adds up.
+## Minor fires
 
-## Large fire
+* **What can start them:** hits from ammo marked *can make burnings*: cast-iron shot,
+  carcass shells and Saxon shot. Carcass and Saxon also carry *extra micro-burning*
+  (a higher chance). Heavy, chain, grape, fireworks, rockets, phosphorus grapeshot,
+  smoke and snowball shot cannot start them.
+* **Incendiary Mixture** (upgrade) lets *every* shot type start fires. It can't be fitted on heavy ships.
+* **Damage:** each minor fire burns for **4 HP per second**, where the ball hit.
+* **Duration:** **6–10 seconds**, fixed by where the ball hit, divided by
+  (1 − minor-fire suppression). With +50% they last 3–5 s.
+* Any number can burn at once; their damage adds up.
 
-### When one can start
+| Minor-fire suppression | Source | One fire lasts |
+|---|---|---|
+| none | | 6–10 s |
+| +25% | Special crew | 4.5–7.5 s |
+| +50% | Large Plates (consumable: also +4 armor, −10% turning) | 3–5 s |
+| +75% | both | 1.5–2.5 s |
 
-The game checks for a large fire on a timer. It can start only when **both** of these are true:
+**Sea Ration** (repair consumable) puts out every minor fire at once, fixes a hull breach and
+up to 3 guns, and repairs 2% HP.
 
-1. The ship has at least **1 + (max HP ÷ 1000, rounded)** minor fires burning at
-   the same time. A 3,000 HP ship needs 4; a 6,000 HP ship needs 7.
-2. The ship's HP is between **5% and 95%** of maximum.
+## When a large fire can start
 
-The check runs faster when the ship is badly damaged: its interval is multiplied
-by 0.5 + 0.5 × (HP fraction), so at half HP checks come 25% more often than at full HP.
-After a large fire there is an **80-second cooldown** before another can start.
+The server checks on a timer. The check can only pass when **all** of these are true:
 
-### How it burns
+1. At least **1 + (max HP ÷ 1000, rounded)** minor fires are burning at once.
+   Pickle (850 HP) needs 2, Bellona (3,180) needs 4, 12 Apostolov (3,960) needs 5.
+2. HP is between **5% and 95%** of maximum.
+3. No large fire has burned in the last **80 seconds**.
 
-There are three kinds of large fire, set by what started it:
+The check comes faster when you're hurt: its interval is multiplied by
+0.5 + 0.5 × (HP fraction), so at half HP checks are 33% more frequent than at full HP
+and at 25% HP 60% more frequent.
 
-| Kind | Behaviour |
-|---|---|
-| Finite | Burns for 12 seconds. Strength rises then falls (a bell curve peaking at 6 s). Rams start this kind. |
-| Infinite | Ramps up to full strength over 4 s and keeps burning until put out. |
-| Infinite, mendable | Grows slowly, then faster after 12 s; repairing (mending) holds it back. |
+A ram flagged as burning, and some boarding and event effects, start a large fire directly
+without any minor fires.
 
-Large-fire damage is reduced by **PReduceBigFireDamage** (for example, the special crew with +50%).
+## Kinds of large fire
 
-### Fire areas
+| Kind | Started by | How it burns | Can repairs stop it? |
+|---|---|---|---|
+| Finite | some events | Rises and falls over **12 s** (peaks at 60% strength at 6 s), then goes out | yes |
+| Mendable | burning rams | Grows slowly, then past **12 s** shoots to full strength (the point of no return) | yes |
+| Infinite | some events | Full strength in **4 s**, keeps burning | **no** |
 
-Carcass-type ammo can leave a burning **fire area** on the water: 13 damage, starting
-radius 5, growing toward a maximum of 14.5 (fast at first, then slowing), lasting
-11 seconds. Ships sailing through it take damage and can catch fire.
+Fighting a mendable fire caps its strength: each fire-fighting action adds 24% to your
+progress (times big-fire suppression, e.g. +40% from the Special crew), and progress fades
+by 10% a second. The ship's HUD shows it as "Extinguishing fire: N%". The **Fire Suppression**
+captain skill makes the crew fight fires on their own.
 
-### Fire and sinking
+Large-fire damage is reduced by large-fire damage protection. A ship that is already
+sinking is destroyed at once by fire while a large fire burns.
 
-A ship that is already sinking is **destroyed instantly** by fire if it is under a large fire.
+## Fire on the water
 
-## Fighting fire
-
-* Fire-fighting progress builds at **(fire-fighting level + 0.24) × fighting speed**
-  and decays by 0.1 per second when you stop.
-* **PBigFireFightingSpeed** (for example, the special crew with +40%) speeds this up.
+Carcass shells that **miss** leave a burning patch where they land: 13 damage, radius 5,
+lasting 11 s. More shells landing in the same patch grow it (fast at first, then slower,
+up to 14.5) and top up its time; it shrinks back toward 5 by 0.65 a second and drifts.
+Copper Plating takes 25% off fire-area damage and Iron Plating 45%. Reinforced Sail
+Edges halve the damage burning does to sails.
 
 ## How to avoid large fires
 
-1. **Kill the minor fires quickly.** The large fire needs many minor fires at once,
-   so micro-fire fighting bonuses are the most effective prevention.
-2. **Mind your HP.** Above 95% HP a large fire cannot start; below 50% the checks speed up.
-3. **Bigger ships need more minor fires** before a large one can start (the threshold scales with max HP).
-4. **Carry fire-fighting crew or upgrades** if you expect carcass, Saxon or Prometheus towers (port battles).
-5. **After one burns out you are safe for 80 s**: a window to take risks.
+1. **Kill minor fires fast.** Minor-fire suppression (Special crew, Large Plates) and a Sea
+   Ration at the right moment stop the count from ever reaching the threshold.
+2. **Stay above 95% HP** if you can: no large fire can start there.
+3. **Below half HP the checks speed up**; that's when fire protection pays off most.
+4. **Mind burning rams**: they skip the minor-fire stage. Repair to put the fire out.
+5. **After a large fire you are safe for 80 s.**
 
-See also: [[Damage and sinking]], [[Damage formula]], the [[Battle simulator]].
+See also: [[Damage and sinking]], [[Damage formula]], the [[Fire calculator]], the [[Battle simulator]].
 '''
 
 BOARDING_PAGE = '''# Boarding

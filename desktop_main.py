@@ -22,7 +22,7 @@ SELF_TEST_MODULES = [
 ]
 ENGINE_MODULES = ['full_recovery', 'extract_wosb', 'analyze_one', 'protocol_extract', 'xnb_geometry', 'client_metadata']
 BUNDLED = ['Starter-Catalog.sqlite3', 'Research-Ballistics-Catalog.json', 'Research-Ship-Designs.json',
-           'viewer/ship_viewer.html', 'viewer/battle_sim.html', 'viewer/boarding_sim.html', 'viewer/wosb_sim.js', 'wiki_site/app.js', 'wiki_site/style.css', 'assets/wosb-workbench.png', 'engine']
+           'viewer/ship_viewer.html', 'viewer/battle_sim.html', 'viewer/boarding_sim.html', 'viewer/wosb_sim.js', 'viewer/hit_analysis.js', 'viewer/defenses.js', 'viewer/fire_tool.js', 'viewer/fire_infographic.png', 'wiki_site/app.js', 'wiki_site/style.css', 'assets/wosb-workbench.png', 'engine']
 
 
 def self_test(dest=None):

@@ -35,7 +35,7 @@ GAME_PROCESS='WorldOfSeaBattleClient'
 KNOWN_PORT=23771  # Proven by a user Get-NetTCPConnection snapshot; check per session.
 FORMAT_VERSION=1
 MAX_REVIEW_BIN=200_000
-ALLOWED_MARKERS={'single-shot','broadside','bow','stern','side','sails','hit','miss','target-sunk','health','sync-flash','note','mortar','heavy-mortar','barrel','deflection'}
+ALLOWED_MARKERS={'single-shot','broadside','bow','stern','side','sails','hit','miss','target-sunk','health','sync-flash','note','mortar','heavy-mortar','barrel','deflection','minor-fire','large-fire'}
 
 
 def utc_now():
@@ -469,6 +469,29 @@ def export_sanitized_review(folder,output=None):
                    'Event/packet proximity is not proof of game message identity or HP-damage mechanics.\n'
                    'Please correlate the visual events and health values separately.\n')
     return target
+
+
+def fire_tally(folder):
+    """Hits vs minor/large fires per ammo from the user's own markers: the input for the ignition-chance estimate."""
+    out={}
+    for e in load_events(folder):
+        k=e.get('kind');ammo=(e.get('ammo') or 'unknown').strip() or 'unknown'
+        row=out.setdefault(ammo,{'hits':0,'broadsides':0,'minor_fires':0,'large_fires':0})
+        if k=='hit':row['hits']+=1
+        elif k=='broadside':row['broadsides']+=1
+        elif k=='minor-fire':row['minor_fires']+=1
+        elif k=='large-fire':row['large_fires']+=1
+    for row in out.values():
+        n,x=row['hits'],row['minor_fires']
+        row['rate'],row['low'],row['high']=wilson(x,n)
+    return out
+
+
+def wilson(x,n,z=1.96):
+    """Share with a 95% Wilson interval; (None, None, None) without data."""
+    if n<=0:return None,None,None
+    p=min(1.0,x/n);d=1+z*z/n;c=(p+z*z/(2*n))/d;h=z*((p*(1-p)/n+z*z/(4*n*n))**0.5)/d
+    return round(p,4),round(max(0.0,c-h),4),round(min(1.0,c+h),4)
 
 
 def export_video_clips(folder,*,kinds=('single-shot','broadside','hit','target-sunk','sails'),

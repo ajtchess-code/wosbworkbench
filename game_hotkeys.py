@@ -17,6 +17,8 @@ SHORTCUTS={
     0x75:'target-sunk',  # F6
     0x76:'sync-flash',   # F7
     0x77:'hit',          # F8
+    0x78:'minor-fire',   # F9
+    0x79:'large-fire',   # F10
 }
 
 class CaptureHotkeys:
