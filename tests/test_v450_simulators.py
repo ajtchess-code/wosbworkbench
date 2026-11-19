@@ -298,3 +298,16 @@ class AudioAndTextRecoveryTests(TempDir):
         self.assertEqual((by['Data/authors.xnb']['kind'], by['Data/authors.xnb']['status']), ('text', 'decoded'))
         inv = (out / 'Reports' / 'Audio-Inventory.csv').read_text(encoding='utf-8')
         self.assertIn('click', inv); self.assertIn('theme', inv); self.assertIn('xnb/pcm', inv)
+
+
+class BackgroundJobDatabaseTests(unittest.TestCase):
+    def test_background_tasks_do_not_use_the_ui_connection(self):
+        """SQLite connections can't cross threads: background tasks must open their own CatalogDB."""
+        src = (ROOT / 'workbench_ui.py').read_text(encoding='utf-8')
+        bad = []
+        for m in re.finditer(r'\n(\s+)def (task|work|job)\(([^)]*)\):\n((?:\1\s+.*\n|\s*\n)+)', src):
+            for line in m.group(4).splitlines():
+                code = line.split('#')[0]
+                if re.search(r'self\.db\b(?!\.path)', code):
+                    bad.append(src[:m.start()].count('\n') + 2)
+        self.assertEqual(bad, [], f'background task(s) at lines {bad} use self.db; open CatalogDB(self.db.path) instead')

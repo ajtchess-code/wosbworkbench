@@ -954,14 +954,18 @@ class App:
 
     def _open_simulators(self):
         out=home()/'Simulators'
+        installs=self._known_installs()
         def task(ctx):
             import battle_sim
             hb=home()/'Research'/'Hitboxes'
             rec=battle_sim.latest_recovery(home())
             ctx.set_output(out)
             prog=lambda i,n,name:ctx.progress(i/max(1,n),f'Packing model {i+1}/{n}: {name}')
-            return battle_sim.build_simulators(self.db,out,hitboxes_dir=hb if hb.is_dir() else None,recovery_dir=rec,
-                                               game_roots=self._known_installs(),progress=prog,damage_calibration=battle_sim.load_calibration(home()))
+            db=CatalogDB(self.db.path)   # SQLite connections can't cross threads: this job gets its own
+            try:
+                return battle_sim.build_simulators(db,out,hitboxes_dir=hb if hb.is_dir() else None,recovery_dir=rec,
+                                                   game_roots=installs,progress=prog,damage_calibration=battle_sim.load_calibration(home()))
+            finally:db.close()
         def done(m):
             pk=m.get('pack') or {}
             note=(f"{pk.get('models',0)} real models · {pk.get('textures',0)} textures" if pk.get('models') else
@@ -991,16 +995,18 @@ class App:
 
     def _build_wiki_site(self):
         out=home()/'WikiSite'
+        installs=self._known_installs()
         def task(ctx):
-            import wiki_site,mechanics_reference
-            mechanics_reference.seed_damage_pages(self.db)
-            ctx.set_output(out)
-            hb=home()/'Research'/'Hitboxes'
-            import battle_sim
-            return wiki_site.build_site(self.db,out,hitboxes_dir=hb if hb.is_dir() else None,recovery_dir=battle_sim.latest_recovery(home()),
-                                        damage_calibration=battle_sim.load_calibration(home()),
-                                        game_roots=self._known_installs(),
-                                        progress=lambda i,n,name:ctx.progress(i/max(1,n),f'Packing model {i+1}/{n}: {name}'))
+            import wiki_site,mechanics_reference,battle_sim
+            db=CatalogDB(self.db.path)   # SQLite connections can't cross threads: this job gets its own
+            try:
+                mechanics_reference.seed_damage_pages(db)
+                ctx.set_output(out)
+                hb=home()/'Research'/'Hitboxes'
+                return wiki_site.build_site(db,out,hitboxes_dir=hb if hb.is_dir() else None,recovery_dir=battle_sim.latest_recovery(home()),
+                                            damage_calibration=battle_sim.load_calibration(home()),game_roots=installs,
+                                            progress=lambda i,n,name:ctx.progress(i/max(1,n),f'Packing model {i+1}/{n}: {name}'))
+            finally:db.close()
         def done(m):
             self._notice('Wiki website built',f"{m['pages']:,} pages · {m['entities'].get('ship',0)} ships · {m['articles']} guides · "
                          f"{m['ships_with_hitboxes']} ships with hit zones · {m.get('models',0)} 3D models. Open index.html, or upload the folder to GitHub Pages or any web host.",
