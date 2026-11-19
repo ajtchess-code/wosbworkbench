@@ -669,6 +669,7 @@ class App:
                  ('Free disk space','Remove duplicate Catalog-2, Catalog-3… exports (about 2.3 GB each), keeping the newest.',self._dm_cleanup),
                  ('Calibrate cannonball damage','Log measured hits (cannon, ammo, target, HP before/after) and fit the simulators\' damage to them.',self._dm_calibrate),
                  ('Battle & boarding simulators','3D battles with the real ship, tower and fort models: fleets, port battles, orders, scripts, batch runs; plus the boarding fight.',self._open_simulators),
+                 ('Publish wiki to Band of Misfits','Upload the built wiki to bandofmisfits.org (needs an upload token from Dashboard → Wiki → Compendium).',self._publish_bom),
                  ('Publish wiki to GitHub Pages','Push the built wiki folder to a gh-pages branch so the community can use it at <you>.github.io.',self._publish_wiki),
                  ('Build wiki website','A public fan wiki: ship/cannon/item pages, categories, guides, battle/boarding/damage simulators, wind and comparison tools.',self._build_wiki_site)]
         for i,(title,desc,cmd) in enumerate(actions):
@@ -992,6 +993,27 @@ class App:
             self._notice('Wiki published',f"Pushed {m['commit']} to {m['branch']}. "+(f'Turn on GitHub Pages (Settings → Pages → branch gh-pages) once; then it is live at {url}' if url else ''),
                          kind='success',action=('Open site',lambda:webbrowser.open(url)) if url else None)
         self._run_async(task,done,'Publishing wiki…')
+
+    def _publish_bom(self):
+        import bom_publish
+        from tkinter import simpledialog
+        site=home()/'WikiSite'
+        if not (site/'index.html').is_file():
+            return self._notice('Build the wiki first','Run “Build wiki website”, then publish.',kind='warning')
+        url=(self.settings.get('bom.url') or bom_publish.DEFAULT_URL).strip()
+        token=(self.settings.get('bom.token') or '').strip()
+        if not token:
+            token=(simpledialog.askstring('Publish to Band of Misfits','Paste the upload token from the dashboard\n(Dashboard → Wiki → Compendium → Create upload token):',
+                                          parent=self.root,show='•') or '').strip()
+            if not token:return
+            self.settings.update({'bom.token':token,'bom.url':url})
+        def task(ctx):
+            return bom_publish.publish(site,token,url,progress=lambda msg:ctx.progress(None,msg))
+        def done(m):
+            live=url.rstrip('/')+'/'
+            self._notice('Wiki published to Band of Misfits',f"Release {m.get('release','')} is live ({m.get('files',0):,} files).",kind='success',
+                         action=('Open site',lambda:webbrowser.open(live)))
+        self._run_async(task,done,'Publishing to Band of Misfits…')
 
     def _build_wiki_site(self):
         out=home()/'WikiSite'

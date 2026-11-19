@@ -88,3 +88,74 @@ class WikiPages(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class Shipyard(unittest.TestCase):
+    def test_layout_and_art(self):
+        import shipyard
+        self.assertEqual(shipyard.key('12 Apostolov'), '12apostolov'); self.assertEqual(shipyard.key('Horizon'), 'horizont')
+        html = shipyard.render([{'name': 'Bellona', 'rank': 3, 'hp': 3180, 'url': 'ship/bellona.html'},
+                                {'name': 'Mystery Ship', 'rank': 7, 'url': 'ship/mystery.html'}], lambda s: s['url'])
+        self.assertIn('shipyardGame-antilia', html); self.assertIn('ship/bellona.html', html); self.assertIn('OTHER SHIPS', html)
+        self.assertIn('ships/mBellona.png', html)
+        self.assertIn('★', html)   # Bellona carries the gold shipyard star
+
+
+class WorldMapFit(unittest.TestCase):
+    def test_calibration(self):
+        import wiki_site
+        self.assertEqual(wiki_site.SiteBuilder._uv(0, 0), (0.5, 0.495))
+        u, v = wiki_site.SiteBuilder._uv(-9400, 11350)      # north-east corner of the drawn world
+        self.assertAlmostEqual(u, 1.0, places=2); self.assertAlmostEqual(v, 0.995, places=2)
+
+    @unittest.skipUnless(NODE, 'node not installed')
+    def test_map_script_parses(self):
+        r = subprocess.run([NODE, '--check', str(ROOT / 'viewer' / 'world_map.js')], capture_output=True, text=True)
+        self.assertEqual(r.returncode, 0, r.stderr)
+
+
+class BomPublish(unittest.TestCase):
+    def test_parts_and_upload_protocol(self):
+        import hashlib
+        import http.server
+        import io
+        import threading
+        import zipfile
+        import bom_publish
+        with tempfile.TemporaryDirectory() as d:
+            site = Path(d) / 'site'; (site / 'assets').mkdir(parents=True)
+            (site / 'index.html').write_text('<html></html>'); (site / 'site.json').write_text('{"pages": 1}')
+            (site / 'assets' / 'big.png').write_bytes(b'x' * 3000)
+            parts = bom_publish.make_parts(site, limit=2000)
+            self.assertGreaterEqual(len(parts), 2)
+            names = set()
+            for p in parts:
+                names |= set(zipfile.ZipFile(io.BytesIO(p)).namelist())
+            self.assertEqual(names, {'index.html', 'site.json', 'assets/big.png'})
+            got = {'parts': {}}
+
+            class H(http.server.BaseHTTPRequestHandler):
+                def log_message(self, *a): pass
+                def _send(self, code, obj):
+                    b = json.dumps(obj).encode(); self.send_response(code); self.send_header('Content-Type', 'application/json')
+                    self.send_header('Content-Length', str(len(b))); self.end_headers(); self.wfile.write(b)
+                def do_POST(self):
+                    if self.headers.get('Authorization') != 'Bearer tok-123':
+                        return self._send(401, {'message': 'bad token'})
+                    body = json.loads(self.rfile.read(int(self.headers['Content-Length'])))
+                    if body['action'] == 'begin':
+                        got['manifest'] = body['parts']; return self._send(200, {'id': 'u1', 'completed': []})
+                    return self._send(200, {'ok': True, 'release': 'r', 'files': len(got['parts'])})
+                def do_PUT(self):
+                    data = self.rfile.read(int(self.headers['Content-Length']))
+                    i = int(self.path.split('part=')[1])
+                    assert hashlib.sha256(data).hexdigest() == got['manifest'][i]['sha256']
+                    got['parts'][i] = data; self._send(200, {'ok': True})
+            srv = http.server.HTTPServer(('127.0.0.1', 0), H); threading.Thread(target=srv.serve_forever, daemon=True).start()
+            try:
+                r = bom_publish.publish(site, 'tok-123', f'http://127.0.0.1:{srv.server_port}')
+                self.assertTrue(r['ok']); self.assertEqual(len(got['parts']), len(got['manifest']))
+                with self.assertRaisesRegex(RuntimeError, '401'):
+                    bom_publish.publish(site, 'wrong', f'http://127.0.0.1:{srv.server_port}')
+            finally:
+                srv.shutdown()

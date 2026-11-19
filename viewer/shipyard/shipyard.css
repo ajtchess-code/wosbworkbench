@@ -1,0 +1,96 @@
+.shipyardGameTree{width:100%;margin:12px 0 0;color:#eae3cf;font-family:Georgia,'Times New Roman',serif}
+.shipyardGameHeading{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:6px 10px 12px;font-family:Arial,sans-serif;color:#b9c3c8;font-size:.65rem;font-weight:650;letter-spacing:.06em}
+.shipyardGameHeading span:first-child{color:#d8bc81;font-weight:850;letter-spacing:.11em}
+.shipyardGameViewport{width:100%;overflow:visible;min-width:0;outline-offset:3px}
+.shipyardGameSections{display:grid;gap:0;width:100%;min-width:1090px;border-radius:0 0 10px 10px;overflow:visible}
+.shipyardGameFaction{--game-glow:#3b8e99;position:relative;isolation:isolate;display:grid;grid-template-columns:148px minmax(0,1fr);align-items:stretch;min-width:0;background-color:#15212b;color:#e9e5d6;box-shadow:inset 0 1px rgba(255,255,255,.035);border:0!important;border-radius:0!important}
+.shipyardGameFaction:before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse at 82% 42%,rgba(0,0,0,.14),transparent 66%),linear-gradient(90deg,rgba(255,255,255,.035),transparent 22%,rgba(0,0,0,.08) 58%,rgba(0,0,0,.19));opacity:1}
+.shipyardGameFaction:after{content:"";position:absolute;z-index:0;inset:0;pointer-events:none;background:radial-gradient(ellipse at 14% 48%,rgba(0,0,0,.05),transparent 65%),linear-gradient(180deg,rgba(255,255,255,.04),transparent 18%,rgba(4,7,10,.12) 85%,rgba(2,7,9,.24))}
+.shipyardGame-antilia{--game-glow:#3e979f;background:linear-gradient(90deg,#153349,#132b40 33%,#101d29 64%,#0a1219)}
+.shipyardGame-espanol{--game-glow:#368b93;background:linear-gradient(90deg,#4a251f,#3a1e1b 33%,#271713 64%,#120f0d)}
+.shipyardGame-kai{--game-glow:#358c90;background:linear-gradient(90deg,#193833,#162d2a 33%,#101f1e 64%,#0b1111)}
+.shipyardGame-empire{--game-glow:#357b8a;background:linear-gradient(90deg,#11323b,#112a33 33%,#0d1e24 64%,#0a1115)}
+.shipyardGame-premium{--game-glow:#8e8053;background:linear-gradient(90deg,#443626,#382e22 33%,#251f19 64%,#141211)}
+.shipyardGame-other{--game-glow:#477b83;background:linear-gradient(90deg,#1b2329,#172227)}
+.shipyardGame-event{--game-glow:#7d7247;background:linear-gradient(90deg,#38301e,#2b281d 33%,#1d1b18 64%,#101112)!important}
+.shipyardGameFactionLabel{position:relative;z-index:2;display:flex;align-items:center;flex-direction:column;justify-content:flex-start;gap:7px;align-self:start;text-align:center;min-width:0;padding:20px 10px 8px}
+.shipyardGameFactionLabel:before{display:none}
+.shipyardGameFactionLabel>img{display:block;width:88px;height:88px;object-fit:contain;filter:drop-shadow(0 7px 10px rgba(0,0,0,.35))}
+.shipyardGameFactionLabel>strong{font-size:13px;line-height:1.2;letter-spacing:.04em;text-transform:uppercase;color:#eee2c3;text-shadow:0 2px 6px #090806;font-weight:400;max-width:136px}
+.shipyardGameRows{position:relative;z-index:2;display:grid;grid-auto-flow:row;min-width:0;padding-right:4px}
+.shipyardGameRow{position:relative;display:grid;grid-template-columns:50px minmax(0,1fr);align-items:start;min-width:0;height:140px}
+.shipyardGameSail{position:relative;z-index:3;display:grid;place-items:center;width:48px;height:39px;margin-top:59px;filter:drop-shadow(0 3px 2px rgba(0,0,0,.55))}
+.shipyardGameSail svg{display:block;width:36px;height:33px;transform:rotate(3deg)}
+.shipyardGameSail-1 svg{transform:scale(.88) rotate(-4deg)}
+.shipyardGameSail-2 svg{transform:scale(.9) rotate(4deg)}
+.shipyardGameFleet{position:relative;height:100%;min-width:0;padding:0 10px 0 0}
+.shipyardGameWave{position:absolute;z-index:1;top:100px;left:0;right:8px;height:8px;background-image:url('wave.svg');background-repeat:repeat-x;background-position:left center;opacity:.9;filter:drop-shadow(0 0 4px rgba(44,184,184,.2));pointer-events:none;mask-image:linear-gradient(90deg,transparent,#000 3%,#000 93%,transparent)}
+.shipyardGameFleetGrid{position:relative;z-index:2;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));height:100%;gap:0;align-items:start;min-width:0}
+.shipyardGameFleetSlot{position:relative;z-index:2;min-width:0;height:100%}
+.shipyardGameFleetSlot:hover,.shipyardGameFleetSlot:focus-within{z-index:20}
+.shipyardGameShip{position:relative;display:grid;grid-template-rows:106px minmax(18px,auto) 14px;align-content:start;justify-items:center;gap:0;width:100%;height:100%;padding:0 1px;border:1px solid transparent!important;border-radius:2px!important;background:transparent!important;color:#eee3c8!important;box-shadow:none!important;cursor:pointer;text-align:center;font-weight:400;transition:filter .15s ease,transform .15s ease}
+.shipyardGameShip:hover,.shipyardGameShip:focus-visible,.shipyardGameShip.isSelected{background:radial-gradient(ellipse at 50% 56%,rgba(229,197,113,.1),transparent 62%)!important;border-color:transparent!important;outline:0;transform:translateY(-3px);filter:brightness(1.12)}
+.shipyardGameShip:focus-visible{outline:2px solid #e5be5d;outline-offset:-2px}
+.shipyardGameShipArt{display:grid;place-items:end center;width:100%;height:106px;min-width:0;overflow:visible;pointer-events:none}
+.shipyardGameShipArt img,.shipyardGameShipImg{display:block;width:100%;max-width:174px;height:106px;object-fit:contain;object-position:center bottom;filter:drop-shadow(0 4px 3px rgba(0,0,0,.48));transition:transform .17s ease;transform:translateY(1px)}
+.shipyardGameShipImg-shen{max-width:152px;object-position:center 86%;transform:translateY(3px) scale(.98)}
+.shipyardGameShipImg-sanjuannepomuceno{max-width:160px;object-position:center 86%;transform:translateY(2px) scale(.98)}
+.shipyardGameShip:hover .shipyardGameShipArt img{transform:translateY(-2px) scale(1.075)}
+.shipyardGameShipName{display:flex;align-items:baseline;justify-content:center;gap:2px;max-width:100%;width:100%;min-height:18px;margin-top:0;white-space:normal;overflow-wrap:normal;font-size:12px;line-height:1.05;text-align:center;color:#e8ddc0;text-shadow:0 2px 4px #000,0 0 7px #000}
+.shipyardGamePremiumIcon{display:inline-grid;place-items:center;width:13px;height:13px;min-width:13px;border:1px solid rgba(229,219,185,.9);border-radius:50%;background:rgba(8,12,11,.65);font-family:Arial,sans-serif;font-size:9px;line-height:10px;color:#efdfb4}
+.shipyardGameShipStar{display:block;height:13px;line-height:13px;font-family:Georgia,'Times New Roman',serif;font-size:15px;color:#f6d580;text-shadow:0 2px 4px #040404}
+.shipyardGameShipStar.silver{color:#969a9e}
+.shipyardGameShipStar.none{visibility:hidden}
+.shipyardGameHover{position:absolute;left:50%;bottom:calc(100% + 6px);z-index:100;display:grid;grid-template-columns:repeat(2,minmax(75px,1fr));gap:6px;width:236px;padding:12px;border:1px solid rgba(218,181,87,.45);border-radius:10px;background:linear-gradient(160deg,#232329,#111719);color:#e9eced;box-shadow:0 16px 36px rgba(0,0,0,.63);text-align:left;opacity:0;visibility:hidden;pointer-events:none;transform:translate(-50%,8px);transition:opacity .15s ease,transform .15s ease,visibility .15s ease;font-family:Arial,sans-serif}
+.shipyardGameShip:hover .shipyardGameHover,.shipyardGameShip:focus-visible .shipyardGameHover{visibility:visible;opacity:1;transform:translate(-50%,0)}
+.shipyardGameHover>strong,.shipyardGameHover>em,.shipyardGameHover>i{grid-column:1/-1}
+.shipyardGameHover>strong{color:#f2d181;font-size:14px}
+.shipyardGameHover>em{font-size:11px;font-style:normal;color:#b8c1c8}
+.shipyardGameHover>span{display:grid;padding:6px;border:1px solid #363e41;border-radius:5px;background:#20272b}
+.shipyardGameHover small{font-size:10px;color:#a5b0b5}
+.shipyardGameHover b{font-size:12px}
+.shipyardGameHover>i{font-size:10px;text-align:center;font-style:normal;color:#c5ac70}
+.shipyardGameMobileHint{display:none;padding:8px 10px 0;font-family:Arial,sans-serif;color:#b9c3c8;font-size:.72rem}
+/* A continuous flat reference chart is deliberate: the game's shipyard does
+   not wrap ships into cards or group every hull into a new row. */
+.shipsBrowser:has(.shipyardGameTree){padding:17px 0 0!important}
+.shipsBrowser:has(.shipyardGameTree)>.shipsFilters,.shipsBrowser:has(.shipyardGameTree)>.fleetResultsHead{margin-left:17px!important;margin-right:17px!important}
+.shipsBrowser:has(.shipyardGameTree) .shipyardGameTree{margin-top:12px}
+.shipyardGameTree.compact{margin-top:0}
+.shipyardGameTree.compact .shipyardGameSections{min-width:850px}
+.shipyardGameTree.compact .shipyardGameFaction{grid-template-columns:115px minmax(0,1fr)}
+.shipyardGameTree.compact .shipyardGameFactionLabel{padding-top:15px}
+.shipyardGameTree.compact .shipyardGameFactionLabel>img{width:72px;height:72px}
+.shipyardGameTree.compact .shipyardGameFactionLabel>strong{font-size:10px}
+.shipyardGameTree.compact .shipyardGameRow{grid-template-columns:38px minmax(0,1fr);height:119px}
+.shipyardGameTree.compact .shipyardGameSail{width:36px;margin-top:49px}
+.shipyardGameTree.compact .shipyardGameSail svg{width:29px;height:27px}
+.shipyardGameTree.compact .shipyardGameShip{grid-template-rows:86px minmax(16px,auto) 12px}
+.shipyardGameTree.compact .shipyardGameShipArt,.shipyardGameTree.compact .shipyardGameShipArt img{height:86px}
+.shipyardGameTree.compact .shipyardGameShipName{font-size:10px}
+.shipyardGameTree.compact .shipyardGameShipStar{font-size:12px}
+.shipyardGameTree.compact .shipyardGameWave{top:82px}
+@media(max-width:1250px){
+  .shipyardGameViewport{overflow-x:auto;overflow-y:clip;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+  .shipyardGameSections{min-width:1090px}
+  .shipyardGameMobileHint{display:block}
+}
+@media(max-width:850px){
+  .shipyardGameHeading{display:grid;gap:4px;padding-inline:14px}
+  .shipyardGameSections{min-width:990px}
+  .shipyardGameFaction{grid-template-columns:128px minmax(0,1fr)}
+  .shipyardGameRow{grid-template-columns:44px minmax(0,1fr);height:130px}
+  .shipyardGameShip{grid-template-rows:96px minmax(16px,auto) 13px}
+  .shipyardGameShipArt,.shipyardGameShipArt img{height:96px}
+  .shipyardGameWave{top:94px}
+  .shipyardGameSail{margin-top:52px}
+  .shipyardGameShip:hover .shipyardGameHover{display:none}
+}
+@media(prefers-reduced-motion:reduce){.shipyardGameShip,.shipyardGameShipArt img,.shipyardGameHover{transition:none!important}}
+
+.shipyardGameOtherGlyph{font-size:3.2rem;color:#cbb882;text-shadow:0 2px 8px #080808}
+
+.shipyardGameShip{text-decoration:none}
+.shipyardGameTree a{color:inherit}
+.shipyardGameViewport{overflow-x:auto}.shipyardGameShipImg{max-height:120px;object-fit:contain}
+.shipyardWrap{background:#0d1820;padding:14px;border-radius:10px;margin:10px 0}

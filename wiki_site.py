@@ -212,6 +212,18 @@ GAMEPEDIA_SEE_ALSO = {
 }
 
 CSS = r'''
+.wm-bar{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;margin:6px 0;font-size:13px}.wm-bar input[type=search]{padding:4px 8px;min-width:200px}
+.wm-view{position:relative;overflow:hidden;background:#6f6a5b;border-radius:8px;touch-action:none;cursor:grab;user-select:none}.wm-view:active{cursor:grabbing}
+.wm-world{position:absolute;left:0;top:0;transform-origin:0 0}.wm-img{width:100%;height:100%;display:block}
+.wm-routes{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}.wm-routes polyline{fill:none;stroke:#1f5fbf;stroke-width:1.6;stroke-opacity:.75;vector-effect:non-scaling-stroke;stroke-dasharray:5 4}
+.wm-pins{position:absolute;inset:0;pointer-events:none}.wm-pin{position:absolute;transform:translate(-50%,-50%);pointer-events:auto;border:1.5px solid #fff;border-radius:50%;width:11px;height:11px;padding:0;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.5)}
+.wm-pin span{display:none;position:absolute;left:12px;top:-4px;white-space:nowrap;font:600 11px system-ui;color:#fff;text-shadow:0 1px 2px #000,0 0 3px #000}
+.wm-labels .wm-pin span{display:block}.wm-port{width:13px;height:13px}.wm-pb{background:#e0552b;width:16px;height:16px;border-color:#ffe2a8}
+.wm-tower{background:#c0392b;width:7px;height:7px;border-width:1px}.wm-fort{background:#7d3c98;width:14px;height:14px}.wm-village{background:#9b7b4b;width:7px;height:7px;border-width:1px}
+.wm-mine{background:#5f6a6a;width:8px;height:8px;border-radius:2px;border-width:1px}.wm-altar{background:#1abc9c;width:9px;height:9px}
+.wm-pop{position:absolute;transform:translate(-50%,calc(-100% - 14px));background:#fff;color:#223;border-radius:8px;padding:8px 26px 8px 10px;box-shadow:0 6px 18px rgba(0,0,0,.35);font-size:13px;display:grid;gap:3px;min-width:180px;z-index:3}
+.wm-pop span{color:#556}.wm-close{position:absolute;right:4px;top:2px;border:0;background:none;font-size:17px;cursor:pointer}
+
 .ha-controls{display:flex;flex-wrap:wrap;gap:12px 18px;margin:8px 0;align-items:center}.ha-controls select,.ha-controls input{font:inherit;padding:3px 5px}
 .ha-grid{display:flex;flex-wrap:wrap;gap:20px;align-items:flex-start}.ha-legend{font-size:12px;color:#555;max-width:600px}.ha-legend i{display:inline-block;width:160px;height:10px;margin:0 6px;vertical-align:middle;background:linear-gradient(90deg,#28325a,#3c6ebe,#5abe78,#f0c83c,#dc3228)}
 .ha-side-col{flex:1;min-width:320px}.ha-note{font-size:12px;color:#555}.ha canvas{max-width:100%;height:auto;border:1px solid #e3e6ea;border-radius:4px;background:#fff}
@@ -556,8 +568,17 @@ class SiteBuilder:
         self._write('category/missions.html', _page('Missions & NPCs', ''.join(body), depth=1))
         self.search.append({'t': 'Missions & NPCs', 'u': 'category/missions.html', 'c': 'Category', 'k': 'npc missions pve pirates boss'})
 
+    # The game's map texture (Data/Textures/map.png) against world coordinates, fitted to the island
+    # placements: u = Position1 / 22700 + 0.5, v = 0.495 - Position0 / 18800 (uniform scale, 0.225 px per unit).
+    MAP_FIT = (22700.0, 0.5, 18800.0, 0.495)
+
+    @classmethod
+    def _uv(cls, x, z):
+        su, ou, sv, ov = cls.MAP_FIT
+        return round(z / su + ou, 5), round(ov - x / sv, 5)
+
     def _world_map(self):
-        """World map: ports, guild forts (port battles), towers and imperial forts from the map data."""
+        """Interactive world map: the game's map texture with ports, port-battle sites, forts, villages, mines and trade routes."""
         import battle_sim
         try:
             rows = [r for r in battle_sim._records(self.db, 'Map_Objects', self.build) if r.get('SceneName') == 'World']
@@ -566,37 +587,83 @@ class SiteBuilder:
             rows, sites = [], []
         if not rows:
             self._write('map.html', _page('World map', '<p class="note">No map data in this build.</p>')); return
-        pts = []
+        wports = {}
+        for raw, in self.db.conn.execute("SELECT raw_json FROM records WHERE dataset='WorldPorts' ORDER BY CASE source_root WHEN ? THEN 0 ELSE 1 END", (self.build,)):
+            d = json.loads(raw); wports.setdefault(d.get('PortName'), d)
+        uv = self._uv
+        def pt(r, **kw):
+            u, v = uv(r['Position0'], r['Position1'])
+            return dict(u=u, v=v, **kw)
+        ports, villages, mines, altars, forts, towers = [], [], [], [], [], []
         for r in rows:
-            p = r.get('Path', '')
-            k = 'guild' if 'guildfort' in p else 'imperial' if 'worldfort' in p else 'tower' if 'special\\towers\\t_' in p else 'port' if p.startswith('ports\\') else None
-            if k:
-                pts.append((k, r['Position0'], r['Position1'], p.split('\\')[-1]))
-        xs = [p[1] for p in pts]; zs = [p[2] for p in pts]
-        x0, x1, z0, z1 = min(xs) - 300, max(xs) + 300, min(zs) - 300, max(zs) + 300
-        W = 1000; H = int(W * (z1 - z0) / (x1 - x0))
-        sx = lambda x: (x - x0) / (x1 - x0) * W; sz = lambda z: (z - z0) / (z1 - z0) * H
-        style = {'port': ('#8a6d3b', 4), 'tower': ('#c0392b', 1.6), 'guild': ('#d35400', 7), 'imperial': ('#6c3483', 8)}
-        svg = [f'<svg viewBox="0 0 {W} {H}" style="width:100%;max-width:1000px;background:#cfe3ee;border:1px solid #aac">']
-        for k in ('tower', 'port', 'imperial'):
-            col, r = style[k]
-            svg += [f'<circle cx="{sx(x):.1f}" cy="{sz(z):.1f}" r="{r}" fill="{col}"><title>{_e(n)}</title></circle>' for kk, x, z, n in pts if kk == k]
+            path = r.get('Path', ''); model = path.split('\\')[-1]; params = str(r.get('Parameters') or '').replace(',', ' ').split()
+            name = next((t for t in params if t in wports), None)
+            if path.startswith('ports\\') and name:
+                d = wports[name]; n = d.get('EnglishName') or d.get('PortNameEnglish') or name
+                ports.append(pt(r, n=n, type=d.get('Type') or '', ranks=d.get('BuildShipRangs'), flags=_camel(d.get('Flags') or '').replace(',', ' ·'),
+                                url=self.urls.get(('port', n.casefold()))))
+            elif path.startswith('ports\\'):
+                kind = 'Lighthouse' if 'pharos' in model else 'Fishing village' if 'fishing' in model else 'Trading village' if 'village' in model else _camel(model)
+                villages.append(pt(r, n=kind))
+            elif 'worldfort' in path:
+                forts.append(pt(r, n=model))
+            elif 'special\\towers\\t_' in path:
+                towers.append(pt(r, n={'t_mortar': 'Mortar tower', 't_fire': 'Prometheus tower'}.get(re.sub(r'\d+$', '', model), 'Cannon tower')))
+            elif path.startswith('buildings\\factory'):
+                mines.append(pt(r, n=_camel(model.replace('factory_', '')).title() + ' node'))
+            elif path.startswith('buildings\\altar'):
+                altars.append(pt(r, n='Altar'))
+        def nearest(x, z):
+            best = min(ports, key=lambda p: (p['u'] - x) ** 2 + (p['v'] - z) ** 2, default=None)
+            return best['n'] if best else ''
+        pb = []
         for s_ in sites:
-            col, r = style['guild']
-            svg.append(f'<a href="tools/battle-simulator.html?preset=pbfleet&amp;site={s_["id"]}"><circle cx="{sx(s_["x"]):.1f}" cy="{sz(s_["z"]):.1f}" r="{r}" fill="{col}" stroke="#fff" stroke-width="1.5">'
-                       f'<title>Guild fort · {s_["towers"]} towers · {_e(s_["port_model"] or "")} — open in the battle simulator</title></circle></a>')
-        svg.append('</svg>')
-        legend = ('<p><span style="color:#d35400">●</span> guild fort (port battle; click to simulate) · <span style="color:#c0392b">●</span> tower · '
-                  '<span style="color:#8a6d3b">●</span> port · <span style="color:#6c3483">●</span> imperial fort</p>')
-        table = _table(['Site', 'Towers', 'Nearest port', 'Position', 'Simulate'],
-                       [[str(s_['id'] + 1), str(s_['towers']), _e(s_['port_model'] or ''), f'{s_["x"]}, {s_["z"]}',
+            u, v = uv(s_['x'], s_['z'])
+            pb.append({'id': s_['id'], 'u': u, 'v': v, 'towers': s_['towers'], 'n': nearest(u, v)})
+        routes = []
+        for raw, in self.db.conn.execute("SELECT raw_json FROM records WHERE dataset='TradingRoutesInfo' AND source_root=?", (self.build,)):
+            try:
+                routes.append([list(uv(*map(float, p.split()))) for p in json.loads(raw).get('Value') or []])
+            except (ValueError, TypeError):
+                continue
+        image, aspect = self._map_image()
+        data = {'image': image, 'aspect': aspect, 'ports': ports, 'pb': pb, 'towers': towers, 'forts': forts, 'villages': villages,
+                'mines': mines, 'altars': altars, 'routes': [r for r in routes if len(r) > 1],
+                'note': (f'{len(ports)} named ports, {len(pb)} port-battle sites with {len(towers)} towers, {len(forts)} imperial forts, {len(villages)} villages and lighthouses, '
+                         f'{len(mines)} resource nodes and {len(routes)} trade routes, placed from the game client\'s world data on the game\'s own map.')}
+        self._write('assets/world-map.js', 'window.WORLD_MAP=' + json.dumps(data, separators=(',', ':')) + ';\n' +
+                    (Path(__file__).resolve().parent / 'viewer' / 'world_map.js').read_text(encoding='utf-8'))
+        table = _table(['Port battle', 'Towers', 'Simulate'],
+                       [[_e(s_['n'] or f'Site {s_["id"] + 1}'), str(s_['towers']),
                          f'<a href="tools/battle-simulator.html?preset=pbfleet&amp;site={s_["id"]}">port battle</a> · '
-                         f'<a href="tools/battle-simulator.html?preset=port&amp;site={s_["id"]}">towers only</a>'] for s_ in sites])
-        body = (f'<p>{len([p for p in pts if p[0]=="port"])} ports, {len(sites)} guild forts with {sum(s_["towers"] for s_ in sites)} towers, '
-                f'and {len([p for p in pts if p[0]=="imperial"])} imperial forts, placed from the game\'s world map data.</p>'
-                + legend + ''.join(svg) + '<h2>Port-battle sites</h2>' + table)
+                         f'<a href="tools/battle-simulator.html?preset=port&amp;site={s_["id"]}">towers only</a> · '
+                         f'<a href="map.html?port={_e(s_["n"])}">on the map</a>'] for s_ in sorted(pb, key=lambda x: x['n'])])
+        body = ('<p>Drag to move, scroll or pinch to zoom, double-click to zoom in. Click a marker for details. Port names appear as you zoom in.</p>'
+                '<div id="wmap"></div><script src="assets/world-map.js"></script><script>WorldMap.mount(document.getElementById("wmap"),window.WORLD_MAP)</script>'
+                '<h2>Port-battle sites</h2>' + table)
         self._write('map.html', _page('World map', body))
-        self.search.append({'t': 'World map', 'u': 'map.html', 'c': 'Map', 'k': 'map ports forts towers port battle'})
+        self.search.append({'t': 'World map', 'u': 'map.html', 'c': 'Map', 'k': 'map ports forts towers port battle trade routes'})
+        for p_ in ports:
+            self.search.append({'t': p_['n'], 'u': 'map.html?port=' + p_['n'], 'c': 'Map', 'k': 'port map ' + p_['type']})
+
+    def _map_image(self):
+        """assets/map/world.webp from the game's map texture; a plain sea when the texture wasn't recovered."""
+        import battle_sim
+        src = None
+        for root in battle_sim.texture_roots(self.recovery_dir, self.game_roots):
+            if (root / 'map.png').is_file():
+                src = root / 'map.png'; break
+        if not src:
+            self._write('assets/map/world.svg', '<svg xmlns="http://www.w3.org/2000/svg" width="1206" height="1000"><rect width="100%" height="100%" fill="#9fb7c1"/></svg>')
+            return 'assets/map/world.svg', 1.206
+        from PIL import Image
+        Image.MAX_IMAGE_PIXELS = None
+        dst = self.out / 'assets' / 'map' / 'world.webp'; dst.parent.mkdir(parents=True, exist_ok=True)
+        with Image.open(src) as im:
+            aspect = im.width / im.height
+            im = im.convert('RGBA'); im.thumbnail((4096, 4096))
+            im.save(dst, 'WEBP', quality=80, method=4)
+        return 'assets/map/world.webp', round(aspect, 5)
 
     def _sim_ships(self):
         if not hasattr(self, '_simships'):
@@ -687,12 +754,25 @@ class SiteBuilder:
             for r, cells in zip(recs, rows):
                 groups[_fmt(r.get('Type'), 'camel') or 'Other'].append(cells)
             body = intro + ''.join(f'<h2>{_e(g)}</h2>' + _table(['Ship'] + cols, groups[g]) for g in sorted(groups))
+            body = '<h2>Shipyard</h2>' + self._shipyard(recs) + '<h2>All ships by class</h2>' + body
         else:
             body = intro + _table([plural[:-1] if plural.endswith('s') else plural] + cols, rows)
         cat = CATEGORY_FILE[kind]
         self._write(f'category/{cat}.html', _page(f'Category: {plural}', body, depth=1,
                     crumbs=[('Main page', 'index.html'), (plural, None)]))
         self.search.append({'t': plural, 'u': f'category/{cat}.html', 'c': 'Category', 'k': plural})
+
+    def _shipyard(self, recs):
+        import shipyard
+        bg = None
+        for root in __import__('battle_sim').texture_roots(self.recovery_dir, self.game_roots):
+            if (root / 'shipyard_background.png').is_file():
+                bg = root / 'shipyard_background.png'; break
+        shipyard.copy_assets(self.out / 'assets', bg)
+        ships = [{'name': r['_title'], 'rank': r.get('ShipRank'), 'cls': r.get('SubtypeEnglish') or r.get('TypeEnglish') or r.get('Type'),
+                  'hp': r.get('Health'), 'speed': r.get('BasicSpeed'), 'mob': r.get('BasicMobility'), 'armor': r.get('Armor'),
+                  'crew': r.get('BaseCrewPlaces'), 'hold': r.get('CapacityCg'), 'url': self.urls[('ship', r['_title'].casefold())]} for r in recs]
+        return shipyard.render(ships, lambda s: s['url'], depth=1)
 
     def _article_page(self, a):
         import wiki_engine
@@ -843,7 +923,7 @@ class SiteBuilder:
                     'calib': {'calibrated': bool(cal.get('calibrated')), 'armor_weight': cal.get('armor_weight', 1), 'scale': cal.get('scale', 1), 'samples': cal.get('samples', 0)},
                     'towers': towers,
                     'pb': {'base': {1: [12100, 26400], 2: [10000, 21700], 3: [9100, 20000], 4: [7700, 16700], 5: [6600, 14500]}, 'base_low': [4500, 10000],
-                           'team': {5: 0.5, 7: 0.6, 10: 0.7, 15: 0.85, 20: 1, 40: 1.15}, 'level': [1, 1, 1, 1.04, 1.08, 1.12, 1.16, 1.2, 1.24],
+                           'team': {5: 0.5, 7: 0.6, 10: 0.7, 15: 0.85, 20: 1, 40: 1.15}, 'level': [1, 1, 1.04, 1.08, 1.12, 1.16, 1.2, 1.24],
                            'capture_r': 30, 'capture_s': 30, 'fort_board_s': 25, 'tower_armor': 3}}
         return self._hd
 

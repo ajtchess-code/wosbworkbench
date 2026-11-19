@@ -17,12 +17,12 @@ SELF_TEST_MODULES = [
     'network_lab', 'protocol_lab', 'protocol_schema', 'game_watcher', 'gameplay_capture', 'datamine',
     'ship_viewer', 'model_lab', 'appearance_lab', 'gltf_export', 'discovery_center', 'research_suite',
     'advanced_network', 'advanced_assets', 'advanced_catalog', 'advanced_release', 'workbench_ui', 'ui_extras',
-    'battle_sim', 'model_pack', 'combat_sim', 'ball_damage', 'damage_fit', 'wiki_site', 'wiki_publish', 'mechanics_pages',
+    'battle_sim', 'model_pack', 'combat_sim', 'ball_damage', 'damage_fit', 'wiki_site', 'wiki_publish', 'bom_publish', 'shipyard', 'mechanics_pages',
     'mechanics_reference', 'hitbox_recovery', 'damage_model',
 ]
 ENGINE_MODULES = ['full_recovery', 'extract_wosb', 'analyze_one', 'protocol_extract', 'xnb_geometry', 'client_metadata']
 BUNDLED = ['Starter-Catalog.sqlite3', 'Research-Ballistics-Catalog.json', 'Research-Ship-Designs.json',
-           'viewer/ship_viewer.html', 'viewer/battle_sim.html', 'viewer/boarding_sim.html', 'viewer/wosb_sim.js', 'viewer/hit_analysis.js', 'viewer/defenses.js', 'viewer/fire_tool.js', 'viewer/fire_infographic.png', 'wiki_site/app.js', 'wiki_site/style.css', 'assets/wosb-workbench.png', 'engine']
+           'viewer/ship_viewer.html', 'viewer/battle_sim.html', 'viewer/boarding_sim.html', 'viewer/wosb_sim.js', 'viewer/hit_analysis.js', 'viewer/defenses.js', 'viewer/fire_tool.js', 'viewer/fire_infographic.png', 'viewer/world_map.js', 'viewer/shipyard', 'wiki_site/app.js', 'wiki_site/style.css', 'assets/wosb-workbench.png', 'engine']
 
 
 def self_test(dest=None):
