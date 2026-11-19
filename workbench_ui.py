@@ -677,7 +677,73 @@ class App:
         ttk.Button(bar,text='Build wiki website',style='Accent.TButton',command=self._build_wiki_site).pack(side='left')
         ttk.Button(bar,text='Publish to wosbwiki.org',command=self._publish_cloudflare).pack(side='left',padx=7)
         ttk.Button(bar,text='Open built site',command=self._open_built_wiki).pack(side='left')
+        ttk.Button(bar,text='Hosting & login settings…',command=self._wiki_hosting_dialog).pack(side='left',padx=7)
         return bar
+
+    WIKI_HOSTING_FIELDS=[
+        ('site_url','Site address','https://wosbwiki.org/','The public address of the wiki.'),
+        ('worker_name','Cloudflare Worker name','wosbwiki','Workers & Pages → the name of the project. Must match exactly.'),
+        ('kv_id','KV namespace ID (translations)','','Storage & Databases → KV → your namespace → ID. Remembers translations.'),
+        ('d1_id','D1 database ID (login & reports)','','Storage & Databases → D1 → your database → Database ID.'),
+        ('gtm_id','Google Tag Manager ID','GTM-TMZFVXTL',''),
+        ('ad_client','AdSense publisher ID','ca-pub-6442579332215350',''),
+        ('discord_url','Discord invite link','','Shown as “Join our Discord”.'),
+        ('contact_email','Contact email','contact@wosbwiki.org',''),
+        ('donate_url','Donate link','https://paypal.me/litefootz','')]
+
+    def _wiki_hosting_dialog(self):
+        """Everything wosbwiki.org needs from the Workbench, in one window: IDs, links, and helpers for the Cloudflare / Discord steps."""
+        import secrets
+        win=tk.Toplevel(self.root);win.title('Wiki hosting & login settings');win.geometry('820x720');win.configure(bg=COLORS['NAVY'])
+        outer=self._scroll_area(win) if hasattr(self,'_scroll_area') else win
+        ttk.Label(outer,text='Wiki hosting & login settings',style='Section.TLabel').pack(anchor='w',padx=16,pady=(14,2))
+        ttk.Label(outer,text='Saved here, used every time you build the wiki. After changing an ID, rebuild and publish.',
+                  style='Muted.TLabel',wraplength=760).pack(anchor='w',padx=16)
+        form=ttk.Frame(outer);form.pack(fill='x',padx=16,pady=10);form.columnconfigure(1,weight=1)
+        vars_={}
+        for r,(key,label,default,hint) in enumerate(self.WIKI_HOSTING_FIELDS):
+            v=tk.StringVar(value=str(self.settings.get('wiki.'+key) or default));vars_[key]=v
+            ttk.Label(form,text=label).grid(row=2*r,column=0,sticky='w',pady=(6,0),padx=(0,10))
+            ttk.Entry(form,textvariable=v,width=58).grid(row=2*r,column=1,sticky='ew',pady=(6,0))
+            if hint:ttk.Label(form,text=hint,style='Muted.TLabel').grid(row=2*r+1,column=1,sticky='w')
+        def save():
+            for key,_l,default,_h in self.WIKI_HOSTING_FIELDS:
+                val=vars_[key].get().strip()
+                self.settings.set('wiki.'+key,val or (default if key in ('site_url','worker_name') else ''))
+            self._notice('Wiki settings saved','Rebuild and publish the wiki to put them live.')
+        row=ttk.Frame(outer);row.pack(fill='x',padx=16,pady=(4,12))
+        ttk.Button(row,text='Save',style='Accent.TButton',command=save).pack(side='left')
+        ttk.Button(row,text='Save, build and publish',command=lambda:(save(),win.destroy(),self._build_wiki_site())).pack(side='left',padx=7)
+        def open_json():
+            save()      # so the file shows what is on screen, and an edit there is not overwritten by stale values
+            f=Path(self.settings.path)
+            if os.name=='nt':subprocess.Popen(['notepad.exe',str(f)])
+            else:self._notice('settings.json',str(f))
+        ttk.Button(row,text='Open settings.json',command=open_json).pack(side='left')
+        # ---- helpers for the steps done on the Cloudflare and Discord websites
+        site=(vars_['site_url'].get().strip() or 'https://wosbwiki.org/').rstrip('/')
+        def copy(text,what):
+            self.root.clipboard_clear();self.root.clipboard_append(text);self._notice('Copied',what+' is on the clipboard.')
+        help_=ttk.Frame(outer,style='Card.TFrame',padding=12);help_.pack(fill='x',padx=16,pady=(0,10))
+        ttk.Label(help_,text='Discord login',style='CardTitle.TLabel').pack(anchor='w')
+        steps=('1. Discord Developer Portal → New Application → OAuth2: copy the Client ID, Reset Secret and copy the Client Secret, '
+               'and add the redirect below.\n2. Cloudflare → the Worker → Settings → Variables and Secrets: add DISCORD_CLIENT_ID (text), '
+               'DISCORD_CLIENT_SECRET (secret), SESSION_SECRET (secret, use the button) and ADMIN_DISCORD_IDS (your Discord user IDs, comma-separated).')
+        ttk.Label(help_,text=steps,style='Muted.TLabel',wraplength=740,justify='left').pack(anchor='w',pady=(4,8))
+        b1=ttk.Frame(help_);b1.pack(fill='x')
+        ttk.Button(b1,text='Open Discord Developer Portal',command=lambda:webbrowser.open('https://discord.com/developers/applications')).pack(side='left')
+        ttk.Button(b1,text='Copy redirect URL',command=lambda:copy(site+'/api/auth/callback','The Discord redirect URL')).pack(side='left',padx=7)
+        ttk.Button(b1,text='Copy a new SESSION_SECRET',command=lambda:copy(secrets.token_urlsafe(48),'A new random SESSION_SECRET')).pack(side='left')
+        cf=ttk.Frame(outer,style='Card.TFrame',padding=12);cf.pack(fill='x',padx=16,pady=(0,10))
+        ttk.Label(cf,text='Cloudflare',style='CardTitle.TLabel').pack(anchor='w')
+        ttk.Label(cf,text='Create the KV namespace and D1 database under Storage & Databases, paste their IDs above, save, then build and publish. '
+                  'Check the result with “Test the live site”: it should show "login":true and "reports":true once everything is in.',
+                  style='Muted.TLabel',wraplength=740,justify='left').pack(anchor='w',pady=(4,8))
+        b2=ttk.Frame(cf);b2.pack(fill='x')
+        ttk.Button(b2,text='Open Cloudflare dashboard',command=lambda:webbrowser.open('https://dash.cloudflare.com/?to=/:account/workers-and-pages')).pack(side='left')
+        ttk.Button(b2,text='Open KV',command=lambda:webbrowser.open('https://dash.cloudflare.com/?to=/:account/workers/kv/namespaces')).pack(side='left',padx=7)
+        ttk.Button(b2,text='Open D1',command=lambda:webbrowser.open('https://dash.cloudflare.com/?to=/:account/workers/d1')).pack(side='left')
+        ttk.Button(b2,text='Test the live site',command=lambda:webbrowser.open(site+'/api/me')).pack(side='left',padx=7)
 
     def _open_built_wiki(self):
         index=home()/'WikiSite'/'index.html'

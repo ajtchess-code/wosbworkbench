@@ -85,3 +85,14 @@ def test_wrangler_config_for_worker_deploys(tmp_path):
     assert '/es/*' in cfg['assets']['run_worker_first'] and '/api/*' in cfg['assets']['run_worker_first']
     assert cfg['kv_namespaces'][0]['id'] == 'abc' and 'd1_databases' not in cfg
     assert '_worker.js' in (tmp_path / '.assetsignore').read_text()      # the worker source is never served as a file
+
+
+def test_hosting_dialog_covers_every_build_setting():
+    import re
+    from pathlib import Path
+    src = (Path(__file__).resolve().parents[1] / 'workbench_ui.py').read_text(encoding='utf-8')
+    fields = set(re.findall(r"\('(\w+)','[^']+','[^']*','[^']*'\)", src.split('WIKI_HOSTING_FIELDS=[', 1)[1].split(']', 1)[0]))
+    for key in ('site_url', 'worker_name', 'kv_id', 'd1_id', 'gtm_id', 'ad_client', 'discord_url', 'contact_email', 'donate_url'):
+        assert key in fields
+        assert f"self.settings.get('wiki.{key}')" in src or key == 'site_url'      # the build reads what the dialog saves
+    assert "_wiki_hosting_dialog" in src.split('def _wiki_site_bar', 1)[1].split('def ', 1)[0]
