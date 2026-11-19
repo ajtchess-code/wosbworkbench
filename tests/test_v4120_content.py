@@ -131,3 +131,24 @@ def test_upgrade_recipe_formula_matches_game():
     assert r[1] == ({'16': 14, '2': 585}, 3000)
     sails = site_tools.upgrade_recipes({'Category': 'Sailes', 'LowCost': False, 'MainCraftResource': 'CSailcloth'}, {})
     assert sails[1][0] == {'17': 83} and sails[7][0] == {'3': 50}       # sailcloth below rank 6, fabric from rank 6
+
+
+def test_island_building_prices_and_chest_tables(tmp_path):
+    import shutil, subprocess, json as _j
+    from pathlib import Path
+    root = Path(__file__).resolve().parents[1]
+    chests = _j.loads((root / 'data' / 'chests.json').read_text())
+    for key in ('elite', 'incas', 'newyear'):
+        assert abs(sum(r['w'] for r in chests['chests'][key]['rewards']) - 100) < 1e-6     # these tables are given in percent
+    assert len(chests['chests']['big']['rewards']) == 41 and len(chests['chests']['altar']['rewards']) == 15
+    if not shutil.which('node'):
+        return
+    test = tmp_path / 't.mjs'
+    test.write_text("""import assert from 'node:assert/strict';
+globalThis.window = {}; await import(process.argv[2]); const { buildingPrice } = window.Planners._test;
+assert.deepEqual(buildingPrice(5, 0), { gold: 200, res: {} });                       // first building: gold only, 20 x 10 below rank 10
+assert.deepEqual(buildingPrice(25, 4), { gold: Math.floor(400 / 2) * 6 + Math.floor(200 / 3) * 100, res: { Plate: 100, Wreckage: 200, Wood: 400 } });
+console.log('ok');""")
+    shutil.copy(root / 'viewer' / 'planners.js', tmp_path / 'p.js')
+    r = subprocess.run(['node', str(test), (tmp_path / 'p.js').as_uri()], capture_output=True, text=True, timeout=60)
+    assert r.returncode == 0, r.stderr[-1500:]

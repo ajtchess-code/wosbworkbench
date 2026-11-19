@@ -1,0 +1,1028 @@
+{
+ "source": "Common.dll: ShopChestApplyHelper (BigChest, EliteChest, IncasTreasureChest, NewYearChest, Atlar), EliteChestRewards, ChestPrices",
+ "prices": {
+  "single": 88,
+  "triple": 247,
+  "elite": 99,
+  "incas": 135,
+  "newyear": 197,
+  "crew": 345
+ },
+ "open10_discount": 0.95,
+ "keys_per_chest": 10,
+ "newyear_price_multiplier": 0.82,
+ "chests": {
+  "big": {
+   "name": "Treasure Chest",
+   "rewards": [
+    {
+     "t": "multi",
+     "tier": 1,
+     "parts": [
+      {
+       "t": "res",
+       "id": 14,
+       "q": 5,
+       "tier": 1
+      },
+      {
+       "t": "res",
+       "id": 27,
+       "q": 5,
+       "tier": 1
+      },
+      {
+       "t": "res",
+       "id": 29,
+       "q": 5,
+       "tier": 1
+      },
+      {
+       "t": "res",
+       "id": 17,
+       "q": 5,
+       "tier": 1
+      }
+     ],
+     "w": 71
+    },
+    {
+     "t": "res",
+     "id": 4,
+     "q": 3000,
+     "tier": 1,
+     "w": 65
+    },
+    {
+     "t": "res",
+     "id": 15,
+     "q": 7,
+     "tier": 1,
+     "w": 45
+    },
+    {
+     "t": "keg",
+     "id": 5,
+     "q": 10,
+     "tier": 1,
+     "w": 60
+    },
+    {
+     "t": "premium",
+     "q": 4,
+     "tier": 2,
+     "w": 90
+    },
+    {
+     "t": "multi",
+     "tier": 2,
+     "parts": [
+      {
+       "t": "ammo",
+       "id": 7,
+       "q": 3000,
+       "tier": 1
+      },
+      {
+       "t": "ammo",
+       "id": 5,
+       "q": 1000,
+       "tier": 1
+      }
+     ],
+     "w": 60
+    },
+    {
+     "t": "ammo",
+     "id": 18,
+     "q": 100,
+     "tier": 1,
+     "w": 55
+    },
+    {
+     "t": "res",
+     "id": 35,
+     "q": 50,
+     "tier": 1,
+     "w": 73
+    },
+    {
+     "t": "design",
+     "text": "A lantern (one or two bonuses)",
+     "q": 1,
+     "tier": 2,
+     "ids": [],
+     "w": 20
+    },
+    {
+     "t": "design",
+     "text": "A lantern with three or more bonuses",
+     "q": 1,
+     "tier": 2,
+     "ids": [],
+     "w": 5
+    },
+    {
+     "t": "design",
+     "text": "A paint",
+     "q": 1,
+     "tier": 2,
+     "ids": [],
+     "w": 37
+    },
+    {
+     "t": "design",
+     "text": "A sail pattern",
+     "q": 1,
+     "tier": 2,
+     "ids": [],
+     "w": 50
+    },
+    {
+     "t": "design",
+     "text": "A flag",
+     "q": 1,
+     "tier": 2,
+     "ids": [],
+     "w": 40
+    },
+    {
+     "t": "design",
+     "text": "A ship skin",
+     "q": 1,
+     "tier": 2,
+     "ids": [],
+     "w": 6
+    },
+    {
+     "t": "design",
+     "text": "A sail cloth",
+     "q": 1,
+     "tier": 2,
+     "ids": [],
+     "w": 25
+    },
+    {
+     "t": "gold",
+     "q": 10000,
+     "qmax": 50000,
+     "step": 10000,
+     "tier": 1,
+     "w": 40
+    },
+    {
+     "t": "multi",
+     "tier": 1,
+     "parts": [
+      {
+       "t": "item",
+       "id": 40,
+       "q": 30,
+       "tier": 1
+      },
+      {
+       "t": "item",
+       "id": 41,
+       "q": 30,
+       "tier": 1
+      }
+     ],
+     "w": 30
+    },
+    {
+     "t": "multi",
+     "tier": 1,
+     "parts": [
+      {
+       "t": "item",
+       "id": 30,
+       "q": 20,
+       "tier": 1
+      },
+      {
+       "t": "item",
+       "id": 31,
+       "q": 20,
+       "tier": 1
+      }
+     ],
+     "w": 28
+    },
+    {
+     "t": "premium",
+     "q": 14,
+     "tier": 2,
+     "w": 35
+    },
+    {
+     "t": "slot",
+     "q": 1,
+     "tier": 1,
+     "w": 25
+    },
+    {
+     "t": "res",
+     "id": 35,
+     "q": 120,
+     "tier": 1,
+     "w": 35
+    },
+    {
+     "t": "multi",
+     "tier": 2,
+     "parts": [
+      {
+       "t": "res",
+       "id": 37,
+       "q": 200,
+       "tier": 1
+      },
+      {
+       "t": "res",
+       "id": 38,
+       "q": 5,
+       "tier": 1
+      }
+     ],
+     "w": 25
+    },
+    {
+     "t": "res",
+     "id": 38,
+     "q": 25,
+     "tier": 2,
+     "w": 20
+    },
+    {
+     "t": "premium",
+     "q": 30,
+     "tier": 2,
+     "w": 15
+    },
+    {
+     "t": "coins",
+     "q": 140,
+     "tier": 2,
+     "w": 15
+    },
+    {
+     "t": "res",
+     "id": 40,
+     "q": 1,
+     "tier": 1,
+     "note": "not at low captain rank",
+     "w": 8
+    },
+    {
+     "t": "ship",
+     "id": 13,
+     "q": 1,
+     "tier": 3,
+     "skip_if_owned": true,
+     "w": 7
+    },
+    {
+     "t": "ship",
+     "id": 18,
+     "q": 1,
+     "tier": 3,
+     "skip_if_owned": true,
+     "w": 6
+    },
+    {
+     "t": "ship",
+     "id": 39,
+     "q": 1,
+     "tier": 3,
+     "skip_if_owned": true,
+     "w": 6
+    },
+    {
+     "t": "ship",
+     "id": 7,
+     "q": 1,
+     "tier": 3,
+     "skip_if_owned": true,
+     "w": 6
+    },
+    {
+     "t": "ship",
+     "id": 20,
+     "q": 1,
+     "tier": 3,
+     "skip_if_owned": true,
+     "w": 6
+    },
+    {
+     "t": "ship",
+     "id": 36,
+     "q": 1,
+     "tier": 3,
+     "skip_if_owned": true,
+     "w": 4
+    },
+    {
+     "t": "ship",
+     "id": 28,
+     "q": 1,
+     "tier": 3,
+     "skip_if_owned": true,
+     "w": 0.9
+    },
+    {
+     "t": "ship",
+     "id": 61,
+     "q": 1,
+     "tier": 3,
+     "skip_if_owned": true,
+     "w": 0.9
+    },
+    {
+     "t": "ship",
+     "id": 16,
+     "q": 1,
+     "tier": 2,
+     "skip_if_owned": true,
+     "w": 0.2
+    },
+    {
+     "t": "ship",
+     "id": 23,
+     "q": 1,
+     "tier": 2,
+     "skip_if_owned": true,
+     "w": 0.2
+    },
+    {
+     "t": "ship",
+     "id": 26,
+     "q": 1,
+     "tier": 2,
+     "skip_if_owned": true,
+     "w": 0.2
+    },
+    {
+     "t": "ship",
+     "id": 34,
+     "q": 1,
+     "tier": 2,
+     "skip_if_owned": true,
+     "w": 0.2
+    },
+    {
+     "t": "ship",
+     "id": 46,
+     "q": 1,
+     "tier": 2,
+     "skip_if_owned": true,
+     "w": 0.2
+    },
+    {
+     "t": "ship",
+     "id": 63,
+     "q": 1,
+     "tier": 2,
+     "skip_if_owned": true,
+     "w": 0.2
+    },
+    {
+     "t": "ship",
+     "id": 3,
+     "q": 1,
+     "tier": 2,
+     "skip_if_owned": true,
+     "w": 0.15
+    }
+   ],
+   "price_key": "single",
+   "triple_key": "triple"
+  },
+  "elite": {
+   "name": "Elite (Imperial) Chest",
+   "rewards": [
+    {
+     "t": "res",
+     "id": 79,
+     "q": 3,
+     "tier": 3,
+     "w": 0.5
+    },
+    {
+     "t": "res",
+     "id": 79,
+     "q": 1,
+     "tier": 3,
+     "pity": 99,
+     "w": 1.0
+    },
+    {
+     "t": "res",
+     "id": 78,
+     "q": 3,
+     "tier": 3,
+     "w": 1.5
+    },
+    {
+     "t": "res",
+     "id": 78,
+     "q": 1,
+     "tier": 3,
+     "pity": 49,
+     "w": 2.0
+    },
+    {
+     "t": "res",
+     "id": 77,
+     "q": 7,
+     "tier": 2,
+     "w": 2.0
+    },
+    {
+     "t": "gold",
+     "q": 150000,
+     "tier": 2,
+     "w": 2.0
+    },
+    {
+     "t": "res",
+     "id": 37,
+     "q": 300,
+     "tier": 2,
+     "w": 2.0
+    },
+    {
+     "t": "res",
+     "id": 15,
+     "q": 30,
+     "tier": 2,
+     "w": 2.0
+    },
+    {
+     "t": "res",
+     "id": 38,
+     "q": 20,
+     "tier": 2,
+     "w": 2.0
+    },
+    {
+     "t": "res",
+     "id": 67,
+     "q": 8,
+     "tier": 2,
+     "w": 2.0
+    },
+    {
+     "t": "ammo",
+     "id": 7,
+     "q": 5000,
+     "tier": 2,
+     "w": 2.0
+    },
+    {
+     "t": "ammo",
+     "id": 5,
+     "q": 3500,
+     "tier": 2,
+     "w": 2.0
+    },
+    {
+     "t": "cannon",
+     "id": 26,
+     "q": 4,
+     "tier": 2,
+     "w": 2.0
+    },
+    {
+     "t": "cannon",
+     "id": 27,
+     "q": 3,
+     "tier": 2,
+     "w": 2.0
+    },
+    {
+     "t": "res",
+     "id": 77,
+     "q": 1,
+     "tier": 1,
+     "w": 5.0
+    },
+    {
+     "t": "keg",
+     "id": 5,
+     "q": 3,
+     "tier": 1,
+     "w": 5.0
+    },
+    {
+     "t": "ammo",
+     "id": 16,
+     "q": 50,
+     "tier": 1,
+     "w": 5.0
+    },
+    {
+     "t": "item",
+     "id": 16,
+     "q": 5,
+     "tier": 1,
+     "w": 5.0
+    },
+    {
+     "t": "item",
+     "id": 3,
+     "q": 35,
+     "tier": 1,
+     "w": 5.0
+    },
+    {
+     "t": "item",
+     "id": 14,
+     "q": 8,
+     "tier": 1,
+     "w": 5.0
+    },
+    {
+     "t": "item",
+     "id": 2,
+     "q": 40,
+     "tier": 1,
+     "w": 5.0
+    },
+    {
+     "t": "item",
+     "id": 12,
+     "q": 120,
+     "tier": 1,
+     "w": 5.0
+    },
+    {
+     "t": "res",
+     "id": 39,
+     "q": 250,
+     "tier": 1,
+     "w": 5.0
+    },
+    {
+     "t": "res",
+     "id": 17,
+     "q": 250,
+     "tier": 1,
+     "w": 5.0
+    },
+    {
+     "t": "res",
+     "id": 27,
+     "q": 70,
+     "tier": 1,
+     "w": 5.0
+    },
+    {
+     "t": "res",
+     "id": 29,
+     "q": 45,
+     "tier": 1,
+     "w": 5.0
+    },
+    {
+     "t": "res",
+     "id": 16,
+     "q": 50,
+     "tier": 1,
+     "w": 5.0
+    },
+    {
+     "t": "res",
+     "id": 14,
+     "q": 40,
+     "tier": 1,
+     "w": 5.0
+    },
+    {
+     "t": "res",
+     "id": 4,
+     "q": 2500,
+     "tier": 1,
+     "w": 5.0
+    }
+   ],
+   "price_key": "elite"
+  },
+  "incas": {
+   "name": "Inca Treasure Chest",
+   "rewards": [
+    {
+     "t": "ship",
+     "id": 65,
+     "q": 1,
+     "tier": 3,
+     "skip_if_owned": true,
+     "w": 0.1
+    },
+    {
+     "t": "coins",
+     "q": 3000,
+     "tier": 3,
+     "w": 1.0
+    },
+    {
+     "t": "gold",
+     "q": 1500000,
+     "tier": 3,
+     "w": 2.0
+    },
+    {
+     "t": "res",
+     "id": 72,
+     "q": 1000,
+     "tier": 2,
+     "w": 2.7777777777777777
+    },
+    {
+     "t": "gold",
+     "q": 150000,
+     "tier": 2,
+     "w": 2.7777777777777777
+    },
+    {
+     "t": "res",
+     "id": 15,
+     "q": 30,
+     "tier": 2,
+     "w": 2.7777777777777777
+    },
+    {
+     "t": "res",
+     "id": 67,
+     "q": 8,
+     "tier": 2,
+     "w": 2.7777777777777777
+    },
+    {
+     "t": "cannon",
+     "id": 33,
+     "q": 5,
+     "tier": 2,
+     "w": 2.7777777777777777
+    },
+    {
+     "t": "cannon",
+     "id": 34,
+     "q": 5,
+     "tier": 2,
+     "w": 2.7777777777777777
+    },
+    {
+     "t": "cannon",
+     "id": 31,
+     "q": 15,
+     "tier": 2,
+     "w": 2.7777777777777777
+    },
+    {
+     "t": "cannon",
+     "id": 32,
+     "q": 15,
+     "tier": 2,
+     "w": 2.7777777777777777
+    },
+    {
+     "t": "cannon",
+     "id": 30,
+     "q": 15,
+     "tier": 2,
+     "w": 2.7777777777777777
+    },
+    {
+     "t": "res",
+     "id": 72,
+     "q": 150,
+     "tier": 1,
+     "w": 4.793333333333334
+    },
+    {
+     "t": "res",
+     "id": 67,
+     "q": 1,
+     "tier": 1,
+     "w": 4.793333333333334
+    },
+    {
+     "t": "item",
+     "id": 16,
+     "q": 5,
+     "tier": 1,
+     "w": 4.793333333333334
+    },
+    {
+     "t": "item",
+     "id": 3,
+     "q": 35,
+     "tier": 1,
+     "w": 4.793333333333334
+    },
+    {
+     "t": "item",
+     "id": 14,
+     "q": 8,
+     "tier": 1,
+     "w": 4.793333333333334
+    },
+    {
+     "t": "item",
+     "id": 2,
+     "q": 40,
+     "tier": 1,
+     "w": 4.793333333333334
+    },
+    {
+     "t": "item",
+     "id": 12,
+     "q": 120,
+     "tier": 1,
+     "w": 4.793333333333334
+    },
+    {
+     "t": "ammo",
+     "id": 5,
+     "q": 500,
+     "tier": 1,
+     "w": 4.793333333333334
+    },
+    {
+     "t": "ammo",
+     "id": 7,
+     "q": 800,
+     "tier": 1,
+     "w": 4.793333333333334
+    },
+    {
+     "t": "res",
+     "id": 37,
+     "q": 50,
+     "tier": 1,
+     "w": 4.793333333333334
+    },
+    {
+     "t": "res",
+     "id": 38,
+     "q": 3,
+     "tier": 1,
+     "w": 4.793333333333334
+    },
+    {
+     "t": "res",
+     "id": 4,
+     "q": 2500,
+     "tier": 1,
+     "w": 4.793333333333334
+    },
+    {
+     "t": "res",
+     "id": 1,
+     "q": 12000,
+     "tier": 1,
+     "w": 4.793333333333334
+    },
+    {
+     "t": "res",
+     "id": 12,
+     "q": 1500,
+     "tier": 1,
+     "w": 4.793333333333334
+    },
+    {
+     "t": "res",
+     "id": 9,
+     "q": 1000,
+     "tier": 1,
+     "w": 4.793333333333334
+    }
+   ],
+   "price_key": "incas"
+  },
+  "newyear": {
+   "name": "New Year Chest",
+   "rewards": [
+    {
+     "t": "ship",
+     "id": 62,
+     "q": 1,
+     "tier": 3,
+     "skip_if_owned": true,
+     "w": 0.05
+    },
+    {
+     "t": "res",
+     "id": 67,
+     "q": 5,
+     "tier": 2,
+     "w": 0.15
+    },
+    {
+     "t": "design",
+     "text": "A rare ship design",
+     "q": 1,
+     "tier": 3,
+     "ids": [
+      451,
+      425
+     ],
+     "w": 0.4
+    },
+    {
+     "t": "ship",
+     "id": 46,
+     "q": 1,
+     "tier": 3,
+     "skip_if_owned": true,
+     "w": 0.2
+    },
+    {
+     "t": "ship",
+     "id": 61,
+     "q": 1,
+     "tier": 3,
+     "skip_if_owned": true,
+     "w": 0.2
+    },
+    {
+     "t": "res",
+     "id": 38,
+     "q": 100,
+     "tier": 2,
+     "w": 2.0
+    },
+    {
+     "t": "design",
+     "text": "",
+     "q": 1,
+     "tier": 2,
+     "ids": [
+      404
+     ],
+     "w": 2.0
+    },
+    {
+     "t": "ammo",
+     "id": 5,
+     "q": 10000,
+     "tier": 2,
+     "w": 5.0
+    },
+    {
+     "t": "premium",
+     "q": 10,
+     "tier": 2,
+     "w": 6.0
+    },
+    {
+     "t": "ammo",
+     "id": 7,
+     "q": 10000,
+     "tier": 2,
+     "w": 7.0
+    },
+    {
+     "t": "res",
+     "id": 69,
+     "q": 50,
+     "tier": 2,
+     "w": 12.0
+    },
+    {
+     "t": "gold",
+     "q": 150000,
+     "tier": 1,
+     "w": 15.0
+    },
+    {
+     "t": "gold",
+     "q": 50000,
+     "tier": 1,
+     "w": 20.0
+    },
+    {
+     "t": "ammo",
+     "id": 18,
+     "q": 300,
+     "tier": 1,
+     "w": 30.0
+    }
+   ],
+   "price_key": "newyear"
+  },
+  "altar": {
+   "name": "Altar offering",
+   "rewards": [
+    {
+     "t": "res",
+     "id": 35,
+     "q": 2,
+     "tier": 1,
+     "w": 40
+    },
+    {
+     "t": "res",
+     "id": 35,
+     "q": 4,
+     "tier": 1,
+     "w": 30
+    },
+    {
+     "t": "res",
+     "id": 37,
+     "q": 15,
+     "tier": 1,
+     "w": 60
+    },
+    {
+     "t": "res",
+     "id": 37,
+     "q": 30,
+     "tier": 2,
+     "w": 10
+    },
+    {
+     "t": "res",
+     "id": 38,
+     "q": 1,
+     "tier": 1,
+     "w": 50
+    },
+    {
+     "t": "res",
+     "id": 38,
+     "q": 3,
+     "tier": 2,
+     "w": 10
+    },
+    {
+     "t": "gold",
+     "q": 500,
+     "tier": 1,
+     "w": 50
+    },
+    {
+     "t": "gold",
+     "q": 3000,
+     "tier": 2,
+     "w": 10
+    },
+    {
+     "t": "item",
+     "id": 17,
+     "q": 1,
+     "tier": 1,
+     "w": 30
+    },
+    {
+     "t": "item",
+     "id": 40,
+     "q": 2,
+     "tier": 1,
+     "w": 30
+    },
+    {
+     "t": "ammo",
+     "id": 18,
+     "q": 30,
+     "tier": 1,
+     "w": 15
+    },
+    {
+     "t": "res",
+     "id": 39,
+     "q": 10,
+     "tier": 1,
+     "w": 15
+    },
+    {
+     "t": "res",
+     "id": 69,
+     "q": 9,
+     "tier": 2,
+     "w": 8
+    },
+    {
+     "t": "res",
+     "id": 43,
+     "q": 1,
+     "tier": 3,
+     "w": 2
+    },
+    {
+     "t": "design",
+     "text": "A random ship design",
+     "q": 1,
+     "tier": 3,
+     "ids": [],
+     "w": 0.75
+    }
+   ]
+  }
+ },
+ "notes": {
+  "pity": "A reward marked \u201cguaranteed within N\u201d has a counter in the game; when it reaches N without that reward, the next open gives it. The counter resets when you get it.",
+  "ships": "Ships you already own are skipped when you would get them again."
+ }
+}

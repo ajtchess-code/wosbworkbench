@@ -96,9 +96,9 @@ def crafting_data(b):
             ing[i['RecipeID']].append([f"r:{int(i['ResourceID'])}", int(i['Quantity'])])
     ammo_names = {}
     for a in recs('CannonBalls'):
-        aid = str(a.get('ID') or '')
-        if aid.startswith('cball_') and aid[6:].isdigit() and a.get('EnglishName') and a['EnglishName'] != 'removed':
-            n = int(aid[6:]); ammo_names[n] = a
+        aid = str(a.get('ID') or '')       # the numeric ammo id is the record number (cball_s is 5, Heavy Shots)
+        if aid.startswith('cball_') and a.get('SourceRecord') is not None and a.get('EnglishName') and a['EnglishName'] != 'removed':
+            n = int(a['SourceRecord']); ammo_names[n] = a
             items[f'a:{n}'] = {'n': a['EnglishName'], 'k': 'Ammunition', 'p': a.get('SingleCost') or None,
                                'u': url('ammo', a['EnglishName']), 'i': icon('ammo', a['EnglishName'])}
     for r in recs('Crafting_Recipes'):
@@ -180,4 +180,193 @@ def write_pages(b, crumbs, page):
     data = crafting_data(b)
     b._write('data/crafting.json', json.dumps(data, separators=(',', ':')))
     b._write('tools/crafting-calculator.html', page('Crafting calculator', CRAFT_PAGE, depth=1, crumbs=crumbs, tab='Tool'))
+    write_planners(b, crumbs, page)
     return len(data['recipes'])
+
+
+# ================================================================================================ planners
+import re as _re
+import site_effects
+
+
+def _fx_list(text, rank=None):
+    """'MSpeed +1.2,+1.0;PArmor +4' -> [[code, value], ...] for one ship rank (ShipBonus: Values[clamp(len - rank)])."""
+    out = []
+    for part in _re.split(r'[;]', str(text or '')):
+        m = _re.match(r'\s*((?:Serv)?[PMBC]?[A-Za-z_]+)\s*(.*)$', part.strip())
+        if not m or not m.group(1):
+            continue
+        vals = [v for v in _re.findall(r'[+-]?\d+(?:\.\d+)?', m.group(2))]
+        if not vals:
+            out.append([m.group(1), 1]); continue
+        if rank is None or len(vals) == 1:
+            v = vals[0]
+        else:
+            v = vals[min(max(len(vals) - rank, 0), len(vals) - 1)]
+        out.append([m.group(1), float(v)])
+    return out
+
+
+def _labels(codes):
+    """{code: [label, sign, unit]}: the sign is -1 where the wording turns the value round ("damage taken -14%")."""
+    out = {}
+    for c in codes:
+        lab, val = site_extras._label_and_value(c, 5)
+        sign = -1 if str(val).startswith('-') else 1
+        unit = '%' if '%' in str(val) else ''
+        out[c] = [lab, sign, unit]
+    return out
+
+
+STAT_CODES = {'speed': ('MSpeed', 'PSpeed'), 'armor': ('MArmor', 'PArmor'), 'hp': ('MHealth', 'PHealth'), 'mob': ('MMobilityBonus', 'PMobilityBonus'),
+              'cargo': ('MCapacity', 'PCapacity'), 'crew': ('MExtraPlaces', None)}
+
+
+def builder_data(b):
+    """Ships, upgrades (effects for every ship rank), special crew and bonus designs for the ship builder."""
+    rules = site_extras.rules()
+    ships = []
+    for r in b.entities.get('ship', []):
+        try:
+            rank = int(r.get('ShipRank'))
+        except (TypeError, ValueError):
+            continue
+        ships.append({'n': r['_title'], 'id': r.get('ID'), 'rank': rank, 'cls': r.get('TypeEnglish') or r.get('Type'), 'cool': r.get('Coolness'),
+                      'speed': r.get('BasicSpeed'), 'armor': r.get('Armor'), 'hp': r.get('Health'), 'mob': r.get('BasicMobility'), 'cargo': r.get('CapacityCg'),
+                      'crew': r.get('BaseCrewPlaces'), 'units': r.get('PlacesForUnitsCount'), 'slots': 6 + int(r.get('ExtraPlacesForUpgrades') or 0),
+                      'u': b.urls.get(('ship', r['_title'].casefold())), 'i': b.icons.get(('ship', r['_title'].casefold()))})
+    codes = set()
+    ups = []
+    for u in b.entities.get('upgrade', []):
+        fx = {rank: _fx_list(u.get('EffectsBoost'), rank) for rank in range(1, 8)}
+        if not any(fx.values()):
+            continue
+        for v in fx.values():
+            codes.update(c for c, _ in v)
+        ups.append({'n': u['_title'], 'cat': u.get('Category'), 'fx': fx, 'budget': str(u.get('LowCost')).lower() == 'true',
+                    'u': b.urls.get(('upgrade', u['_title'].casefold())), 'i': b.icons.get(('upgrade', u['_title'].casefold()))})
+    titles = site_extras.crew_titles(b.db, b.build)
+    crew = []
+    for r in site_extras.records(b.db, 'UnitsInfo', b.build):
+        if not str(r.get('ID', '')).startswith('unit_special'):
+            continue
+        fx = _fx_list(r.get('Effect')); per = _fx_list(r.get('EffectPerSailor')) + _fx_list(r.get('EffectPerBoardingUnit'))
+        codes.update(c for c, _ in fx + per)
+        crew.append({'n': titles.get(r['ID'], r['ID']), 'g': r.get('Options'), 'fx': fx, 'per': per,
+                     'perk': 'sailor' if r.get('EffectPerSailor') else 'boarder' if r.get('EffectPerBoardingUnit') else ''})
+    designs = []
+    for r in b.entities.get('cosmetic', []):
+        if r.get('Category') not in ('Satellite', 'BowFigure') or r.get('BonusEffectType') in (None, '', 'None'):
+            continue
+        ts = str(r['BonusEffectType']).split(); vs = str(r.get('BonusEffectValue') or '').split()
+        fx = [[t_, float(vs[i]) if i < len(vs) else 1] for i, t_ in enumerate(ts)]
+        codes.update(t_ for t_ in ts)
+        designs.append({'n': r['_title'], 'slot': 'lantern' if r['Category'] == 'Satellite' else 'figurehead', 'fx': fx,
+                        'i': b.icons.get(('cosmetic', r['_title'].casefold()))})
+    elite = rules.get('elite_status', {}).get('benefits', {})
+    return {'ships': sorted(ships, key=lambda s: (s['rank'], s['n'])), 'upgrades': sorted(ups, key=lambda u: (u['cat'] or '', u['n'])),
+            'crew': sorted(crew, key=lambda c: (c['g'] or '', c['n'])), 'designs': sorted(designs, key=lambda d: (d['slot'], d['n'])),
+            'labels': _labels(codes), 'stats': STAT_CODES, 'elite': elite,
+            'slot_costs': {str(rk): site_extras.slot_costs(rk) for rk in range(1, 8)}}
+
+
+def island_data(b):
+    t = b.texts
+    keys = [('BigStorage', 4), ('Workshop', 3), ('Dok', 1), ('Shipbuilder', 2), ('Avanpost', 5), ('Pub', 7), ('Factory', 6), ('Lighthouse', 8)]
+    labor = {'Workshop': 100, 'Pub': 20, 'Dok': 20, 'Factory': 10}
+    buildings = [{'id': k, 'n': t.get(f'personal_isle_b{n}_name', k), 'd': (t.get(f'personal_isle_b{n}_tt') or '').replace('{0}', '7,000').replace('#', ''),
+                  'labor': labor.get(k, 0)} for k, n in keys]
+    buildings = [x for x in buildings if x['d'] and x['d'] != '???']
+    decor = []
+    for r in b.entities.get('decoration', []):
+        shop = str(r.get('InShop') or '')
+        m = _re.match(r'By(Gold|Monets)\s+(\d+)', shop)
+        bonus = r.get('EnvDesingBonus')
+        decor.append({'n': r['_title'], 'cur': ('gold' if m.group(1) == 'Gold' else 'coins') if m else None, 'p': int(m.group(2)) if m else None,
+                      'bonus': site_effects.describe_all(bonus)[0] if bonus else '', 'code': (str(bonus).split() or [''])[0] if bonus else '',
+                      'v': float((_re.findall(r'[+-]?\d+(?:\.\d+)?', str(bonus or '')) or [0])[0]),
+                      'i': b.icons.get(('decoration', r['_title'].casefold())), 'u': b.urls.get(('decoration', r['_title'].casefold()))})
+    return {'buildings': buildings, 'decor': sorted(decor, key=lambda d: d['n']), 'min_rank': 9,
+            'storage': [50, 500], 'labor_base': 50, 'labor_per_hour': 1,
+            'skills': [{'n': 'Personal Islands', 'pts': 1, 'd': 'A second island, and travel between islands.'},
+                       {'n': 'Third Island', 'pts': 0, 'd': 'A third island; travel every 2 hours instead of 4, and a new look for the buildings on all your islands.'}]}
+
+
+def chest_data(b):
+    try:
+        data = json.loads((site_extras.DATA / 'chests.json').read_text(encoding='utf-8'))
+    except (OSError, ValueError):
+        return None
+    t = b.texts
+    res = site_extras.resource_names(b.db, b.build)
+    ammo = {}
+    for a in site_extras.records(b.db, 'CannonBalls', b.build):
+        if str(a.get('ID') or '').startswith('cball_') and a.get('SourceRecord') is not None:
+            ammo[int(a['SourceRecord'])] = a.get('EnglishName')
+    kegs = {int(k.get('SourceRecord') or 0): k.get('EnglishName') for k in site_extras.records(b.db, 'PowderKegs', b.build)}
+    cans = {int(c.get('SourceRecord') or 0): c['_title'] for c in b.entities.get('cannon', [])}
+    ships = {int(s.get('ID') or 0): s['_title'] for s in b.entities.get('ship', []) if str(s.get('ID', '')).isdigit()}
+    designs = {int(d.get('SourceRecord') or 0): d['_title'] for d in b.entities.get('cosmetic', [])}
+    extra = {35: 'Map Scroll', 67: 'Blueprint Fragment', 68: 'Imperial Blueprint', 72: 'Pirate Token', 77: 'Letters Patent (Elite XP)', 78: 'Letters Patent (Elite level)', 79: 'Letters Patent (full Elite status)'}
+
+    def label(r):
+        k, q = r['t'], r.get('q', 1)
+        if k == 'res':
+            return f'{q:,} × {res.get(r["id"]) or extra.get(r["id"], "item " + str(r["id"]))}'
+        if k == 'gold':
+            return f'{q:,}–{r["qmax"]:,} gold' if r.get('qmax') else f'{q:,} gold'
+        if k == 'coins':
+            return f'{q:,} Coins'
+        if k == 'ammo':
+            return f'{q:,} × {ammo.get(r["id"], "ammo " + str(r["id"]))}'
+        if k == 'keg':
+            return f'{q:,} × {kegs.get(r["id"], "powder keg " + str(r["id"]))}'
+        if k == 'item':
+            return f'{q:,} × {t.get("item_name" + str(r["id"]), "consumable " + str(r["id"]))}'
+        if k == 'cannon':
+            return f'{q:,} × {cans.get(r["id"], "cannon " + str(r["id"]))}'
+        if k == 'ship':
+            return f'Ship: {ships.get(r["id"], "ship " + str(r["id"]))}'
+        if k == 'design':
+            names = [designs[i] for i in r.get('ids', []) if i in designs]
+            return (r.get('text') + ': ' if r.get('text') else '') + ' or '.join(names) if names else r.get('text') or 'A ship design'
+        if k == 'premium':
+            return f'{q} days of Premium'
+        if k == 'slot':
+            return '+1 ship slot in the shipyard'
+        if k == 'multi':
+            return ' + '.join(label(p) for p in r['parts'])
+        return k
+    for c in data['chests'].values():
+        total = sum(r['w'] for r in c['rewards'])
+        for r in c['rewards']:
+            r['label'] = label(r) + (f' ({r["note"]})' if r.get('note') else '')
+            r['pct'] = r['w'] / total * 100
+    return data
+
+
+PLANNER_PAGES = {
+    'ship-builder': ('Ship builder', '<p>Fit a ship the way you would in port: choose the ship and its rank, fill the upgrade slots, pick special crew, a lantern and a figurehead, '
+                     'and see what it does to the ship. The effects use the game\'s own values for each ship rank. Share the build with a link, or open any ship from its page.</p>'
+                     '<div id="sb"></div><script src="../assets/planners.js"></script><script>Planners.shipBuilder(document.getElementById("sb"),"../data/ship-builder.json")</script>'
+                     '<p class="note">Stats are worked out the game\'s way: the base value times the percentage bonuses, plus the flat bonuses. Effects that are not one of the main stats are listed in plain words underneath. '
+                     'Captain skills, guild and port bonuses are not included.</p>'),
+    'island-planner': ('Personal Island planner', '<p>Plan your Personal Islands: what each building costs at your captain rank and in the order you build them, '
+                       'what decorations cost in gold or Coins and what they add, and what the island\'s labour and warehouse come to.</p>'
+                       '<div id="ip"></div><script src="../assets/planners.js"></script><script>Planners.islandPlanner(document.getElementById("ip"),"../data/islands.json")</script>'),
+    'chest-simulator': ('Chest simulator', '<p>Open chests as many times as you like without spending a Coin. The odds are the game\'s own reward tables; '
+                        'the simulator also shows the chance of each reward and what a number of opens costs.</p>'
+                        '<div id="cs"></div><script src="../assets/planners.js"></script><script>Planners.chestSim(document.getElementById("cs"),"../data/chests.json")</script>'),
+}
+
+
+def write_planners(b, crumbs, page):
+    b._write('data/ship-builder.json', json.dumps(builder_data(b), separators=(',', ':')))
+    b._write('data/islands.json', json.dumps(island_data(b), separators=(',', ':')))
+    chests = chest_data(b)
+    if chests:
+        b._write('data/chests.json', json.dumps(chests, separators=(',', ':')))
+    for slug, (title, body) in PLANNER_PAGES.items():
+        if slug == 'chest-simulator' and not chests:
+            continue
+        b._write(f'tools/{slug}.html', page(title, body, depth=1, crumbs=crumbs, tab='Tool'))

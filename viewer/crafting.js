@@ -43,6 +43,8 @@
       if (h) { try { st = Object.assign(st, JSON.parse(b64d(h[1]))); return Promise.resolve(); } catch (e) { /* bad link */ } }
       if (q.get('plan')) return fetch('/api/plans/' + encodeURIComponent(q.get('plan'))).then((r) => (r.ok ? r.json() : null)).then((j) => { if (j && j.plan) st = Object.assign(st, j.plan); }).catch(() => {});
       const saved = store.get('wosb-craft'); if (saved) { try { st = Object.assign(st, JSON.parse(saved)); } catch (e) { /* ignore */ } }
+      const add = q.get('add');                      // links from item pages: ?add=s:12
+      if (add && items[add] && !st.targets.some((t) => t.k === add)) st.targets.push({ k: add, q: Math.max(1, +q.get('q') || 1) });
       return Promise.resolve();
     }
     const save = () => store.set('wosb-craft', JSON.stringify(st));

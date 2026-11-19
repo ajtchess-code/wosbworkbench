@@ -45,6 +45,7 @@ EFFECTS = {
     'MMarchingSpeedByStrongWind': 'Cruising Mode speed in strong wind {s}', 'MMobilityBonus': 'Maneuverability {s}',
     'PForewindFineReduce': 'Headwind speed penalty {neg}%', 'PGreenWindBonus': 'Best-wind (broad reach) bonus {s}%',
     'PMarchingModeChangingSpeed': 'Time to build up Cruising Mode {neg}%', 'PMobilityOnMarchingMode': 'Maneuverability in Cruising Mode {s}%',
+    'MPlayerJerkEffectPowerAdd': 'Sprint (jerk) power {s}',
     'PFishingSpeed': 'Fishing speed {s} per sailor', 'PXpBonus': 'Captain XP {s}%', 'PXpBonusUpgradesAndBranch': 'Ship and upgrade XP {s}%', 'PVisibilityZone': 'Vision range {s}%',
     'PMinimapLootVisibleDistance': 'Loot shows on the minimap from {s}% further away', 'PLootInteropDistance': 'Loot can be picked up from {s}% further away',
     'PMoreLootAtSea': '+{v}% loot from ships sunk at sea', 'PMoreRareItemsAtSea': '+{v}% chance of rare items from ships sunk at sea',
