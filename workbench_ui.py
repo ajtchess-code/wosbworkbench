@@ -650,10 +650,46 @@ class App:
         try:self.root.after(300,lambda:None)
         except tk.TclError:pass
 
+    def _scroll_area(self,parent):
+        """A vertically scrolling frame that fills the rest of ``parent`` (mouse wheel works while the pointer is over it)."""
+        wrap=tk.Frame(parent,bg=NAVY);wrap.pack(fill='both',expand=True)
+        canvas=tk.Canvas(wrap,bg=NAVY,highlightthickness=0,bd=0)
+        bar=ttk.Scrollbar(wrap,orient='vertical',command=canvas.yview)
+        canvas.configure(yscrollcommand=bar.set)
+        bar.pack(side='right',fill='y');canvas.pack(side='left',fill='both',expand=True)
+        inner=ttk.Frame(canvas);win=canvas.create_window(0,0,window=inner,anchor='nw')
+        inner.bind('<Configure>',lambda _e:canvas.configure(scrollregion=canvas.bbox('all')))
+        canvas.bind('<Configure>',lambda e:canvas.itemconfigure(win,width=e.width))
+        def wheel(e):
+            delta=-1 if (getattr(e,'delta',0)>0 or getattr(e,'num',0)==4) else 1
+            canvas.yview_scroll(delta*3,'units')
+        def on(_e):
+            canvas.bind_all('<MouseWheel>',wheel);canvas.bind_all('<Button-4>',wheel);canvas.bind_all('<Button-5>',wheel)
+        def off(_e):
+            for ev in ('<MouseWheel>','<Button-4>','<Button-5>'):canvas.unbind_all(ev)
+        wrap.bind('<Enter>',on);wrap.bind('<Leave>',off)
+        return inner
+
+    def _wiki_site_bar(self,parent):
+        """Build / publish buttons for the public WoSB Wiki, shown at the top of the pages that need them."""
+        bar=ttk.Frame(parent,style='Card.TFrame',padding=10);bar.pack(fill='x',pady=(0,10))
+        ttk.Label(bar,text='WoSB Wiki website',style='CardTitle.TLabel').pack(side='left',padx=(0,14))
+        ttk.Button(bar,text='Build wiki website',style='Accent.TButton',command=self._build_wiki_site).pack(side='left')
+        ttk.Button(bar,text='Publish to wosbwiki.org',command=self._publish_cloudflare).pack(side='left',padx=7)
+        ttk.Button(bar,text='Open built site',command=self._open_built_wiki).pack(side='left')
+        return bar
+
+    def _open_built_wiki(self):
+        index=home()/'WikiSite'/'index.html'
+        if not index.is_file():
+            return self._notice('Build the wiki first','Run “Build wiki website”, then open it.',kind='warning')
+        webbrowser.open(index.as_uri())
+
     # ================================================================ Datamining page
     def _datamining_page(self,parent):
         self._heading(parent,'Datamining','Close the gaps: see what is still undecoded, decompile the client to searchable C#, extract message definitions and audio, and track client updates.')
-        grid=ttk.Frame(parent);grid.pack(fill='x')
+        self._wiki_site_bar(parent)
+        grid=self._scroll_area(parent)
         actions=[('Decode coverage report','Every file type in an install, which decoder handles it, and what is still undecoded.',self._dm_coverage),
                  ('Extract message definitions','Message classes, wire field order and opcode enums from client / Steam / launcher assemblies.',self._protocol_extract),
                  ('Decompile client to C# (ILSpy)','Full C# projects per assembly plus a searchable source index (needs .NET SDK + ilspycmd).',self._dm_decompile),
@@ -1343,6 +1379,7 @@ class App:
 
     def _wiki(self,parent):
         self._heading(parent,'Wiki editor','Curate your knowledge without changing the underlying extracted data. Gamepedia entries are seeded from your client reports.')
+        self._wiki_site_bar(parent)
         tools=ttk.Frame(parent);tools.pack(fill='x',pady=(0,8))
         ttk.Button(tools,text='+ New article',style='Accent.TButton',command=self._new_article).pack(side='left')
         ttk.Button(tools,text='Save changes',command=self._save_article).pack(side='left',padx=7)
