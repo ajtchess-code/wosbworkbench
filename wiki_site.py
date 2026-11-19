@@ -876,7 +876,7 @@ class SiteBuilder:
             for z in zones:
                 z['b'] = {'min': [round(v, 3) for v in z['b']['min']], 'max': [round(v, 3) for v in z['b']['max']]}
             out[f.name.replace('.hitboxes.json', '')] = {'zones': zones, 'sails': len(d['sails']), 'masts': len(d['masts']), 'ports': d.get('port_counts'),
-                                                          'fig': d.get('figurehead_mount'), 'half': round((d['corpus']['max'][0] - d['corpus']['min'][0]) / 2, 3),
+                                                          'mesh': d.get('hitmesh'), 'fig': d.get('figurehead_mount'), 'half': round((d['corpus']['max'][0] - d['corpus']['min'][0]) / 2, 3),
                                                           # model sail mesh -> the client's per-sail index (SailStrengthIndex) used by the pattern slots
                                                           'sailmap': {s['name'].split('_', 1)[-1]: [s['strength_index'], bool(s.get('animated'))] for s in d['sails'] if s.get('name')}}
         return out
@@ -1728,7 +1728,7 @@ class SiteBuilder:
         ships = []
         for s_ in d['ships']:
             hb = hitboxes.get(s_.get('model')) or {}
-            ships.append({'n': s_['n'], 'model': s_.get('model'), 'zones': hb.get('zones') or [], 'fig': hb.get('fig'), 'half': hb.get('half'), 'sailmap': hb.get('sailmap') or {},
+            ships.append({'n': s_['n'], 'model': s_.get('model'), 'zones': hb.get('zones') or [], 'mesh': hb.get('mesh'), 'fig': hb.get('fig'), 'half': hb.get('half'), 'sailmap': hb.get('sailmap') or {},
                           'armor': s_['armor'], 'hp': s_['hp'], 'rank': s_['rank']})
         try:
             designs = battle_sim.design_catalog(self.db, self.build)
@@ -1743,6 +1743,9 @@ class SiteBuilder:
                 '<script src="../assets/hit-data.js"></script><script src="../assets/hit_analysis.js"></script><script src="../assets/ship-view.js"></script>'
                 '<script src="../assets/ship_viewer.js"></script><script>ShipViewer.mount(document.getElementById("sv"),{ship:new URLSearchParams(location.search).get("ship")})</script>'
                 '<h2>Reading it</h2><ul><li>The blue box is the hull hitbox; it decides every hull hit and also the ship\'s collisions. Brown boxes are masts, orange ones sails.</li>'
+                '<li><b>Hit mesh</b> (tick it under Show): the low-poly shape the game builds the blue box from. The game never tests balls against it: '
+                'once the box is hit, the impact point is moved onto this mesh so splinters and fires appear on the hull. A ball that flies through the gap '
+                'between the mesh and the box still counts as a hull hit.</li>'
                 '<li>Coloured hull: what a ball fired from the chosen direction does where it lands. Dark blue = it glances off; grey = that side faces away.</li>'
                 '<li>Zones come from where the ball crosses the hull box: bow is only the middle of the front face, stern is the whole back face plus the last ~11% of each side.</li>'
                 '<li>Sails and masts are tested separately; a ball can pass through up to three sails.</li></ul>'

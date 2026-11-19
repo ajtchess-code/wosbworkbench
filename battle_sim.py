@@ -434,9 +434,17 @@ def ensure_hitboxes(home_dir, hitboxes_dir=None, *, progress=None):
     """Use existing rebuilt hitboxes, or build them from the latest Full Recovery when there are none."""
     import hitbox_recovery
     hb = Path(hitboxes_dir) if hitboxes_dir else Path(home_dir) / 'Research' / 'Hitboxes'
-    if hb.is_dir() and any(hb.glob('*.hitboxes.json')):
-        return hb
-    dirs = hitbox_recovery.find_models_dirs(home_dir)
+    files = list(hb.glob('*.hitboxes.json')) if hb.is_dir() else []
+    if files:
+        try:
+            current = json.loads(files[0].read_text(encoding='utf-8')).get('format') == hitbox_recovery.FORMAT
+        except (OSError, ValueError):
+            current = False
+        dirs = [] if current else hitbox_recovery.find_models_dirs(home_dir)
+        if not dirs:                    # up to date, or nothing to rebuild from: keep what is there
+            return hb
+    else:
+        dirs = hitbox_recovery.find_models_dirs(home_dir)
     if not dirs:
         return hb if hb.is_dir() else None
     hitbox_recovery.batch(dirs[0], hb, progress=progress)

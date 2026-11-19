@@ -96,3 +96,16 @@ def test_hosting_dialog_covers_every_build_setting():
         assert key in fields
         assert f"self.settings.get('wiki.{key}')" in src or key == 'site_url'      # the build reads what the dialog saves
     assert "_wiki_hosting_dialog" in src.split('def _wiki_site_bar', 1)[1].split('def ', 1)[0]
+
+
+def test_hit_mesh_kept_and_box_is_its_bounds(tmp_path):
+    import hitbox_recovery
+    obj = tmp_path / 'Ship_1_test.obj'
+    obj.write_text('o ShipCorpus_part0\nv -9 -3 -3\nv 9 6 3\nv 0 0 0\nf 1 2 3\n'
+                   'o Hitbox_part0\nv -5 -2 -2\nv 5 -2 -2\nv 5 4 2\nv -5 4 2\nf 4 5 6\nf 4 6 7\n'
+                   'o Hitbox_part1\nv 5 4 2\nf 6 8 7\n')
+    r = hitbox_recovery.build(obj)
+    assert r['hitmesh_source'] == 'Hitbox mesh'
+    assert r['corpus'] == {'min': [-5.0, -2.0, -2.0], 'max': [5.0, 4.0, 2.0]}    # the box is the mesh's bounds, not the visible hull's
+    m = r['hitmesh']
+    assert len(m['v']) == 12 and len(m['e']) == 10                                # 4 shared points, 5 unique edges

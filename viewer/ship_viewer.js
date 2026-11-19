@@ -58,7 +58,7 @@ function mount(el,opts){
  el.innerHTML=`<div class="sv"><div class="sv-stage"><canvas class="sv-gl"></canvas><div class="sv-hud"></div><div class="sv-load">Loading model…</div></div>
  <div class="sv-side">
   <label>Ship <select data-k="ship">${opt(ships,start.n)}</select></label>
-  <fieldset><legend>Show</legend><label><input type="checkbox" data-k="mdl" checked> Model</label><label><input type="checkbox" data-k="hull" checked> Hull hitbox</label>
+  <fieldset><legend>Show</legend><label><input type="checkbox" data-k="mdl" checked> Model</label><label><input type="checkbox" data-k="hull" checked> Hull hitbox (what balls hit)</label><label><input type="checkbox" data-k="hmesh"> Hit mesh (where hits are drawn)</label>
    <label><input type="checkbox" data-k="masts"> Mast hitboxes</label><label><input type="checkbox" data-k="sailb"> Sail hitboxes</label><label><input type="checkbox" data-k="water" checked> Waterline</label><label><input type="checkbox" class="sv-heat" checked> Damage heatmap</label></fieldset>
   <fieldset><legend>Hull colouring</legend><select data-k="paint"><option value="none">Off: show the ship's textures and designs</option><option value="dir" selected>Damage from the chosen direction</option><option value="avg">Average over every direction</option>
    <option value="angle">Impact angle from the chosen direction</option><option value="zone">Bow / side / stern zones</option></select>
@@ -84,7 +84,7 @@ function mount(el,opts){
  gl.getExtension('OES_element_index_uint');
  const prog=(vs,fs)=>{const p=gl.createProgram();for(const [t,s] of [[gl.VERTEX_SHADER,vs],[gl.FRAGMENT_SHADER,fs]]){const sh=gl.createShader(t);gl.shaderSource(sh,s);gl.compileShader(sh);gl.attachShader(p,sh)}gl.linkProgram(p);return p};
  const P=prog(VS,FS),LP=prog(LVS,LFS);const U=n=>gl.getUniformLocation(P,n),A=n=>gl.getAttribLocation(P,n);
- const st={ship:start.n,mdl:true,hull:true,masts:false,sailb:false,water:true,paint:'dir',bearing:90,gun:el.querySelector('[data-k=gun]').value,ammo:el.querySelector('[data-k=ammo]').value,aimy:4,skin:'',sail:'',flag:'',flag2:'',fig:'',pats:PATS.map(()=>({tex:'',on:new Set()})),edit:-1};
+ const st={ship:start.n,mdl:true,hull:true,hmesh:false,masts:false,sailb:false,water:true,paint:'dir',bearing:90,gun:el.querySelector('[data-k=gun]').value,ammo:el.querySelector('[data-k=ammo]').value,aimy:4,skin:'',sail:'',flag:'',flag2:'',fig:'',pats:PATS.map(()=>({tex:'',on:new Set()})),edit:-1};
  const models={},textures={},pending={};let yaw=-0.9,pitch=0.32,dist=0,target=[0,8,0],shotsLog=[],ball=null,marks=[];
  const base=V.pack||'../pack/';
  window.WOSB_PACK=ix=>{V._ix=ix;loadShip()};
@@ -168,6 +168,7 @@ function mount(el,opts){
    gl.uniformMatrix4fv(gl.getUniformLocation(LP,'vp'),false,vp);gl.uniform4fv(gl.getUniformLocation(LP,'col'),[0.16,0.42,0.6,0.45]);gl.depthMask(false);gl.drawArrays(gl.TRIANGLES,0,6);gl.depthMask(true);gl.disableVertexAttribArray(a)}
   gl.disable(gl.DEPTH_TEST);const zs=s.zones||[];
   if(st.hull)lines(vp,zs.filter(z=>z.t==='hull').flatMap(z=>boxLines(z.b)),[0.12,0.45,0.85,1]);
+  if(st.hmesh&&s.mesh){const v=s.mesh.v,e=s.mesh.e,arr=[];for(let k=0;k<e.length;k+=2){const a=3*e[k],c=3*e[k+1];arr.push(v[a],v[a+1],v[a+2],v[c],v[c+1],v[c+2])}lines(vp,arr,[0.98,0.6,0.15,1])}
   if(st.masts)lines(vp,zs.filter(z=>z.t==='mast').flatMap(z=>boxLines(z.b)),[0.55,0.32,0.1,1]);
   if(st.edit>=0){const P=st.pats[st.edit];lines(vp,zs.filter(z=>z.t==='sail'&&P.on.has(z.n-1)).flatMap(z=>boxLines(z.b)),[0.1,0.75,0.3,1]);lines(vp,zs.filter(z=>z.t==='sail'&&!P.on.has(z.n-1)).flatMap(z=>boxLines(z.b)),[0.5,0.5,0.55,0.7])}
   else if(st.sailb)lines(vp,zs.filter(z=>z.t==='sail').flatMap(z=>boxLines(z.b)),[0.95,0.5,0.1,0.85]);

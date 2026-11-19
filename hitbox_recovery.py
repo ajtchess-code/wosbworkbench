@@ -28,7 +28,7 @@ import math
 import re
 from pathlib import Path
 
-FORMAT = 'wosb-hitboxes-v1'
+FORMAT = 'wosb-hitboxes-v2'      # v2: adds the hit mesh itself (edges), not only its bounds
 WORLD_SCALE = 0.3
 LEVELS = 4
 SAIL_XZ_SCALE = 0.94
@@ -55,6 +55,38 @@ def read_groups(obj_path):
                 except (IndexError, ValueError):
                     continue
     return {k: v for k, v in groups.items() if v}
+
+
+def read_mesh(obj_path, keep):
+    """Vertices and unique edges of the OBJ groups whose name passes ``keep`` -> {'v': [x, y, z, ...], 'e': [i, j, ...]}."""
+    allv, verts, index, edges, current = [], [], {}, set(), None
+    with open(obj_path, encoding='utf-8', errors='replace') as fh:
+        for line in fh:
+            if line.startswith('o '):
+                current = PART_SUFFIX.sub('', line[2:].strip())
+            elif line.startswith('v '):
+                p = line.split()
+                try:
+                    allv.append((float(p[1]), float(p[2]), float(p[3])))
+                except (IndexError, ValueError):
+                    allv.append((0.0, 0.0, 0.0))
+            elif line.startswith('f ') and current is not None and keep(current):
+                ids = []
+                for tok in line.split()[1:]:
+                    try:
+                        k = int(tok.split('/')[0])
+                    except ValueError:
+                        continue
+                    k = k - 1 if k > 0 else len(allv) + k
+                    if 0 <= k < len(allv):
+                        key = tuple(round(c, 3) for c in allv[k])          # split vertices (per-face normals) share one point
+                        if key not in index:
+                            index[key] = len(verts); verts.append(allv[k])
+                        ids.append(index[key])
+                for a, b in zip(ids, ids[1:] + ids[:1]):
+                    if a != b:
+                        edges.add((min(a, b), max(a, b)))
+    return {'v': [round(c, 3) for v in verts for c in v], 'e': [i for e in sorted(edges) for i in e]}
 
 
 def _bounds(points):
@@ -136,6 +168,16 @@ def build(obj_path, external_hitbox=None):
         notes.append('No Hitbox mesh: corpus box taken from ShipCorpus bounds, which is larger than the real hitbox.')
     clo, chi = _bounds(hit_points)
     corpus = {'min': clo, 'max': chi}
+    hitmesh = None                      # the mesh itself: the game uses it only to place hit effects and fires on the hull
+    try:
+        if hit_source and hit_source != 'Hitbox mesh' and not hit_source.startswith('ShipCorpus'):
+            hitmesh = read_mesh(external_hitbox, lambda _n: True)
+        elif hit_source == 'Hitbox mesh':
+            hitmesh = read_mesh(obj_path, lambda n: bool(HITMESH.match(n)))
+    except OSError:
+        hitmesh = None
+    if hitmesh and len(hitmesh['e']) > 6000:          # 3,000 edges: hit meshes are low-poly; anything bigger is not one
+        hitmesh = None
     static = sorted((n for n in groups if SAIL.search(n) and 'static' in n.casefold()), key=_sail_order_key)
     animated = sorted((n for n in groups if SAIL.search(n) and 'animated' in n.casefold()), key=_sail_order_key)
     sails = []
@@ -160,7 +202,7 @@ def build(obj_path, external_hitbox=None):
         notes.append('255+ hitboxes: the client throws for this ship')
     ports = gun_ports(obj_path)
     return {'format': FORMAT, 'model': Path(obj_path).name, 'hitmesh_source': hit_source, **ports,
-            'world_scale': WORLD_SCALE, 'corpus': corpus,
+            'world_scale': WORLD_SCALE, 'corpus': corpus, 'hitmesh': hitmesh,
             'corpus_half_extents_world': [(chi[a] - clo[a]) * WORLD_SCALE * 0.5 for a in range(3)],
             'deck_line_y': chi[1], 'sails': sails, 'masts': masts, 'node_table': table,
             'source': SOURCE,
