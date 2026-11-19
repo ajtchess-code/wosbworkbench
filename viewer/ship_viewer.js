@@ -59,8 +59,8 @@ function mount(el,opts){
  <div class="sv-side">
   <label>Ship <select data-k="ship">${opt(ships,start.n)}</select></label>
   <fieldset><legend>Show</legend><label><input type="checkbox" data-k="mdl" checked> Model</label><label><input type="checkbox" data-k="hull" checked> Hull hitbox</label>
-   <label><input type="checkbox" data-k="masts"> Mast hitboxes</label><label><input type="checkbox" data-k="sailb"> Sail hitboxes</label><label><input type="checkbox" data-k="water" checked> Waterline</label></fieldset>
-  <fieldset><legend>Hull colouring</legend><select data-k="paint"><option value="none">Textures</option><option value="dir" selected>Damage from the chosen direction</option><option value="avg">Average over every direction</option>
+   <label><input type="checkbox" data-k="masts"> Mast hitboxes</label><label><input type="checkbox" data-k="sailb"> Sail hitboxes</label><label><input type="checkbox" data-k="water" checked> Waterline</label><label><input type="checkbox" class="sv-heat" checked> Damage heatmap</label></fieldset>
+  <fieldset><legend>Hull colouring</legend><select data-k="paint"><option value="none">Off: show the ship's textures and designs</option><option value="dir" selected>Damage from the chosen direction</option><option value="avg">Average over every direction</option>
    <option value="angle">Impact angle from the chosen direction</option><option value="zone">Bow / side / stern zones</option></select>
    <label>Firing from <input type="range" min="0" max="360" step="2" value="90" data-k="bearing"> <b class="sv-b">90°</b></label>
    <div class="sv-legend"><span>no damage</span><i></i><span class="sv-max"></span></div></fieldset>
@@ -194,7 +194,7 @@ function mount(el,opts){
   box.querySelectorAll('[data-sail]').forEach(c=>c.onchange=()=>{const i=+c.dataset.sail;c.checked?P.on.add(i):P.on.delete(i);draw()});
   box.querySelectorAll('[data-all]').forEach(b=>b.onclick=()=>{P.on=new Set(b.dataset.all==='none'?[]:rows.filter(r=>b.dataset.all==='all'||r.an).map(r=>r.i));renderSails();draw()});
   box.querySelector('[data-done]').onclick=()=>{st.edit=-1;renderSails();draw()}}
- el.querySelectorAll('[data-pat]').forEach(sel=>sel.addEventListener('change',()=>{st.pats[+sel.dataset.pat].tex=sel.value;draw()}));
+ el.querySelectorAll('[data-pat]').forEach(sel=>sel.addEventListener('change',()=>{st.pats[+sel.dataset.pat].tex=sel.value;if(sel.value&&st.paint!=='none')setHeat(false);draw()}));
  el.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>{const k=+b.dataset.edit;st.edit=st.edit===k?-1:k;renderSails();draw()});
  function renderShots(){const box=el.querySelector('.sv-shots');if(!shotsLog.length){box.innerHTML='<p class="ha-note">Shots you fire appear here.</p>';return}
   box.innerHTML='<h4>Shots</h4>'+shotsLog.slice(0,8).map(r=>`<div class="sv-shot">${r.p?`<b style="color:rgb(${ZC[r.zone].map(v=>v*255|0)})">${r.zone}</b> at ${r.ang.toFixed(0)}° off square → <b>${r.dmg.toFixed(1)}</b>${r.dmg<=0.05?' (glanced off)':''}`:'<b>Missed the hull</b>'}
@@ -217,9 +217,16 @@ function mount(el,opts){
   repaint();fireAt(pt)}
  el.querySelector('.sv-fire').onclick=()=>{const box=hullBox();if(!box)return;const c=[(box.min[0]+box.max[0])/2,+st.aimy,(box.min[2]+box.max[2])/2];fireAt(c)};
  el.querySelectorAll('[data-k]').forEach(i=>i.addEventListener(i.type==='checkbox'?'change':i.type==='range'?'input':'change',()=>{const k=i.dataset.k;st[k]=i.type==='checkbox'?i.checked:i.type==='range'?+i.value:i.value;
+  // choosing a design means you want to see it: turn the heatmap and the hull box off
+  if(['skin','sail','flag','flag2','fig'].includes(k)&&i.value&&st.paint!=='none')setHeat(false);
+  if(k==='paint')el.querySelector('.sv-heat').checked=st.paint!=='none';
   if(k==='bearing')el.querySelector('.sv-b').textContent=st.bearing+'°';if(k==='ship')loadShip();if(['bearing','paint','gun','ammo','ship'].includes(k))repaint();if(k==='fig'&&st.fig)needModel('BowFigures');
   const dn=[];if(st.pats.some(P=>P.tex))dn.push('Patterns are laid over each sail with the sail\'s own UVs, so their placement is approximate.');if(st.fig&&!ship().fig)dn.push('This ship has no figurehead mount in its hitbox data.');
   el.querySelector('.sv-dnote').textContent=dn.join(' ');draw()}));
+ let lastPaint='dir';
+ function setHeat(on){const ps=el.querySelector('[data-k=paint]');if(!on){if(st.paint!=='none')lastPaint=st.paint;st.paint='none';st.hull=false;el.querySelector('[data-k=hull]').checked=false}
+  else{st.paint=lastPaint||'dir';st.hull=true;el.querySelector('[data-k=hull]').checked=true}ps.value=st.paint;el.querySelector('.sv-heat').checked=on;repaint()}
+ el.querySelector('.sv-heat').addEventListener('change',e=>setHeat(e.target.checked));
  new ResizeObserver(draw).observe(cv);script(base+'index.js');renderShots();
  const api={view(o){if(o.yaw!=null)yaw=o.yaw;if(o.pitch!=null)pitch=o.pitch;if(o.dist)dist=o.dist;if(o.target)target=o.target;draw()},state:st};el.shipViewer=api;return api}
 window.ShipViewer={mount,rayBox};

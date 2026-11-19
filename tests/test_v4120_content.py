@@ -64,3 +64,24 @@ def test_upgrade_slot_costs_match_game_formula():
     assert site_extras.slot_costs(7)[0] == (1, 250, 1, 10)            # small ships pay Wood, never less than 10
     assert site_extras.slot_costs(5)[0] == (1, 1375, 37, 22)
     assert site_extras.slot_costs(9) == []
+
+
+def test_worker_serves_languages_without_waiting(tmp_path):
+    import shutil, subprocess
+    from pathlib import Path
+    root = Path(__file__).resolve().parents[1]
+    if not shutil.which('node'):
+        return
+    w = tmp_path / 'worker.mjs'; shutil.copy(root / 'viewer' / 'wiki_worker.js', w)
+    r = subprocess.run(['node', '--no-warnings', str(root / 'tests' / 'js' / 'translated.test.mjs'), w.as_uri()], capture_output=True, text=True, timeout=120)
+    assert r.returncode == 0, r.stderr[-2000:]
+
+
+def test_wrangler_config_for_worker_deploys(tmp_path):
+    import site_host
+    site_host.write(tmp_path, worker_name='my-wiki', kv_id='abc')
+    cfg = json.loads((tmp_path / 'wrangler.jsonc').read_text())
+    assert cfg['name'] == 'my-wiki' and cfg['main'] == '_worker.js' and cfg['assets']['binding'] == 'ASSETS'
+    assert '/es/*' in cfg['assets']['run_worker_first'] and '/api/*' in cfg['assets']['run_worker_first']
+    assert cfg['kv_namespaces'][0]['id'] == 'abc' and 'd1_databases' not in cfg
+    assert '_worker.js' in (tmp_path / '.assetsignore').read_text()      # the worker source is never served as a file

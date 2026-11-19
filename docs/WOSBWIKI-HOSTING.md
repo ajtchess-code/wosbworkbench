@@ -169,3 +169,21 @@ the bot host, keep using **Publish wiki to Band of Misfits** as well, so the bot
 | `wiki.contact_email` | `contact@wosbwiki.org` | Contact address on the legal pages |
 | `wiki.gtm_id` | `GTM-TMZFVXTL` | Google Tag Manager container |
 | `wiki.standalone` | `true` | Ads, donate footer and Cloudflare files in the build. Set it to `false` only to host on the BOM dashboard, which then adds its own bar. |
+
+## If the site is a Worker instead of a Pages project
+
+Cloudflare has two ways to host a site from a GitHub repo, and the dashboard's "Create" button defaults to a **Worker**.
+A Worker ignores `_worker.js` and `_routes.json` (those are Pages features), so language pages, Discord login and the
+"Tell us" forms return an empty 404. Since 4.12.2 every publish also writes a `wrangler.jsonc` and an `.assetsignore`,
+so a Worker deploy runs the same code in front of the files.
+
+1. In the dashboard open **Workers & Pages** and check the project's type and name.
+2. If it is a Worker and its name is not `wosbwiki`, set `"wiki.worker_name"` in `settings.json` to that name
+   (Workers Builds fails when the name in `wrangler.jsonc` differs), then rebuild and publish.
+3. Bindings: Workers AI is declared in the file. For translation memory and login, create the KV namespace and the
+   D1 database, put their IDs in `"wiki.kv_id"` and `"wiki.d1_id"`, rebuild and publish. Secrets
+   (`DISCORD_CLIENT_SECRET`, `SESSION_SECRET`, `TURNSTILE_SECRET`) and plain variables go under the Worker's
+   **Settings → Variables and Secrets**; `keep_vars` stops deploys from wiping them.
+4. Check: `https://wosbwiki.org/api/me` should answer `{"user":null}` (or similar JSON), not an empty 404.
+
+A Pages project needs none of this and keeps working as before.

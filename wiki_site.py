@@ -27,7 +27,8 @@ SITE_NAME = 'WoSB Wiki'
 SITE_URL = 'https://wosbwiki.org/'
 # Who runs the public site and how it is paid for. SiteBuilder fills this from its ``hosting`` argument.
 HOSTING_DEFAULTS = {'site_url': SITE_URL, 'site_name': SITE_NAME, 'ad_client': 'ca-pub-6442579332215350', 'donate_url': 'https://paypal.me/litefootz',
-                    'discord_url': '', 'contact_email': 'contact@wosbwiki.org', 'standalone': True, 'gtm_id': 'GTM-TMZFVXTL'}
+                    'discord_url': '', 'contact_email': 'contact@wosbwiki.org', 'standalone': True, 'gtm_id': 'GTM-TMZFVXTL',
+                    'worker_name': 'wosbwiki', 'd1_id': '', 'kv_id': ''}
 HOSTING = dict(HOSTING_DEFAULTS)
 COSMETIC_KIND = {'ShipFullDesign': 'Ship design (skin)', 'SailTexture': 'Sail cloth', 'Decal1': 'Paint', 'Decal2': 'Sail pattern', 'Decal3': 'Premium sail pattern',
                  'Flag': 'Flag', 'Flag2': 'Second flag', 'BowFigure': 'Figurehead', 'Satellite': 'Lantern', 'MastColor': 'Mast colour'}
@@ -354,7 +355,7 @@ h1{font:400 28px/1.3 Georgia,"Linux Libertine",serif;margin:0 0 4px;border-botto
 h2{font:400 21px/1.3 Georgia,serif;border-bottom:1px solid var(--border);margin:22px 0 8px}h3{font-size:16px;margin:16px 0 6px}
 .crumbs{font-size:12px;color:var(--muted);margin-bottom:10px}
 .infobox{float:right;clear:right;width:300px;margin:0 0 14px 18px;border:1px solid var(--border);background:#f8f9fa;font-size:13px;border-collapse:collapse}
-.infobox caption{font-weight:700;font-size:15px;padding:6px;background:var(--accent);color:#fff}.infobox td.ibimg{text-align:center;background:#fff;padding:8px}.infobox td.ibimg img{max-width:100%;max-height:220px;object-fit:contain}.entry .infobox td.ibimg img{max-height:72px}img.ticon{width:28px;height:28px;object-fit:contain;vertical-align:middle;margin-right:6px}.rt{display:inline-block;border-radius:999px;padding:0 8px;font-size:12px;font-weight:600;color:#fff}.rt-main{background:#1f5fbf}.rt-supply{background:#2e8b57}.rt-coastal{background:#b8860b}.rt-central{background:#7d3c98}.rt-smuggling{background:#333}
+.infobox caption{font-weight:700;font-size:15px;padding:6px;background:var(--accent);color:#fff}.infobox td.ibimg{text-align:center;background:#fff;padding:8px}.infobox td.ibimg img{max-width:100%;max-height:220px;object-fit:contain}.entry .infobox td.ibimg img{max-height:72px}img.ticon{width:28px;height:28px;object-fit:contain;vertical-align:middle;margin-right:6px}img.medal{object-fit:contain;vertical-align:middle;margin-right:4px}.medal-row{display:flex;gap:18px;flex-wrap:wrap;margin:8px 0}.medal-lvl{margin:0;text-align:center;font-size:13px}img.cicon{width:40px;height:40px;object-fit:contain;vertical-align:middle;margin-right:8px}.rt{display:inline-block;border-radius:999px;padding:0 8px;font-size:12px;font-weight:600;color:#fff}.rt-main{background:#1f5fbf}.rt-supply{background:#2e8b57}.rt-coastal{background:#b8860b}.rt-central{background:#7d3c98}.rt-smuggling{background:#333}
 .portmap{margin:8px 0;max-width:560px}.portmap img{width:100%;height:auto;border:1px solid var(--border);border-radius:6px}.portmap figcaption{font-size:12px;color:var(--muted)}
 .lg{display:inline-block;width:11px;height:11px;margin:0 3px 0 8px;vertical-align:-1px;border-radius:2px}.lg-port{background:#e8c05a;border-radius:50%}.lg-tower{background:#c0392b}.lg-fort{background:#7d3c98}
 .lg-node{background:#5f6a6a}.lg-route{background:#1f5fbf;height:3px;vertical-align:3px}.lg-s2{background:#dc2828}.lg-s3{background:#f08c1e}.lg-s4{background:#ebd228}.lg-s5{background:#5ac85a}.lg-s6{background:#3c6ee6}
@@ -668,6 +669,8 @@ class SiteBuilder:
             dirs += sorted(home().glob('Reports/*/Catalog-*'), key=lambda d: d.stat().st_mtime, reverse=True)
         except Exception:
             pass
+        if self.recovery_dir:                      # a full recovery keeps its catalog export next to it
+            dirs.append(Path(self.recovery_dir) / 'Catalog')
         seen, out = set(), []
         for d in dirs:
             if str(d) not in seen and (d / 'Images').is_dir():
@@ -708,29 +711,8 @@ class SiteBuilder:
                 except OSError:
                     continue
                 self.icons[(kind, r['_title'].casefold())] = rel; n += 1
-        # anything still without a picture: look for a file named after its ID or icon name (achievement icons, for example)
-        stems = {}
-        for root in roots:
-            for f in (root / 'Images').rglob('*.png'):
-                stems.setdefault(f.stem.casefold(), f)
-        for kind, recs in self.entities.items():
-            for r in recs:
-                if (kind, r['_title'].casefold()) in self.icons:
-                    continue
-                src = next((stems[k] for k in (str(r.get(f)).casefold() for f in ('ID', 'IconName', 'Name') if r.get(f)) if k in stems), None)
-                if not src:
-                    continue
-                rel = f'assets/icons/{kind}/{_slug(r["_title"])}.webp'
-                dst = self.out / rel; dst.parent.mkdir(parents=True, exist_ok=True)
-                try:
-                    im = Image.open(src).convert('RGBA'); bbox = im.getchannel('A').getbbox()
-                    if bbox:
-                        im = im.crop(bbox)
-                    im.thumbnail((size, size), Image.LANCZOS); im.save(dst, 'WEBP', quality=88, method=4)
-                except OSError:
-                    continue
-                self.icons[(kind, r['_title'].casefold())] = rel; n += 1
-        return n
+        import site_extras
+        return n + site_extras.extra_icons(self, roots, size)
 
     def _design_thumbs(self, *, size=128):
         """Cosmetics without an icon: a thumbnail of the design's own texture (flags, sail cloth, patterns)."""
@@ -859,7 +841,8 @@ class SiteBuilder:
             nf = _page('Page not found', '<p>That page isn\'t here. It may have moved when similar pages were combined.</p>'
                        '<p>Try the search box above, browse <a href="sitemap.html">all pages</a>, or go to the <a href="index.html">main page</a>.</p>')
             manifest['host'] = site_host.write(self.out, redirects=self.redirects + moved['redirects'], ad_client=HOSTING.get('ad_client') or '',
-                                               not_found_html=site_titlecase.apply_html(nf))
+                                               not_found_html=site_titlecase.apply_html(nf), worker_name=HOSTING.get('worker_name') or 'wosbwiki',
+                                               d1_id=HOSTING.get('d1_id') or '', kv_id=HOSTING.get('kv_id') or '')
         manifest['pages'] = sum(1 for f in self.out.rglob('*.html') if f.relative_to(self.out).parts[0] != 'pack')
         manifest['asset_version'] = _version_assets(self.out)
         (self.out / 'site.json').write_text(json.dumps(manifest, indent=1), encoding='utf-8')
@@ -931,6 +914,9 @@ class SiteBuilder:
             body += self._ship_sections(rec, hitboxes)
             import site_extras
             body += site_extras.ship_build_html(self, rec)
+        if kind == 'achievement':
+            import site_extras
+            body += site_extras.achievement_medal_html(self, rec)
         if kind == 'cannon':
             if rec.get('Model') and self.model_pack and self.recovery_dir:
                 body.append(f'<h2>3D model</h2><div class="iv" data-model="weapons" data-mesh="{_e(rec["Model"])}" data-pack="../pack/"></div>'

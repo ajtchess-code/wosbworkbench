@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import html
 import json
+import re
 from collections import defaultdict
 from functools import lru_cache
 from pathlib import Path
@@ -157,9 +158,37 @@ def consumables_page(b):
                 notes.append(f'not on rank {int(limit) + 1}–7 ships' if int(limit) < 7 else '')
             if it['options'].get('AllowInterrupt') == 'true':
                 notes.append('can be cancelled early')
-            rows.append([f'<b>{_e(name)}</b>', _e(desc), f'{it["cooldown"]} s' if it['cooldown'] else '—', f'{it["duration"]} s' if it['duration'] else 'instant',
+            ic = getattr(b, 'consumable_icons', {}).get(i)
+            img = f'<img class="cicon" src="../{ic}" alt="" loading="lazy" width="40" height="40">' if ic else ''
+            rows.append([img + f'<b>{_e(name)}</b>', _e(desc), f'{it["cooldown"]} s' if it['cooldown'] else '—', f'{it["duration"]} s' if it['duration'] else 'instant',
                          recipe or 'Shop or rewards only', _e('; '.join(n for n in notes if n))])
         body.append(f'<h2 id="{cat.lower()}">{cat}</h2>' + _table(['Consumable', 'What it does', 'Cooldown', 'Lasts', 'Crafting cost', 'Notes'], rows))
+        fx_items = []
+        for it in lst:
+            if not it['effects']:
+                continue
+            i = it['index']; ic = getattr(b, 'consumable_icons', {}).get(i)
+            img = f'<img class="ticon" src="../{ic}" alt="" loading="lazy" width="28" height="28">' if ic else ''
+            fx_items.append(([img + _e(t.get(f'item_name{i}')), f'{it["cooldown"]} s' if it['cooldown'] else '—',
+                              f'{it["duration"]} s' if it['duration'] else 'instant'], [(c, v) for c, v in it['effects']]))
+        if len(fx_items) > 1:
+            body.append(f'<h3 id="{cat.lower()}-compare">{cat} compared</h3>' + effect_matrix(fx_items, ['Consumable', 'Cooldown', 'Lasts']))
+        if cat == 'Repairs':
+            rep = []
+            for it in lst:
+                fx = dict((c, v) for c, v in it['effects'])
+                hp = fx.get('ServMendingStrength') or fx.get('ServMendingStrengthTemporal')
+                if not hp or not it['cooldown']:
+                    continue
+                kind = 'Repair' if 'ServMendingStrength' in fx else 'Temporary'
+                cost = sum(q for q in it['recipe'].values())
+                rep.append([_e(t.get(f'item_name{it["index"]}')), kind, f'{hp:g}', f'{fx.get("ServMendingSailes", 0):g}%' if fx.get('ServMendingSailes') else '',
+                            f'{it["cooldown"]} s', f'{hp * 60 / it["cooldown"]:.0f}', f'{hp / cost:.1f}' if cost else ''])
+            if rep:
+                body.append('<h3 id="repair-value">Repair value</h3><p>How much durability each one gives, how much that is per minute of cooldown if you use it '
+                            'every time it is ready, and per crafting material. <b>Temporary</b> durability is a shield that absorbs damage; a <b>repair</b> '
+                            'restores lost durability.</p>'
+                            + _table(['Consumable', 'Type', 'Durability', 'Sails', 'Cooldown', 'Per minute', 'Per material'], rep))
     body.insert(1, '<p class="toc-inline">Jump to: ' + ' · '.join(nav) + '</p>')
     return ''.join(body)
 
@@ -326,8 +355,17 @@ def sails_page(b):
         img = f'<img class="ticon" src="../{ic}" alt="" loading="lazy" width="28" height="28">' if ic else ''
         rows.append([img + (f'<a href="../{url}">{_e(r["_title"])}</a>' if url else _e(r['_title'])), effects_html(r.get('EffectsBoost')),
                      'yes' if str(r.get('LowCost')).lower() == 'true' else '', _e(r.get('EnglishDescription') or '')])
+    items = []
+    for r in sorted(ups, key=lambda r: r['_title']):
+        url = b.urls.get(('upgrade', r['_title'].casefold())); ic = b.icons.get(('upgrade', r['_title'].casefold()))
+        img = f'<img class="ticon" src="../{ic}" alt="" loading="lazy" width="28" height="28">' if ic else ''
+        items.append(([img + (f'<a href="../{url}">{_e(r["_title"])}</a>' if url else _e(r['_title'])),
+                       'Budget' if str(r.get('LowCost')).lower() == 'true' else ''], _parse_fx(r.get('EffectsBoost'))))
     return ('<p>Sail upgrades go in a ship\'s sail slot. Only one can be fitted at a time, so they trade speed, handling and protection against each other.</p>'
-            + _table(['Sails', 'Effects', 'Budget version', 'Notes'], rows))
+            '<h2 id="compare">Side by Side</h2><p>One column per stat; an empty cell means the sail does not change it. Click a heading to sort, '
+            'or use the drop-downs to filter. <b>Cruising Mode</b> is full sail: the ship builds up extra speed over time.</p>'
+            + effect_matrix(items, ['Sails', 'Version'])
+            + '<h2 id="details">Details</h2>' + _table(['Sails', 'Effects', 'Budget version', 'Notes'], rows))
 
 
 def lanterns_page(b):
@@ -403,14 +441,165 @@ def titles_page(b):
             levels = ' / '.join(f'{x[0]:,} · {x[1]:,} · {x[2]:,}' for x in t if x)
         else:
             levels = 'Earn it once'
-        rows.append([' + '.join(link(a) for a in aids), levels])
-    for _k, text in m.get('other_titles', {}).items():
-        rows.append([_e(text), '—'])
+        imgs = ''.join(_medal_img(x, 'medal', 40) for x in getattr(b, 'medal_icons', {}).get(title, []) if x)
+        rows.append([imgs, ' + '.join(link(a) for a in aids), levels])
+    for k, text in m.get('other_titles', {}).items():
+        imgs = ''.join(_medal_img(x, 'medal', 40) for x in getattr(b, 'medal_icons', {}).get(k, []) if x)
+        rows.append([imgs, _e(text), '—'])
     return ('<p>A <b>captain title</b> shows next to your name and on your ship. You earn titles through achievements. Many come in three medal levels, '
             '<b>bronze</b>, <b>silver</b> and <b>gold</b>: the numbers are how many times you must earn the achievement for each level. '
             'Where a title needs two achievements, either one counts towards it.</p>'
-            + _table(['Achievement(s)', 'Bronze · Silver · Gold'], rows))
+            + _table(['Medal', 'Achievement(s)', 'Bronze · Silver · Gold'], rows))
 
 
 def _plural(name, n):
     return name + 's' if n != 1 and name.endswith(('Mark', 'Shot')) else name
+
+
+# ----------------------------------------------------------------------------------------------- icons the catalog links miss
+def _save_icon(im, dst, size):
+    from PIL import Image
+    im = im.convert('RGBA'); bbox = im.getchannel('A').getbbox()
+    if bbox:
+        im = im.crop(bbox)
+    im.thumbnail((size, size), Image.LANCZOS)
+    dst.parent.mkdir(parents=True, exist_ok=True)
+    im.save(dst, 'WEBP', quality=88, method=4)
+
+
+def _find(roots, rel):
+    return next((root / rel for root in roots if (root / rel).is_file()), None)
+
+
+def medal_cells():
+    a = medals().get('medal_atlas')
+    if not a:
+        return []
+    out = []
+    for x0, y0, rows, cols, drop in a['blocks']:
+        cells = [(x0 + a['pitch'] * c, y0 + a['pitch'] * r) for r in range(rows) for c in range(cols)]
+        out += cells[:len(cells) - drop] if drop else cells
+    return out
+
+
+def extra_icons(b, roots, size=128):
+    """Achievement pictures (Items/Achievements/<ID>.png), lantern and figurehead icons cut from the Icons sheet,
+    consumable icons, and the bronze / silver / gold title medals cut from the objects atlas."""
+    from PIL import Image
+    n = 0
+    slug = getattr(b, '_slug_fn', None)
+    import wiki_site
+    slug = wiki_site._slug
+    for r in b.entities.get('achievement', []):
+        key = ('achievement', r['_title'].casefold())
+        src = None if key in b.icons else _find(roots, f'Images/SharedArchive/Items/Achievements/{r.get("ID")}.png')
+        if src:
+            rel = f'assets/icons/achievement/{slug(r["_title"])}.webp'
+            try:
+                _save_icon(Image.open(src), b.out / rel, size); b.icons[key] = rel; n += 1
+            except OSError:
+                pass
+    sheet_path = _find(roots, 'Images/LooseFiles/Data/Textures/Icons.png')
+    if sheet_path:
+        sheet = Image.open(sheet_path)
+        for r in b.entities.get('cosmetic', []):
+            key = ('cosmetic', r['_title'].casefold()); parts = str(r.get('IconName') or '').split()
+            if key in b.icons or len(parts) != 5 or parts[0] != 'Icons':
+                continue
+            k = 1 if int(r.get('SourceRecord') or 0) >= 420 else 2          # ShipDesignInfo: older entries are given at half scale
+            x, y, w, h = (int(v) * k for v in parts[1:])
+            if x + w > sheet.width or y + h > sheet.height:
+                continue
+            rel = f'assets/icons/cosmetic/{slug(r["_title"])}.webp'
+            _save_icon(sheet.crop((x, y, x + w, y + h)), b.out / rel, size); b.icons[key] = rel; n += 1
+    b.consumable_icons = {}
+    for c in consumables():
+        src = c.get('icon') and _find(roots, f'Images/SharedArchive/Items/PowerupItems/{c["icon"]}.png')
+        if src:
+            rel = f'assets/icons/consumable/{c["icon"].lower()}.webp'
+            try:
+                _save_icon(Image.open(src), b.out / rel, size); b.consumable_icons[c['index']] = rel; n += 1
+            except OSError:
+                pass
+    b.medal_icons = {}
+    m = medals(); atlas = m.get('medal_atlas')
+    apath = atlas and _find(roots, atlas['texture'])
+    if apath:
+        img = Image.open(apath); cells = medal_cells(); cs = atlas['cell']
+        def cut(idx, name):
+            if 0 <= idx < len(cells):
+                x, y = cells[idx]; rel = f'assets/icons/medal/{name}.webp'
+                _save_icon(img.crop((x, y, x + cs, y + cs)), b.out / rel, 96)
+                return rel
+        for title, idxs in atlas['levels'].items():
+            b.medal_icons[title] = [cut(i, f'{title.lower()}-{lvl}') for i, lvl in zip(idxs, ('bronze', 'silver', 'gold'))]
+        for title, i in atlas['single'].items():
+            b.medal_icons[title] = [cut(i, title.lower())]
+    return n
+
+
+def _medal_img(src, alt, px=48):
+    return f'<img class="medal" src="../{src}" alt="{_e(alt)}" title="{_e(alt)}" width="{px}" height="{px}" loading="lazy">' if src else ''
+
+
+def titles_for(aid):
+    m = medals()
+    return [t for t, aids in m.get('titles', {}).items() if aid in aids]
+
+
+def achievement_medal_html(b, rec):
+    m = medals(); aid = rec.get('ID'); out = []
+    for title in titles_for(aid):
+        imgs = getattr(b, 'medal_icons', {}).get(title, [])
+        t = m['medal_targets'].get(aid)
+        if t and len(imgs) == 3:
+            cells = ''.join(f'<figure class="medal-lvl">{_medal_img(src, lvl + " medal", 64)}<figcaption><b>{lvl}</b><br>{n:,}×</figcaption></figure>'
+                            for src, lvl, n in zip(imgs, ('Bronze', 'Silver', 'Gold'), t))
+            out.append('<h2 id="medal">Title Medal</h2><p>Earning this achievement counts towards a captain title you can show on your ship. '
+                       'The medal changes colour as you reach each level:</p><div class="medal-row">' + cells + '</div>')
+        elif imgs and imgs[0]:
+            out.append('<h2 id="medal">Title Medal</h2><div class="medal-row"><figure class="medal-lvl">' + _medal_img(imgs[0], 'medal', 64)
+                       + '<figcaption>Earn it once</figcaption></figure></div>')
+    return out
+
+
+# ----------------------------------------------------------------------------------------------- comparison matrices
+_NUM = re.compile(r'([+\-−]?\d[\d,]*(?:\.\d+)?)\s*(%|°|s\b)?')
+
+
+def _label_and_value(code, value):
+    """('Gun reload speed', '+24%') from one effect, keeping the sign flips of the wording (damage taken −14%)."""
+    text = site_effects.describe(code, value)
+    m = _NUM.search(text)
+    if not m or code.startswith('B'):
+        return text, '✓'
+    knots = re.search(r'≈([\d.\-]+) knots', text)
+    label = re.sub(r'\(\s*≈[^)]*\)|\(\s*(strength)?\s*\)', '', text[:m.start()] + text[m.end():])
+    label = re.sub(r'\s+', ' ', label).strip(' :')
+    val = m.group(1).replace('−', '-') + (m.group(2) or '')
+    return label, val + (f' (≈{knots.group(1)} kn)' if knots else '')
+
+
+def effect_matrix(items, lead_heads, min_share=1):
+    """items: [(lead_cells, [(code, value)])] -> one table with a column for every effect any item has."""
+    cols, seen = [], {}
+    for _lead, fx in items:
+        for code, v in fx:
+            lab, _ = _label_and_value(code, v)
+            if lab not in seen:
+                seen[lab] = 0; cols.append(lab)
+            seen[lab] += 1
+    cols = [c for c in cols if seen[c] >= min_share]
+    cols.sort(key=lambda c: -seen[c])
+    rows = []
+    for lead, fx in items:
+        vals = {}
+        for code, v in fx:
+            lab, val = _label_and_value(code, v)
+            vals[lab] = val
+        rows.append(list(lead) + [_e(vals.get(c, '')) for c in cols])
+    return _table(lead_heads + [_e(c) for c in cols], rows)
+
+
+def _parse_fx(text):
+    return [(m.group(1), m.group(2)) for m in re.finditer(r'((?:Serv)?[PMBC]?[A-Z][A-Za-z0-9_]+)\s*([+-]?\d+(?:\.\d+)?)?', str(text or ''))]

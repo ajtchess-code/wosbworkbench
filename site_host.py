@@ -49,7 +49,24 @@ LANGS = ['zh', 'hi', 'es', 'ar', 'fr', 'bn', 'pt', 'ru', 'id', 'ur', 'de', 'ja',
 ROUTES = {'version': 1, 'include': ['/pack/*', '/api/*'] + [f'/{l}/*' for l in LANGS], 'exclude': []}
 
 
-def write(out, *, redirects=(), ad_client='', not_found_html=None):
+def wrangler_config(name='wosbwiki', d1_id='', kv_id=''):
+    """wrangler.jsonc for when the site is deployed as a Cloudflare *Worker* with static assets (Workers Builds) rather than a
+    Pages project: it runs the same _worker.js in front of the files, for the language pages, login, reports and the model pack."""
+    cfg = {'name': name or 'wosbwiki', 'main': '_worker.js', 'compatibility_date': '2025-06-01',
+           'assets': {'directory': '.', 'binding': 'ASSETS', 'not_found_handling': '404-page',
+                      'run_worker_first': ['/api/*', '/pack/*'] + [f'/{l}/*' for l in LANGS] + [f'/{l}' for l in LANGS]},
+           'ai': {'binding': 'AI'}, 'keep_vars': True, 'observability': {'enabled': True}}
+    if d1_id:
+        cfg['d1_databases'] = [{'binding': 'DB', 'database_name': 'wosbwiki', 'database_id': d1_id}]
+    if kv_id:
+        cfg['kv_namespaces'] = [{'binding': 'TRANSLATIONS', 'id': kv_id}]
+    return json.dumps(cfg, indent=1)
+
+
+ASSETS_IGNORE = '_worker.js\nwrangler.jsonc\n_routes.json\n.assetsignore\n'
+
+
+def write(out, *, redirects=(), ad_client='', not_found_html=None, worker_name='wosbwiki', d1_id='', kv_id=''):
     """Write the Cloudflare Pages files into the built site ``out``. Returns a summary dict."""
     out = Path(out)
     (out / '_headers').write_text(HEADERS, encoding='utf-8')
@@ -64,6 +81,8 @@ def write(out, *, redirects=(), ad_client='', not_found_html=None):
     # the Worker serves the login/report API on every build, and guards the model pack when there is one
     (out / '_worker.js').write_text(WORKER, encoding='utf-8')
     (out / '_routes.json').write_text(json.dumps(ROUTES, indent=1), encoding='utf-8')
+    (out / 'wrangler.jsonc').write_text(wrangler_config(worker_name, d1_id, kv_id), encoding='utf-8')
+    (out / '.assetsignore').write_text(ASSETS_IGNORE, encoding='utf-8')
     pub = re.sub(r'^ca-', '', ad_client or '')
     if re.fullmatch(r'pub-\d{10,20}', pub):
         (out / 'ads.txt').write_text(f'google.com, {pub}, DIRECT, f08c47fec0942fa0\n', encoding='utf-8')

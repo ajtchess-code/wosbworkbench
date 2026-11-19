@@ -220,5 +220,101 @@
     30
    ]
   ]
+ },
+ "medal_atlas": {
+  "texture": "Images/LooseFiles/Data/Textures/AtlObjs.png",
+  "blocks": [
+   [
+    2838,
+    1213,
+    6,
+    3,
+    1
+   ],
+   [
+    2423,
+    2460,
+    2,
+    14,
+    0
+   ]
+  ],
+  "cell": 64,
+  "pitch": 66,
+  "levels": {
+   "ArenaTournamentGoldMedal": [
+    34,
+    36,
+    35
+   ],
+   "ArenaRatingGoldMedal": [
+    20,
+    32,
+    21
+   ],
+   "PbTopParticipantMedal": [
+    28,
+    29,
+    26
+   ],
+   "BeforeRang30Medal": [
+    24,
+    27,
+    25
+   ],
+   "AuctionTrade1000kMedal": [
+    22,
+    33,
+    31
+   ],
+   "ParticipateTenderMedal": [
+    42,
+    0,
+    43
+   ],
+   "Board3PlayersMedal": [
+    4,
+    12,
+    5
+   ],
+   "WorldChestResearcherMedal": [
+    10,
+    3,
+    11
+   ],
+   "ArkanaMedal": [
+    1,
+    9,
+    2
+   ],
+   "KillLegendaryPlayerMedal": [
+    39,
+    41,
+    40
+   ],
+   "ArenaTopDamageMedal": [
+    18,
+    19,
+    17
+   ],
+   "PassingMapMaxDiffMedal": [
+    15,
+    6,
+    16
+   ],
+   "BoardLotOfCargoMedal": [
+    23,
+    30,
+    37
+   ]
+  },
+  "single": {
+   "Have10kkGoldMedal": 13,
+   "Have30ShipsMedal": 44,
+   "HaveRank30Medal": 38,
+   "Have2PersonalIslesMedal": 8,
+   "Open20WorkshosMedal": 14,
+   "CollectAllSailageLegendsMedal": 7
+  }
  }
 }

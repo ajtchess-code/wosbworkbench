@@ -276,4 +276,4 @@ class WikiSiteTests(TempDir):
     def test_humanize_effect(self):
         import wiki_site
         self.assertEqual(wiki_site.humanize_effect('PSightSpeed +50'), 'Sight speed +50%')
-        self.assertEqual(wiki_site.humanize_effect('MMarchingSpeed +4'), 'Marching speed +4')
+        self.assertEqual(wiki_site.humanize_effect('MMarchingSpeed +4'), 'Cruising Mode top speed +4')

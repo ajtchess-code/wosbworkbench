@@ -15,7 +15,8 @@
     150.0
    ]
   ],
-  "options": {}
+  "options": {},
+  "icon": "mendkit1"
  },
  {
   "index": 1,
@@ -35,7 +36,8 @@
   ],
   "options": {
    "CanBeUsedByLegendaryNpc": "true"
-  }
+  },
+  "icon": "mendkit2"
  },
  {
   "index": 2,
@@ -56,7 +58,8 @@
   "options": {
    "DisallowInLowRangShips": "3",
    "CanBeUsedByLegendaryNpc": "true"
-  }
+  },
+  "icon": "mendkit3"
  },
  {
   "index": 3,
@@ -77,7 +80,8 @@
   ],
   "options": {
    "DisallowInLowRangShips": "3"
-  }
+  },
+  "icon": "mendkit_debris"
  },
  {
   "index": 7,
@@ -106,7 +110,8 @@
   ],
   "options": {
    "AllowInterrupt": "true"
-  }
+  },
+  "icon": "combkit1"
  },
  {
   "index": 8,
@@ -136,7 +141,8 @@
   "options": {
    "AllowInterrupt": "true",
    "CanBeUsedByLegendaryNpc": "true"
-  }
+  },
+  "icon": "combkit2"
  },
  {
   "index": 9,
@@ -166,7 +172,8 @@
   "options": {
    "DisallowInLowRangShips": "3",
    "AllowInterrupt": "true"
-  }
+  },
+  "icon": "combkit3"
  },
  {
   "index": 10,
@@ -181,7 +188,8 @@
   "effects": [],
   "options": {
    "ServerEffect": "PowerupItemServerEffect.HealHurtedCrew"
-  }
+  },
+  "icon": "meatAndFish"
  },
  {
   "index": 11,
@@ -200,7 +208,8 @@
   "options": {
    "AllowInterrupt": "true",
    "ServerEffect": "PowerupItemServerEffect.CommonJerk"
-  }
+  },
+  "icon": "rope1"
  },
  {
   "index": 12,
@@ -224,7 +233,8 @@
    "AllowInterrupt": "true",
    "CanBeUsedByLegendaryNpc": "true",
    "ServerEffect": "PowerupItemServerEffect.CommonJerk"
-  }
+  },
+  "icon": "rope2"
  },
  {
   "index": 13,
@@ -246,7 +256,8 @@
   ],
   "options": {
    "AllowInterrupt": "true"
-  }
+  },
+  "icon": "shield1"
  },
  {
   "index": 14,
@@ -274,7 +285,8 @@
    "AllowInterrupt": "true",
    "CanBeUsedByLegendaryNpc": "true",
    "DisallowInLowRangShips": "3"
-  }
+  },
+  "icon": "shield2"
  },
  {
   "index": 15,
@@ -290,7 +302,8 @@
     14.0
    ]
   ],
-  "options": {}
+  "options": {},
+  "icon": "shadow1"
  },
  {
   "index": 16,
@@ -312,7 +325,8 @@
   ],
   "options": {
    "CanBeUsedByLegendaryNpc": "true"
-  }
+  },
+  "icon": "shadow2"
  },
  {
   "index": 17,
@@ -356,7 +370,8 @@
   "options": {
    "AllowInterrupt": "true",
    "CanBeUsedByLegendaryNpc": "true"
-  }
+  },
+  "icon": "powder_black"
  },
  {
   "index": 23,
@@ -378,7 +393,8 @@
   ],
   "options": {
    "AllowInterrupt": "true"
-  }
+  },
+  "icon": "powder_red"
  },
  {
   "index": 27,
@@ -408,7 +424,8 @@
   ],
   "options": {
    "AllowInterrupt": "true"
-  }
+  },
+  "icon": "powder_white"
  },
  {
   "index": 28,
@@ -427,7 +444,8 @@
   "options": {
    "GroupDistanceLimit": "500",
    "IsGroupEffect": "true"
-  }
+  },
+  "icon": "rocket_blue"
  },
  {
   "index": 29,
@@ -446,7 +464,8 @@
   "options": {
    "GroupDistanceLimit": "500",
    "IsGroupEffect": "true"
-  }
+  },
+  "icon": "rocket_red"
  },
  {
   "index": 30,
@@ -469,7 +488,8 @@
   "options": {
    "GroupDistanceLimit": "500",
    "IsGroupEffect": "true"
-  }
+  },
+  "icon": "rocket_yellow"
  },
  {
   "index": 31,
@@ -483,7 +503,8 @@
   "options": {
    "GroupDistanceLimit": "500",
    "IsGroupEffect": "true"
-  }
+  },
+  "icon": "horn"
  },
  {
   "index": 33,
@@ -507,7 +528,8 @@
   ],
   "options": {
    "AllowInterrupt": "false"
-  }
+  },
+  "icon": "rumkit"
  },
  {
   "index": 34,
@@ -544,7 +566,8 @@
   ],
   "options": {
    "AllowInterrupt": "true"
-  }
+  },
+  "icon": "hikekit"
  },
  {
   "index": 35,
@@ -562,7 +585,8 @@
   ],
   "options": {
    "HideFromCraftUi": "true"
-  }
+  },
+  "icon": "mendkit4"
  },
  {
   "index": 37,
@@ -575,7 +599,8 @@
   "effects": [],
   "options": {
    "HideFromCraftUi": "true"
-  }
+  },
+  "icon": "bonus_hp"
  },
  {
   "index": 38,
@@ -597,7 +622,8 @@
   ],
   "options": {
    "HideFromCraftUi": "true"
-  }
+  },
+  "icon": "bonus_weapons"
  },
  {
   "index": 39,
@@ -616,7 +642,8 @@
   "options": {
    "HideFromCraftUi": "true",
    "ServerEffect": "PowerupItemServerEffect.CommonJerk"
-  }
+  },
+  "icon": "bonus_speed"
  },
  {
   "index": 40,
@@ -644,7 +671,8 @@
   ],
   "options": {
    "AllowInterrupt": "false"
-  }
+  },
+  "icon": "fosfpowder"
  },
  {
   "index": 41,
@@ -672,7 +700,8 @@
   ],
   "options": {
    "AllowInterrupt": "true"
-  }
+  },
+  "icon": "bombershell"
  },
  {
   "index": 42,
@@ -692,7 +721,8 @@
   ],
   "options": {
    "AllowInterrupt": "false"
-  }
+  },
+  "icon": "dropboost"
  },
  {
   "index": 43,
@@ -736,7 +766,8 @@
   ],
   "options": {
    "AllowInterrupt": "true"
-  }
+  },
+  "icon": "groupmk"
  },
  {
   "index": 48,
@@ -824,7 +855,8 @@
   "options": {
    "AllowInterrupt": "true",
    "EffectsWhenInstalled": "new Tlist<ShipBonus>"
-  }
+  },
+  "icon": "powder_guild"
  },
  {
   "index": 55,
@@ -847,7 +879,8 @@
   "options": {
    "DisallowInLowRangShips": "3",
    "EffectsWhenInstalled": "new Tlist<ShipBonus>"
-  }
+  },
+  "icon": "patch_berserk"
  },
  {
   "index": 56,
@@ -874,6 +907,7 @@
   "options": {
    "AllowInterrupt": "true",
    "EffectsWhenInstalled": "new Tlist<ShipBonus>"
-  }
+  },
+  "icon": "rigging_set"
  }
 ]

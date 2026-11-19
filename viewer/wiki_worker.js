@@ -311,31 +311,50 @@ function localise(html, lang, path, origin) {
   return out;
 }
 
-async function translated(request, env, url, lang) {
+const PAGE_EXT = /\.[a-z0-9]{2,5}$/i;
+async function englishPage(request, env, url, rest) {
+  // Pages and Workers assets may answer /x.html with a redirect to /x (or the reverse): follow it inside the language
+  let r = await env.ASSETS.fetch(new Request(new URL(rest, url.origin), { headers: request.headers, redirect: 'manual' }));
+  for (let hops = 0; hops < 3 && r.status >= 300 && r.status < 400 && r.headers.get('location'); hops++) {
+    const to = new URL(r.headers.get('location'), url.origin);
+    if (to.origin !== url.origin) break;
+    r = await env.ASSETS.fetch(new Request(to, { headers: request.headers, redirect: 'manual' }));
+  }
+  return r;
+}
+
+async function translated(request, env, url, lang, ctx) {
   const rest = url.pathname.slice(lang.length + 1) || '/';
-  if (!/\.html$|\/$/.test(rest)) return env.ASSETS.fetch(new Request(new URL(rest + url.search, url.origin), request));   // css, images, data
-  const english = await env.ASSETS.fetch(new Request(new URL(rest, url.origin), request));
+  if (rest !== '/' && !rest.endsWith('/') && PAGE_EXT.test(rest) && !/\.html?$/i.test(rest))
+    return env.ASSETS.fetch(new Request(new URL(rest + url.search, url.origin), request));          // css, images, data
+  const english = await englishPage(request, env, url, rest);
   if (!english.ok || !(english.headers.get('content-type') || '').includes('text/html')) return english;
   const tag = english.headers.get('etag') || '';
   const cacheKey = new Request(`${url.origin}/__tr/${lang}${rest}?v=${encodeURIComponent(tag)}`);
   const cache = typeof caches !== 'undefined' ? caches.default : null;
   if (cache) { const hit = await cache.match(cacheKey); if (hit) return hit; }
-  const path = rest.endsWith('/') ? rest + 'index.html' : rest;
-  const { html, missing } = await translatePage(await english.text(), lang, env, path);
+  const path = rest.endsWith('/') ? rest + 'index.html' : (PAGE_EXT.test(rest) ? rest : rest + '.html');
+  const source = await english.text();
+  // answer straight away with what is already translated (plus a small first batch); the rest is translated after
+  // the page has been sent, so a first visit never sits on a blank screen
+  const quick = Number(env.TRANSLATE_FIRST || 24), total = Number(env.TRANSLATE_BUDGET || 150);
+  const { html, missing } = await translatePage(source, lang, { ...env, TRANSLATE_BUDGET: quick }, path);
+  if (missing && ctx && ctx.waitUntil) ctx.waitUntil(translatePage(source, lang, { ...env, TRANSLATE_BUDGET: total }, path).catch(() => {}));
   let page = localise(html, lang, rest, url.origin);
   if (missing) page = page.replace(/(<main id="content">)/, `$1<p class="tr-wait" translate="no">${LANGS[lang]}: part of this page is still being translated. Refresh in a minute to see more.</p>`);
-  const res = new Response(page, { headers: { 'content-type': 'text/html; charset=utf-8', 'content-language': lang, 'x-frame-options': 'DENY',
+  const res = new Response(request.method === 'HEAD' ? null : page, { headers: { 'content-type': 'text/html; charset=utf-8', 'content-language': lang, 'x-frame-options': 'DENY',
     'content-security-policy': "frame-ancestors 'none'", 'x-content-type-options': 'nosniff', 'cache-control': missing ? 'no-store' : 'public, max-age=600' } });
-  if (cache && !missing) await cache.put(cacheKey, res.clone());
+  if (cache && !missing) { const put = cache.put(cacheKey, res.clone()); ctx && ctx.waitUntil ? ctx.waitUntil(put) : await put; }
   return res;
 }
 
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     const url = new URL(request.url), p = url.pathname, m = request.method;
     try {
       const lang = p.split('/')[1];
-      if (LANGS[lang] && (m === 'GET' || m === 'HEAD')) return await translated(request, env, url, lang);
+      if (LANGS[lang] && p === `/${lang}`) return Response.redirect(`${url.origin}/${lang}/`, 301);
+      if (LANGS[lang] && (m === 'GET' || m === 'HEAD')) return await translated(request, env, url, lang, ctx);
       if (p.startsWith('/pack/')) return await pack(request, env, url);
       if (p === '/api/auth/login' && m === 'GET') return await login(request, env, url);
       if (p === '/api/auth/callback' && m === 'GET') return await callback(request, env, url);
@@ -351,5 +370,5 @@ export default {
       return fail('Something went wrong on the wiki server. Please try again.', 500);
     }
   },
-  _test: { tokenize, translatePage, localise, LANGS },
+  _test: { tokenize, translatePage, localise, LANGS, translated },
 };
