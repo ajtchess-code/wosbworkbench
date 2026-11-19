@@ -1,0 +1,58 @@
+import json
+import sqlite3
+from types import SimpleNamespace
+
+import site_effects
+import site_extras
+
+
+class _DB:
+    def __init__(self, rows):
+        self.conn = sqlite3.connect(':memory:')
+        self.conn.execute('CREATE TABLE records (dataset TEXT, source_root TEXT, raw_json TEXT)')
+        for ds, d in rows:
+            self.conn.execute('INSERT INTO records VALUES (?,?,?)', (ds, 'Steam', json.dumps(d)))
+
+
+def test_effects_in_plain_words():
+    assert site_effects.describe('PSpeed', 5) == 'Ship speed +5%'
+    assert site_effects.describe('PServer_XpAndRewardBonus', 7) == 'XP and rewards +7%'
+    assert site_effects.describe_pair('PSpeed PArmor', '5 4') == 'Ship speed +5%, Armor +4%'
+    assert site_effects.describe('CanMakeAnyBurnings') == 'Can start fires'
+    # unknown codes still read as words, never as raw code
+    assert site_effects.describe('PSomethingNew', 3) == 'Something new +3%'
+    assert site_effects.describe_all('PSpeed +4 PArmor 2') == ['Ship speed +4%', 'Armor +2%']
+
+
+def test_rank_table_and_cap():
+    rows = [('RangInfo', {'SourceRecord': i, 'Xp': 100 * (i + 1)}) for i in range(29)]
+    b = SimpleNamespace(db=_DB(rows), build='Steam')
+    page = site_extras.ranks_page(b)
+    assert 'rank 30' in page and '2,900 XP' in page               # the last step repeats after the cap
+    assert f'{sum(100 * (i + 1) for i in range(29)):,} XP' in page
+
+
+def test_elite_table_totals():
+    r = site_extras.rules()['elite_status']['costs']['3']
+    tbl = site_extras.elite_table(3)
+    assert f'{sum(x for x, _, _ in r):,}' in tbl and 'All 6' in tbl
+    assert site_extras.elite_table(7) is None
+
+
+def test_consumables_and_medals_data():
+    cons = site_extras.consumables()
+    assert len(cons) >= 30 and all('index' in c for c in cons)
+    m = site_extras.medals()
+    assert m['medal_targets'] and m['titles'] and m['ship_unlocks']
+
+
+def test_crew_titles_and_achievement_enrichment():
+    db = _DB([('UnitsInfo', {'ID': 'unit_special_01'}), ('English_Text', {'Key': 'unit_special_01_name', 'English': 'Lucky One'}),
+              ('Resources', {'ID': 'res_37', 'EnglishName': 'Battle Mark'})])
+    assert site_extras.crew_titles(db) == {'unit_special_01': 'Lucky One'}
+    m = site_extras.medals()
+    aid = next(iter(m['medal_targets']))
+    ach = {'ID': aid, '_title': 'Test'}
+    b = SimpleNamespace(db=db, build='Steam', texts={}, entities={'achievement': [ach], 'ship': []})
+    site_extras.enrich_achievements(b)
+    assert ach['_medal'].startswith('Bronze ')

@@ -59,11 +59,12 @@ if (Test-Path -LiteralPath $publicKey) {
   --add-data 'wiki_site;wiki_site' `
   --add-data 'engine;engine' `
   --add-data 'assets;assets' `
+  --add-data 'data;data' `
   @keyData `
   --hidden-import protocol_lab --hidden-import protocol_schema --hidden-import game_watcher `
   --hidden-import datamine --hidden-import wiki_engine --hidden-import update_signing `
   --hidden-import battle_sim --hidden-import model_pack --hidden-import combat_sim --hidden-import ball_damage `
-  --hidden-import damage_fit --hidden-import wiki_site --hidden-import wiki_publish --hidden-import bom_publish --hidden-import shipyard --hidden-import site_seo --hidden-import site_compact --hidden-import site_legal --hidden-import site_host --hidden-import git_push --hidden-import site_titlecase --hidden-import site_world --hidden-import site_wording --hidden-import mechanics_pages `
+  --hidden-import damage_fit --hidden-import wiki_site --hidden-import wiki_publish --hidden-import bom_publish --hidden-import shipyard --hidden-import site_seo --hidden-import site_compact --hidden-import site_legal --hidden-import site_host --hidden-import git_push --hidden-import site_titlecase --hidden-import site_world --hidden-import site_wording --hidden-import site_effects --hidden-import site_extras --hidden-import mechanics_pages `
   --collect-all dnfile `
   --collect-all dncil `
   --collect-all pyzipper `

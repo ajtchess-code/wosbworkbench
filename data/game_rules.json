@@ -1,0 +1,194 @@
+{
+ "_about": "Rules the game keeps in code rather than data tables, read from the current game version.",
+ "elite_status": {
+  "max_level": 6,
+  "ranks": [
+   1,
+   2,
+   3,
+   4,
+   5
+  ],
+  "costs": {
+   "1": [
+    [
+     133000,
+     556000,
+     185
+    ],
+    [
+     160000,
+     667000,
+     225
+    ],
+    [
+     195000,
+     807000,
+     270
+    ],
+    [
+     220000,
+     920000,
+     305
+    ],
+    [
+     244000,
+     1029000,
+     345
+    ],
+    [
+     280000,
+     1169000,
+     390
+    ]
+   ],
+   "2": [
+    [
+     105000,
+     291000,
+     167
+    ],
+    [
+     125000,
+     351000,
+     200
+    ],
+    [
+     152000,
+     425000,
+     241
+    ],
+    [
+     173000,
+     483000,
+     274
+    ],
+    [
+     193000,
+     541000,
+     308
+    ],
+    [
+     220000,
+     615000,
+     350
+    ]
+   ],
+   "3": [
+    [
+     67000,
+     219000,
+     103
+    ],
+    [
+     80000,
+     263000,
+     125
+    ],
+    [
+     98000,
+     316000,
+     150
+    ],
+    [
+     111000,
+     360000,
+     172
+    ],
+    [
+     125000,
+     405000,
+     191
+    ],
+    [
+     143000,
+     460000,
+     219
+    ]
+   ],
+   "4": [
+    [
+     49000,
+     143000,
+     77
+    ],
+    [
+     59000,
+     172000,
+     94
+    ],
+    [
+     73000,
+     207000,
+     112
+    ],
+    [
+     82000,
+     237000,
+     129
+    ],
+    [
+     91000,
+     265000,
+     145
+    ],
+    [
+     103000,
+     301000,
+     163
+    ]
+   ],
+   "5": [
+    [
+     22000,
+     71000,
+     37
+    ],
+    [
+     26000,
+     87000,
+     45
+    ],
+    [
+     33000,
+     105000,
+     55
+    ],
+    [
+     37000,
+     117000,
+     63
+    ],
+    [
+     42000,
+     133000,
+     71
+    ],
+    [
+     48000,
+     151000,
+     79
+    ]
+   ]
+  },
+  "benefits": {
+   "1": "10% fewer resources lost when the ship is sunk",
+   "2": "+2 hull integrity",
+   "3": "+10% hold capacity and an extra sail pattern slot",
+   "4": "Repairs cost 20% less",
+   "5": "Repairs are 35% faster",
+   "6": "+20% XP and rewards, and 2 extra equipment preset slots"
+  }
+ },
+ "shipyard_seconds": {
+  "7": 60,
+  "6": 300,
+  "5": 600,
+  "4": 3600,
+  "3": 7200,
+  "2": 14400,
+  "1": 21600
+ },
+ "quick_finish": "Battle Marks = max((8 - rank) x 10, ship cost in Battle Marks x (1 - build progress))",
+ "rank_cap_note": "Rank stops at the number of rank steps + 1; afterwards every level costs the last step's XP and gives a reward instead of a rank."
+}

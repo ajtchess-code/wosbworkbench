@@ -74,6 +74,7 @@ ENTITIES = {
         ('DamageFactor', 'Damage factor', None), ('Penetration', 'Penetration bonus', None),
         ('DistanceFactor', 'Range factor', None), ('DamageToSailes', 'Sail damage', None),
         ('CrewDamage', 'Crew damage', None), ('ReloadFactor', 'Reload factor', None), ('Speed', 'Speed factor', None),
+        ('CurveMultiplier', 'Arc (drop) factor', None), ('MinDamageThroughAnyHitbox', 'Minimum damage', None), ('Radius', 'Shot radius', None),
         ('MassKg', 'Mass (kg)', None), ('SingleCost', 'Cost per shot', None), ('IsRare', 'Rare', 'bool'),
         ('Effects', 'Effects', 'effects')],
         ['Damage factor', 'Penetration bonus', 'Range factor', 'Sail damage', 'Crew damage', 'Reload factor']),
@@ -81,24 +82,27 @@ ENTITIES = {
         ('Category', 'Slot', 'category'), ('EffectsBoost', 'Effect', 'effects'), ('WearType', 'Wear', 'none'),
         ('LowCost', 'Budget version', 'bool')], ['Slot', 'Effect']),
     'crew': ('UnitsInfo', 'Crew', [
-        ('TypeEnglish', 'Type', None), ('Cost', 'Cost', 'int'), ('DHealth', 'Health', None),
-        ('DDamage', 'Damage', None), ('DCapacity', 'Capacity', None), ('Effect', 'Effect', 'effects')],
-        ['Type', 'Cost', 'Health', 'Damage', 'Effect']),
+        ('TypeEnglish', 'Type', 'crewtype'), ('Options', 'Group', 'crewgroup'), ('Cost', 'Cost', 'int'), ('DHealth', 'Health', None),
+        ('DDamage', 'Damage', None), ('DCapacity', 'Capacity', None), ('Effect', 'Effect', 'effects'),
+        ('EffectPerSailor', 'Per sailor', 'effects'), ('EffectPerBoardingUnit', 'Per boarder', 'effects')],
+        ['Type', 'Group', 'Effect']),
     'skill': ('CaptainSkills', 'Captain skills', [
         ('Effect', 'Effect', 'effects'), ('CostPoints', 'Skill points', None), ('RequiredRank', 'Required rank', 'none')],
         ['Effect', 'Skill points']),
     'resource': ('Resources', 'Resources', [
-        ('Mass', 'Mass', None), ('MediumCost', 'Typical price', 'int'), ('Effects', 'Effects', 'effects')],
-        ['Mass', 'Typical price']),
+        ('Mass', 'Mass', None), ('MediumCost', 'Typical price', 'int'), ('_minp', 'Lowest price', 'int'), ('_maxp', 'Highest price', 'int'),
+        ('Effects', 'Effects', 'effects')],
+        ['Mass', 'Typical price', 'Lowest price', 'Highest price']),
     'port': ('WorldPorts', 'Ports', [
         ('Type', 'Type', 'porttype'), ('LegalFraction', 'Faction', 'faction'), ('ProducedResourceId', 'Produces', 'produce'),
         ('BuildShipRangs', 'Shipyard builds', 'rankup'), ('PbsTeamLimitation', 'Port battle size', 'pbsize'), ('Flags', 'Features', 'portflags')],
         ['Type', 'Faction', 'Produces', 'Shipyard builds']),
     'achievement': ('Achievements', 'Achievements', [
-        ('UiCategory', 'Category', None), ('CommonRatingWeight', 'Rating weight', None)], ['Category', 'Rating weight']),
+        ('UiCategory', 'Category', None), ('_medal', 'Title medal', None), ('_reward', 'Reward', None), ('_unlocks', 'Unlocks ship', None),
+        ('CommonRatingWeight', 'Rating weight', None)], ['Category', 'Title medal', 'Reward', 'Rating weight']),
     'cosmetic': ('ShipDesingElements', 'Ship cosmetics', [
-        ('Category', 'Kind', 'cosmetic'), ('InShop', 'In shop', 'shop'), ('BonusEffectType', 'Bonus', 'fxname'),
-        ('BonusEffectValue', 'Bonus value', None), ('EnglishDescription', 'Description', None)], ['Kind', 'In shop', 'Bonus']),
+        ('Category', 'Kind', 'cosmetic'), ('InShop', 'In shop', 'shop'), ('_bonus', 'Bonus', None),
+        ('EnglishDescription', 'Description', None)], ['Kind', 'In shop', 'Bonus']),
     'decoration': ('EnvDesingElements', 'Island decorations', [
         ('InShop', 'How to get', 'shop'), ('EnglishDescription', 'Description', None)], ['How to get']),
     'recipe': ('Crafting_Recipes', 'Crafting recipes', [
@@ -106,10 +110,12 @@ ENTITIES = {
         ('InputGold', 'Gold', 'int'), ('OutputType', 'Output type', 'camel')], ['Workshop', 'Hours', 'Makes', 'Gold']),
 }
 NAV = [('Main page', 'index.html'), ('Ships', 'category/ships.html'), ('Cannons', 'category/cannons.html'),
-       ('Ammunition', 'category/ammo.html'), ('Ship upgrades', 'category/upgrades.html'), ('Crew', 'category/crew.html'),
+       ('Ammunition', 'category/ammo.html'), ('Consumables', 'guide/consumables.html'), ('Ship upgrades', 'category/upgrades.html'),
+       ('Sails', 'guide/sails-compared.html'), ('Crew', 'category/crew.html'), ('Special Crew', 'guide/special-crew.html'),
        ('Captain skills', 'category/skills.html'), ('Resources', 'category/resources.html'), ('Ports', 'category/ports.html'),
        ('Achievements', 'category/achievements.html'), ('Ship cosmetics', 'category/cosmetics.html'),
-       ('Island decorations', 'category/decorations.html'), ('Crafting', 'category/recipes.html'), ('Missions & NPCs', 'category/missions.html'),
+       ('Lanterns', 'guide/lanterns.html'), ('Island decorations', 'category/decorations.html'), ('Captain ranks', 'guide/captain-ranks.html'),
+       ('Elite status', 'guide/elite-status.html'), ('Crafting', 'category/recipes.html'), ('Missions & NPCs', 'category/missions.html'),
        ('World map', 'map.html'),
        ('Guides & mechanics', 'category/articles.html')]
 TOOLS = [('Damage simulator', 'tools/damage-simulator.html'), ('Wind & sailing', 'tools/wind-rose.html'),
@@ -133,18 +139,9 @@ def _camel(text):
 
 
 def humanize_effect(text):
-    """'PSightSpeed +50' -> 'Sight speed +50%'; 'MMarchingSpeed +4' -> 'Marching speed +4'."""
-    parts = []
-    for m in re.finditer(r'([PMBC]?)([A-Z][A-Za-z]+)\s*([+-]?\d+(?:\.\d+)?)?', str(text or '')):
-        prefix, name, value = m.groups()
-        words = _camel(name).split()
-        words = [EFFECT_WORDS.get(w, w) for w in words]
-        label = ' '.join([words[0]] + [w.lower() if w not in EFFECT_WORDS.values() else w for w in words[1:]]) if words else name
-        if value is None:
-            parts.append(label)
-        else:
-            parts.append(f'{label} {value}{"%" if prefix == "P" else ""}')
-    return '; '.join(parts) or str(text or '')
+    """'PSpeed +4;PCannonsReload 10' -> 'Ship speed +4%; Gun reload speed +10%' (plain English, see site_effects)."""
+    import site_effects
+    return '; '.join(site_effects.describe_all(text))
 
 
 def _fmt(value, kind):
@@ -178,6 +175,10 @@ def _fmt(value, kind):
         return SLOT_NAMES.get(str(value), _camel(value))
     if kind == 'cosmetic':
         return COSMETIC_KIND.get(str(value), _camel(value))
+    if kind == 'crewtype':
+        return {'Special': 'Specialist', 'Boarding': 'Boarding crew', 'Sailor': 'Sailors'}.get(str(value), _camel(value))
+    if kind == 'crewgroup':
+        return {'Sailors': 'Sailors', 'Combats': 'Combat', 'Pirates': 'Pirates', 'Adventurers': 'Adventurers', 'All': None}.get(str(value), _camel(value))
     if kind == 'porttype':
         return {'City': 'City', 'Bay': 'Bay', 'NeutralBay': 'Neutral bay', 'PirateBay': 'Pirate bay'}.get(str(value), _camel(value))
     if kind == 'faction':
@@ -214,6 +215,7 @@ def load_entities(db, *, build='Steam'):
     """{kind: [record dicts]} preferring one build, de-duplicated by English name."""
     out = {}
     descriptions = {}
+    crew_names = None
     for raw, in db.conn.execute("SELECT raw_json FROM records WHERE dataset='English_Names'"):
         rec = json.loads(raw)
         if rec.get('Key') and rec.get('EnglishDescription'):
@@ -229,10 +231,14 @@ def load_entities(db, *, build='Steam'):
             rec = json.loads(raw)
             title = (rec.get('EnglishName') or rec.get('NameEnglish') or rec.get('PortNameEnglish') or name or '').strip()
             if kind == 'crew':
-                m = re.match(r'unit_([a-z]+)_(\d+)', str(rec.get('ID') or ''))
-                if m:
-                    english = (rec.get('EnglishName') or '').strip()
-                    title = f"{m.group(1).capitalize()} unit {m.group(2)}" + (f' ({english})' if english and english.casefold() not in (m.group(1), 'special') else '')
+                if crew_names is None:
+                    import site_extras
+                    crew_names = site_extras.crew_titles(db, build)
+                m = re.match(r'unit_([a-z]+)_(\d+\w*)', str(rec.get('ID') or ''))
+                if crew_names.get(rec.get('ID')):
+                    title = crew_names[rec['ID']]
+                elif m:
+                    title = f"{m.group(1).capitalize()} unit {m.group(2)}"
             if not title or title.startswith('(') or 'test' in title.casefold() or (kind == 'ship' and title.isupper()) \
                     or re.fullmatch(r'(removed|deleted|unused|placeholder)\b.*', title.casefold()):
                 continue
@@ -325,7 +331,7 @@ ul.cols{columns:3 220px;padding-left:18px}
 .ha-cur{background:#fff7d6}.ha-more{margin:10px 0;border:1px solid #dde3ea;border-radius:6px;padding:6px 10px}.ha-more summary{cursor:pointer;font-weight:600}
 .sw{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px}img.infographic{max-width:100%;border:1px solid #ddd;border-radius:6px;margin:8px 0}
 
-.tfilter{width:320px;max-width:100%;padding:6px 8px;border:1px solid #a2a9b1;border-radius:3px;font:inherit}
+.tfilter{width:320px;max-width:100%;padding:6px 8px;border:1px solid #a2a9b1;border-radius:3px;font:inherit}select.tcol{margin:4px 0 0 8px;padding:5px 6px;border:1px solid #a2a9b1;border-radius:3px;font:inherit;max-width:100%}.toc-inline{font-size:13px}
 
 .vbar{position:relative;min-width:90px;height:18px;background:#eef2f5;border-radius:3px;overflow:hidden}.vbar i{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,#9cc3dc,#4f8fb8)}.vbar b{position:relative;padding-left:5px;font-weight:600;font-size:12px;line-height:18px;color:#16324a}
 .vbar.warm i{background:linear-gradient(90deg,#f3c58a,#d9782f)}.vbar.green i{background:linear-gradient(90deg,#b7dfa0,#5aa144)}
@@ -447,6 +453,16 @@ if(box){box.addEventListener('input',async()=>{const q=box.value.trim().toLowerC
  res.innerHTML=items.map(x=>'<a href="'+base+x.u+'">'+x.t.replace(/</g,'&lt;')+'<small>'+x.c+'</small></a>').join('')||'<a>No matches</a>';res.style.display='block'});
  box.addEventListener('keydown',e=>{if(e.key==='Enter'){const a=res.querySelector('a[href]');if(a)location=a.href}});
  document.addEventListener('click',e=>{if(!e.target.closest('#search'))res.style.display='none'})}
+// drop-down filters for list columns with only a few different values (slot, kind, group, category...)
+document.querySelectorAll('input.tfilter').forEach(inp=>{const t=inp.closest('p')?.nextElementSibling?.querySelector?.('table')||inp.closest('p')?.nextElementSibling;
+ const tbl=t&&t.tagName==='TABLE'?t:(t&&t.querySelector&&t.querySelector('table'));if(!tbl||!tbl.tBodies[0]||tbl.tBodies[0].rows.length<8)return;
+ const heads=[...tbl.querySelectorAll('thead th, tr:first-child th')];const rows=[...tbl.tBodies[0].rows];const sels=[];
+ heads.forEach((th,i)=>{if(i===0)return;const vals=[...new Set(rows.map(r=>(r.cells[i]?.innerText||'').trim()).filter(Boolean))];
+  if(vals.length<2||vals.length>14)return;const s=document.createElement('select');s.className='tcol';s.dataset.col=i;
+  s.innerHTML=`<option value="">${th.innerText.trim()}: all</option>`+vals.sort().map(v=>`<option>${v.replace(/</g,'&lt;')}</option>`).join('');sels.push(s);inp.after(s)});
+ if(!sels.length)return;const apply=()=>{const q=inp.value.toLowerCase();rows.forEach(r=>{let ok=!q||r.innerText.toLowerCase().includes(q);
+  for(const s of sels)if(s.value&&(r.cells[s.dataset.col]?.innerText||'').trim()!==s.value)ok=false;r.style.display=ok?'':'none'})};
+ sels.forEach(s=>s.addEventListener('change',apply));inp.removeAttribute('oninput');inp.addEventListener('input',apply)});
 document.querySelectorAll('table.sortable').forEach(t=>{t.querySelectorAll('th').forEach((th,i)=>th.addEventListener('click',()=>{
  const asc=!th.classList.contains('sorted-asc');t.querySelectorAll('th').forEach(h=>h.classList.remove('sorted-asc','sorted-desc'));th.classList.add(asc?'sorted-asc':'sorted-desc');
  const rows=[...t.tBodies[0].rows];const num=v=>{const n=parseFloat(String(v).replace(/[,%]/g,''));return isNaN(n)?null:n};
@@ -528,6 +544,18 @@ class SiteBuilder:
                 self.urls[(kind, r['_title'].casefold())] = f'{kind}/{_slug(r["_title"])}.html'
         self.articles = self._articles()
         self.icons = {}           # (kind, title casefold) -> 'assets/icons/<kind>/<slug>.webp' (filled by _copy_icons)
+        import site_extras
+        self.texts = site_extras.texts(db)
+        prices = {str(r.get('TextID')): r for r in site_extras.records(db, 'Market_Price_Limits', self.build)}
+        for r in self.entities.get('resource', []):
+            p_ = prices.get(str(r.get('ID')))
+            if p_:
+                r['_minp'], r['_maxp'] = p_.get('ClientMinUnitPrice'), p_.get('ClientMaxUnitPrice')
+        site_extras.enrich_achievements(self)
+        import site_effects
+        for r in self.entities.get('cosmetic', []):
+            if r.get('BonusEffectType') not in (None, '', 'None'):
+                r['_bonus'] = site_effects.describe_pair(r['BonusEffectType'], r.get('BonusEffectValue'))
         self.article_urls = {a['slug']: f'wiki/{_slug(a["slug"])}.html' for a in self.articles}
 
     def _articles(self):
@@ -680,6 +708,28 @@ class SiteBuilder:
                 except OSError:
                     continue
                 self.icons[(kind, r['_title'].casefold())] = rel; n += 1
+        # anything still without a picture: look for a file named after its ID or icon name (achievement icons, for example)
+        stems = {}
+        for root in roots:
+            for f in (root / 'Images').rglob('*.png'):
+                stems.setdefault(f.stem.casefold(), f)
+        for kind, recs in self.entities.items():
+            for r in recs:
+                if (kind, r['_title'].casefold()) in self.icons:
+                    continue
+                src = next((stems[k] for k in (str(r.get(f)).casefold() for f in ('ID', 'IconName', 'Name') if r.get(f)) if k in stems), None)
+                if not src:
+                    continue
+                rel = f'assets/icons/{kind}/{_slug(r["_title"])}.webp'
+                dst = self.out / rel; dst.parent.mkdir(parents=True, exist_ok=True)
+                try:
+                    im = Image.open(src).convert('RGBA'); bbox = im.getchannel('A').getbbox()
+                    if bbox:
+                        im = im.crop(bbox)
+                    im.thumbnail((size, size), Image.LANCZOS); im.save(dst, 'WEBP', quality=88, method=4)
+                except OSError:
+                    continue
+                self.icons[(kind, r['_title'].casefold())] = rel; n += 1
         return n
 
     def _design_thumbs(self, *, size=128):
@@ -749,6 +799,9 @@ class SiteBuilder:
         try:
             self._copy_icons()
             self._design_thumbs()
+            # player-made "custom" designs have no picture in the game files: don't list them without one
+            self.entities['cosmetic'] = [r for r in self.entities.get('cosmetic', [])
+                                         if not (re.match(r'custom\b', r['_title'], re.I) and ('cosmetic', r['_title'].casefold()) not in self.icons)]
         except Exception as exc:   # pictures are a bonus: never fail the build over them
             self.progress and self.progress(f'Item icons skipped: {exc}')
         flags = Path(__file__).resolve().parent / 'viewer' / 'flags'
@@ -876,6 +929,8 @@ class SiteBuilder:
             body.append(f'<p><b>{_e(title)}</b> is {"an" if plural[0] in "AEIOU" else "a"} {_e(plural[:-1].lower() if plural.endswith("s") else plural.lower())} in World of Sea Battle.</p>')
         if kind == 'ship':
             body += self._ship_sections(rec, hitboxes)
+            import site_extras
+            body += site_extras.ship_build_html(self, rec)
         if kind == 'cannon':
             if rec.get('Model') and self.model_pack and self.recovery_dir:
                 body.append(f'<h2>3D model</h2><div class="iv" data-model="weapons" data-mesh="{_e(rec["Model"])}" data-pack="../pack/"></div>'
@@ -922,8 +977,9 @@ class SiteBuilder:
                if shop.lower().startswith('true') else 'Not sold in the shop: it comes from chests, events, achievements or rewards.')
         out.append(f'<h2>How to get it</h2><p>{_e(how)}</p>')
         if rec.get('BonusEffectType'):
-            lab, val = fx_label(f"{rec['BonusEffectType']} {rec.get('BonusEffectValue') or ''}")
-            out.append(f'<h2>Bonus</h2><p>{_e(lab)}: <b>{_e(val or rec.get("BonusEffectValue") or "")}</b>. Design bonuses count while the design is fitted.</p>')
+            import site_effects
+            fx = site_effects.describe_pair(rec['BonusEffectType'], rec.get('BonusEffectValue'))
+            out.append(f'<h2>Bonus</h2><p><b>{_e(fx)}</b>. Design bonuses count while the design is fitted.</p>')
         out.append('<p><a href="../tools/ship-viewer.html">Try designs on a ship in the 3D ship viewer</a>, where you can combine sail cloth, paints, patterns, '
                    'two flags and figureheads.</p>')
         return out
@@ -1952,12 +2008,20 @@ class _Overviews:
         return f'<a href="../{url}">{_e(name)}</a>' if url else _e(name)
 
     def pages(self):
+        import site_extras
         out = []
         for slug, title, blurb, fn in (
                 ('ships-by-rank', 'Ships by rank', 'Every ship side by side within its rank: hull, armor, speed and turning.', self.ships_by_rank),
                 ('cannons-compared', 'Cannons compared', 'Penetration, damage per ball and per minute, range and reload, grouped by gun type.', self.cannons),
                 ('upgrades-by-effect', 'Upgrades by effect', 'What each ship upgrade actually changes, grouped by slot and by effect.', self.upgrades),
-                ('port-battle-rules', 'Port battle rules', 'Tower and fort HP, battle clock, respawn points, capture rules in tables.', self.port_battles)):
+                ('port-battle-rules', 'Port battle rules', 'Tower and fort HP, battle clock, respawn points, capture rules in tables.', self.port_battles),
+                ('special-crew', 'Special Crew', 'Every specialist by group, what each one does, and where to find them.', lambda: site_extras.special_crew(self.site)),
+                ('consumables', 'Consumables', 'Repair kits, patches, boosts, powders and squadron signals: effects, cooldowns and crafting costs.', lambda: site_extras.consumables_page(self.site)),
+                ('captain-ranks', 'Captain ranks and XP', 'XP for every rank, the total to the top rank, and what happens after it.', lambda: site_extras.ranks_page(self.site)),
+                ('elite-status', 'Elite status', 'The six Elite levels for rank 1–5 ships: what each gives and its cost in XP, gold or Coins.', lambda: site_extras.elite_page(self.site)),
+                ('sails-compared', 'Sails compared', 'Every sail upgrade side by side.', lambda: site_extras.sails_page(self.site)),
+                ('lanterns', 'Lanterns', 'Every lantern, its bonus and how to get it.', lambda: site_extras.lanterns_page(self.site)),
+                ('captain-titles', 'Captain titles and medals', 'The titles you can show on your ship, and the bronze, silver and gold targets behind them.', lambda: site_extras.titles_page(self.site))):
             try:
                 body = fn()
             except Exception:

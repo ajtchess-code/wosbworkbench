@@ -1,0 +1,224 @@
+{
+ "_about": "Captain title medals (bronze/silver/gold targets), achievement rewards and ships unlocked by achievements, from the current game version.",
+ "medal_targets": {
+  "ArenaTournamentGold": [
+   5,
+   20,
+   50
+  ],
+  "ArenaTournamentSilver": [
+   10,
+   50,
+   100
+  ],
+  "ArenaRatingGold": [
+   1,
+   2,
+   3
+  ],
+  "ArenaRatingSilver": [
+   2,
+   4,
+   6
+  ],
+  "PbTopParticipant": [
+   25,
+   100,
+   200
+  ],
+  "BeforeRang30": [
+   10,
+   25,
+   50
+  ],
+  "AuctionTrade1000k": [
+   100,
+   500,
+   1000
+  ],
+  "ParticipateTender": [
+   10,
+   25,
+   50
+  ],
+  "Board3Players": [
+   50,
+   250,
+   500
+  ],
+  "WorldChestResearcher": [
+   100,
+   500,
+   1000
+  ],
+  "Arkana": [
+   30,
+   150,
+   300
+  ],
+  "KillLegendaryPlayer": [
+   300,
+   1000,
+   3000
+  ],
+  "ArenaTopDamage": [
+   100,
+   500,
+   1000
+  ],
+  "PassingMapMaxDiff": [
+   50,
+   300,
+   500
+  ],
+  "BoardLotOfCargo": [
+   50,
+   150,
+   500
+  ]
+ },
+ "titles": {
+  "Have10kkGoldMedal": [
+   "Have10kkGold"
+  ],
+  "Open20WorkshosMedal": [
+   "Open20Workshos"
+  ],
+  "CollectAllSailageLegendsMedal": [
+   "CollectAllSailageLegends"
+  ],
+  "ArenaTournamentGoldMedal": [
+   "ArenaTournamentGold",
+   "ArenaTournamentSilver"
+  ],
+  "ArenaRatingGoldMedal": [
+   "ArenaRatingGold",
+   "ArenaRatingSilver"
+  ],
+  "PbTopParticipantMedal": [
+   "PbTopParticipant"
+  ],
+  "BeforeRang30Medal": [
+   "BeforeRang30"
+  ],
+  "AuctionTrade1000kMedal": [
+   "AuctionTrade1000k"
+  ],
+  "ParticipateTenderMedal": [
+   "ParticipateTender"
+  ],
+  "Board3PlayersMedal": [
+   "Board3Players"
+  ],
+  "WorldChestResearcherMedal": [
+   "WorldChestResearcher"
+  ],
+  "ArkanaMedal": [
+   "Arkana"
+  ],
+  "KillLegendaryPlayerMedal": [
+   "KillLegendaryPlayer"
+  ],
+  "ArenaTopDamageMedal": [
+   "ArenaTopDamage"
+  ],
+  "PassingMapMaxDiffMedal": [
+   "PassingMapMaxDiff"
+  ],
+  "BoardLotOfCargoMedal": [
+   "BoardLotOfCargo"
+  ]
+ },
+ "other_titles": {
+  "HaveRank30Medal": "Reach captain rank 30",
+  "Have30ShipsMedal": "Own 30 ships",
+  "Have2PersonalIslesMedal": "Own 2 Personal Islands"
+ },
+ "rewards": {
+  "FirstPlayerKill": {
+   "items": {
+    "37": 20
+   }
+  },
+  "GladiatorMass": {
+   "items": {
+    "37": 20
+   }
+  },
+  "GladiatorRating": {
+   "items": {
+    "37": 20
+   }
+  },
+  "AllSinglePassed": {
+   "items": {
+    "15": 20
+   }
+  },
+  "RangFive": {
+   "items": {
+    "38": 3
+   }
+  },
+  "ContrabandaWithoutCannons": {
+   "items": {
+    "35": 2
+   }
+  },
+  "BeforeRang30": {
+   "items": {
+    "37": 200,
+    "38": 15
+   }
+  },
+  "ManyFriendsReferal": {
+   "coins": 1000
+  },
+  "RegionalInterestPointsExplorer": {
+   "text_key": "AchievementGiveUi_0"
+  },
+  "CastawaysExplorer": {
+   "text_key": "AchievementGiveUi_0"
+  },
+  "AntiliaFigurinesExplorer": {
+   "text_key": "achiv_bonus_craft_limit"
+  },
+  "AntiliaLonghornExplorer": {
+   "text_key": "achiv_bonus_xp"
+  },
+  "EspanolShipwrecksExplorer": {
+   "text_key": "achiv_bonus_craft_recovery"
+  },
+  "WeaponsExplorer": {
+   "text_key": "achiv_bonus_powerup_discount"
+  }
+ },
+ "ship_unlocks": {
+  "50": [
+   [
+    "FullReputation",
+    1
+   ],
+   [
+    "AuctionTrade10000k",
+    1
+   ],
+   [
+    "CollectAllSailageLegends",
+    1
+   ]
+  ],
+  "57": [
+   [
+    "LuckyOne",
+    1
+   ]
+  ],
+  "63": [
+   [
+    "ArmedBusinessman",
+    30
+   ]
+  ]
+ }
+}

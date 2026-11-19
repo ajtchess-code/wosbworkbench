@@ -17,7 +17,7 @@ SELF_TEST_MODULES = [
     'network_lab', 'protocol_lab', 'protocol_schema', 'game_watcher', 'gameplay_capture', 'datamine',
     'ship_viewer', 'model_lab', 'appearance_lab', 'gltf_export', 'discovery_center', 'research_suite',
     'advanced_network', 'advanced_assets', 'advanced_catalog', 'advanced_release', 'workbench_ui', 'ui_extras',
-    'battle_sim', 'model_pack', 'combat_sim', 'ball_damage', 'damage_fit', 'wiki_site', 'wiki_publish', 'bom_publish', 'shipyard', 'site_seo', 'site_compact', 'site_legal', 'site_host', 'site_titlecase', 'site_world', 'site_wording', 'git_push', 'mechanics_pages',
+    'battle_sim', 'model_pack', 'combat_sim', 'ball_damage', 'damage_fit', 'wiki_site', 'wiki_publish', 'bom_publish', 'shipyard', 'site_seo', 'site_compact', 'site_legal', 'site_host', 'site_titlecase', 'site_world', 'site_wording', 'site_effects', 'site_extras', 'git_push', 'mechanics_pages',
     'mechanics_reference', 'hitbox_recovery', 'damage_model',
 ]
 ENGINE_MODULES = ['full_recovery', 'extract_wosb', 'analyze_one', 'protocol_extract', 'xnb_geometry', 'client_metadata']
