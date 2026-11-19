@@ -178,10 +178,10 @@ A Worker ignores `_worker.js` and `_routes.json` (those are Pages features), so 
 so a Worker deploy runs the same code in front of the files.
 
 1. In the dashboard open **Workers & Pages** and check the project's type and name.
-2. If it is a Worker and its name is not `wosbwiki`, set `"wiki.worker_name"` in `settings.json` to that name
+2. If it is a Worker and its name is not `wosbwiki`, set `"worker_name"` inside the `"wiki"` section of `settings.json` to that name
    (Workers Builds fails when the name in `wrangler.jsonc` differs), then rebuild and publish.
 3. Bindings: Workers AI is declared in the file. For translation memory and login, create the KV namespace and the
-   D1 database, put their IDs in `"wiki.kv_id"` and `"wiki.d1_id"`, rebuild and publish. Secrets
+   D1 database, put their IDs as `"kv_id"` and `"d1_id"` inside the `"wiki"` section of `settings.json` (`%LOCALAPPDATA%\WoSBWorkbench\settings.json`; close the Workbench first), rebuild and publish. Secrets
    (`DISCORD_CLIENT_SECRET`, `SESSION_SECRET`, `TURNSTILE_SECRET`) and plain variables go under the Worker's
    **Settings → Variables and Secrets**; `keep_vars` stops deploys from wiping them.
 4. Check: `https://wosbwiki.org/api/me` should answer `{"user":null}` (or similar JSON), not an empty 404.
