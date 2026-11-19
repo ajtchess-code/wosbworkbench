@@ -5,6 +5,11 @@
 (function(){
 'use strict';
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+// The client's sail pattern slots: Decal1 (all sails by default), Decal2 and the premium extra slot Decal3
+// (square/animated sails by default), each switched on or off per sail (Decal*SelectedSailesBits by SailStrengthIndex).
+const PATS=[{label:'Paint',list:'Decal1',def:'all'},{label:'Pattern',list:'Decal2',def:'animated'},{label:'Extra pattern (premium)',list:'Decal2',def:'animated'}];
+// A main flag can exist twice in a model (free-flying and the copy fixed to the frame); both carry the same slot.
+const flagKey=m=>m.replace(/_?FixToFrame$/i,'');
 const ZC={bow:[0.18,0.59,0.31],side:[0.88,0.55,0.16],stern:[0.82,0.22,0.22]};
 const HEAT=[[0,[40,50,90]],[.25,[60,110,190]],[.5,[90,190,120]],[.75,[240,200,60]],[1,[220,50,40]]];
 function heat(v){v=Math.max(0,Math.min(1,v));for(let i=1;i<HEAT.length;i++)if(v<=HEAT[i][0]){const [a,ca]=HEAT[i-1],[b,cb]=HEAT[i],t=(v-a)/(b-a);return ca.map((c,k)=>(c+(cb[k]-c)*t)/255)}return [0.86,0.2,0.16]}
@@ -32,10 +37,12 @@ const b64=(s,T)=>{const bin=atob(s),u=new Uint8Array(bin.length);for(let i=0;i<b
 
 const VS=`attribute vec3 p;attribute vec3 n;attribute vec2 uv;attribute vec3 col;uniform mat4 vp;uniform mat4 mdl;varying vec3 vn;varying vec2 vuv;varying vec3 vc;varying float vy;
 void main(){vec4 w=mdl*vec4(p,1.0);vn=mat3(mdl)*n;vuv=uv;vc=col;vy=w.y;gl_Position=vp*w;}`;
-const FS=`precision mediump float;varying vec3 vn;varying vec2 vuv;varying vec3 vc;varying float vy;uniform sampler2D tex;uniform sampler2D dec;
-uniform float useTex,useDec,useCol,cut,alpha;uniform vec3 base;uniform vec3 L;
+const FS=`precision mediump float;varying vec3 vn;varying vec2 vuv;varying vec3 vc;varying float vy;uniform sampler2D tex;uniform sampler2D d1;uniform sampler2D d2;uniform sampler2D d3;
+uniform float useTex,useCol,cut,alpha;uniform vec3 useDec;uniform vec3 base;uniform vec3 L;
 void main(){vec4 c=useTex>0.5?texture2D(tex,vuv):vec4(base,1.0);if(c.a<cut)discard;
- if(useDec>0.5){vec4 d=texture2D(dec,vuv);c.rgb=mix(c.rgb,d.rgb,d.a);}
+ if(useDec.x>0.5){vec4 d=texture2D(d1,vuv);c.rgb=mix(c.rgb,d.rgb,d.a);}
+ if(useDec.y>0.5){vec4 d=texture2D(d2,vuv);c.rgb=mix(c.rgb,d.rgb,d.a);}
+ if(useDec.z>0.5){vec4 d=texture2D(d3,vuv);c.rgb=mix(c.rgb,d.rgb,d.a);}
  if(useCol>0.5)c.rgb=mix(c.rgb*0.25,vc,0.88);
  float lam=0.5+0.6*abs(dot(normalize(vn),L));gl_FragColor=vec4(c.rgb*lam,c.a*alpha);}`;
 const LVS=`attribute vec3 p;uniform mat4 vp;void main(){gl_Position=vp*vec4(p,1.0);}`,LFS=`precision mediump float;uniform vec4 col;void main(){gl_FragColor=col;}`;
@@ -63,9 +70,12 @@ function mount(el,opts){
    <button type="button" class="sv-fire">Fire from the chosen direction</button><p class="ha-note">Or click on the ship to aim at that spot.</p></fieldset>
   <fieldset><legend>Designs</legend>
    <label>Skin <select data-k="skin"><option value="">Default</option></select></label>
-   <label>Sails <select data-k="sail"><option value="">Default</option>${opt(des.sails,'',x=>x.prefix)}</select></label>
-   <label>Sail emblem <select data-k="decal"><option value="">None</option>${opt(des.decals,'',x=>x.tex)}</select></label>
+   <label>Sail cloth (all sails) <select data-k="sail"><option value="">Default</option>${opt(des.sails,'',x=>x.prefix)}</select></label>
+   ${PATS.map((P,k)=>`<div class="sv-pat"><label>${P.label} <select data-pat="${k}"><option value="">None</option>${opt(des.decals.filter(d=>d.slot===P.list),'',x=>x.tex)}</select></label>
+    <button type="button" data-edit="${k}">Choose sails</button></div>`).join('')}
+   <div class="sv-sails" hidden></div>
    <label>Flag <select data-k="flag"><option value="">Default</option>${opt(des.flags,'',x=>x.tex)}</select></label>
+   <label class="sv-flag2">Second flag <select data-k="flag2"><option value="">Default</option>${opt(des.flags,'',x=>x.tex)}</select></label>
    <label>Figurehead <select data-k="fig"><option value="">Default</option>${opt(des.figures,'',x=>x.mesh)}</select></label>
    <p class="ha-note sv-dnote"></p></fieldset>
   <div class="sv-shots"></div></div></div>`;
@@ -74,7 +84,7 @@ function mount(el,opts){
  gl.getExtension('OES_element_index_uint');
  const prog=(vs,fs)=>{const p=gl.createProgram();for(const [t,s] of [[gl.VERTEX_SHADER,vs],[gl.FRAGMENT_SHADER,fs]]){const sh=gl.createShader(t);gl.shaderSource(sh,s);gl.compileShader(sh);gl.attachShader(p,sh)}gl.linkProgram(p);return p};
  const P=prog(VS,FS),LP=prog(LVS,LFS);const U=n=>gl.getUniformLocation(P,n),A=n=>gl.getAttribLocation(P,n);
- const st={ship:start.n,mdl:true,hull:true,masts:false,sailb:false,water:true,paint:'dir',bearing:90,gun:el.querySelector('[data-k=gun]').value,ammo:el.querySelector('[data-k=ammo]').value,aimy:4,skin:'',sail:'',decal:'',flag:'',fig:''};
+ const st={ship:start.n,mdl:true,hull:true,masts:false,sailb:false,water:true,paint:'dir',bearing:90,gun:el.querySelector('[data-k=gun]').value,ammo:el.querySelector('[data-k=ammo]').value,aimy:4,skin:'',sail:'',flag:'',flag2:'',fig:'',pats:PATS.map(()=>({tex:'',on:new Set()})),edit:-1};
  const models={},textures={},pending={};let yaw=-0.9,pitch=0.32,dist=0,target=[0,8,0],shotsLog=[],ball=null,marks=[];
  const base=V.pack||'../pack/';
  window.WOSB_PACK=ix=>{V._ix=ix;loadShip()};
@@ -100,6 +110,9 @@ function mount(el,opts){
   const sk=el.querySelector('[data-k=skin]');sk.innerHTML='<option value="">Default</option>';
   needModel(s.model,()=>{el.querySelector('.sv-load').hidden=true;const m=models[s.model];const mats=new Set(m.groups.map(g=>g.mat.toLowerCase()));
    const fits=des.skins.filter(d=>Object.keys(d.table).some(k=>mats.has(k.toLowerCase())));sk.innerHTML='<option value="">Default</option>'+fits.map(d=>`<option value="${esc(d.id)}">${esc(d.n)}</option>`).join('');
+   const sm=s.sailmap||{};const all=Object.values(sm).map(v=>v[0]),anim=Object.values(sm).filter(v=>v[1]).map(v=>v[0]);
+   st.pats.forEach((P,k)=>{P.on=new Set(PATS[k].def==='all'?all:anim)});st.flagMeshes=[...new Set(m.groups.filter(g=>g.kind==='flag').map(g=>flagKey(g.mesh)))].sort();
+   el.querySelector('.sv-flag2').style.display=st.flagMeshes.length>1?'':'none';renderSails();
    const b=m.bounds;target=[(b[0][0]+b[1][0])/2,(b[0][1]+b[1][1])*0.35,(b[0][2]+b[1][2])/2];dist=Math.max(b[1][0]-b[0][0],b[1][1]-b[0][1])*1.35;yaw=st.bearing*Math.PI/180+0.55;pitch=0.28;marks=[];shotsLog=[];repaint();renderShots()});
   if(st.fig)needModel('BowFigures')}
  // ---------------------------------------------------------------- hull colouring
@@ -122,7 +135,7 @@ function mount(el,opts){
  function groupTex(g){const lo=g.mat.toLowerCase();
   if(st.skin){const d=des.skins.find(x=>x.id===st.skin);const t=d&&Object.entries(d.table).find(([k])=>k.toLowerCase()===lo);if(t){const tt=tex(t[1]);if(tt)return tt}}
   if(st.sail&&g.kind==='sail'&&lo.startsWith('sail')){const part=lo.includes('_')?lo.slice(lo.indexOf('_')+1):'main';const tt=tex(st.sail+part)||tex(st.sail+'main');if(tt)return tt}
-  if(st.flag&&g.kind==='flag'){const tt=tex(st.flag);if(tt)return tt}
+  if(g.kind==='flag'){const fi=(st.flagMeshes||[]).indexOf(flagKey(g.mesh));const want=fi>0?st.flag2:st.flag;if(want){const tt=tex(want);if(tt)return tt}}
   return g.tex?tex(g.tex):null}
  // ---------------------------------------------------------------- drawing
  const water=(()=>{const b=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-400,0,-400,400,0,-400,400,0,400,-400,0,-400,400,0,400,-400,0,400]),gl.STATIC_DRAW);return b})();
@@ -138,7 +151,8 @@ function mount(el,opts){
   for(const g of m.groups){if(filter&&!filter(g))continue;const t=forceTex||groupTex(g);
    const loc={p:A('p'),n:A('n'),uv:A('uv'),col:A('col')};for(const [k,b,sz] of [['p',g.bp,3],['n',g.bn,3],['uv',g.bu,2],['col',g.bc,3]]){if(loc[k]<0)continue;gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.enableVertexAttribArray(loc[k]);gl.vertexAttribPointer(loc[k],sz,gl.FLOAT,false,0,0)}
    gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,t);gl.uniform1i(U('tex'),0);gl.uniform1f(U('useTex'),t?1:0);
-   const dt=st.decal&&g.kind==='sail'?tex(st.decal):null;gl.activeTexture(gl.TEXTURE1);gl.bindTexture(gl.TEXTURE_2D,dt);gl.uniform1i(U('dec'),1);gl.uniform1f(U('useDec'),dt?1:0);
+   const si=g.kind==='sail'?(ship().sailmap||{})[g.mesh]:null;const on=[0,0,0];
+   st.pats.forEach((P,k)=>{const dt=si&&P.tex&&P.on.has(si[0])?tex(P.tex):null;gl.activeTexture(gl.TEXTURE1+k);gl.bindTexture(gl.TEXTURE_2D,dt);gl.uniform1i(U('d'+(k+1)),1+k);on[k]=dt?1:0});gl.uniform3fv(U('useDec'),on);
    gl.uniform1f(U('useCol'),g.useCol&&st.paint!=='none'?1:0);gl.uniform1f(U('cut'),g.kind==='sail'||g.kind==='flag'||g.kind==='mast'?0.4:0.05);
    gl.uniform3fv(U('base'),g.kind==='sail'?[0.92,0.9,0.84]:g.kind==='mast'?[0.42,0.3,0.2]:[0.55,0.45,0.35]);
    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,g.bi);gl.drawElements(gl.TRIANGLES,g.n,g.i32?gl.UNSIGNED_INT:gl.UNSIGNED_SHORT,0);
@@ -155,7 +169,8 @@ function mount(el,opts){
   gl.disable(gl.DEPTH_TEST);const zs=s.zones||[];
   if(st.hull)lines(vp,zs.filter(z=>z.t==='hull').flatMap(z=>boxLines(z.b)),[0.12,0.45,0.85,1]);
   if(st.masts)lines(vp,zs.filter(z=>z.t==='mast').flatMap(z=>boxLines(z.b)),[0.55,0.32,0.1,1]);
-  if(st.sailb)lines(vp,zs.filter(z=>z.t==='sail').flatMap(z=>boxLines(z.b)),[0.95,0.5,0.1,0.85]);
+  if(st.edit>=0){const P=st.pats[st.edit];lines(vp,zs.filter(z=>z.t==='sail'&&P.on.has(z.n-1)).flatMap(z=>boxLines(z.b)),[0.1,0.75,0.3,1]);lines(vp,zs.filter(z=>z.t==='sail'&&!P.on.has(z.n-1)).flatMap(z=>boxLines(z.b)),[0.5,0.5,0.55,0.7])}
+  else if(st.sailb)lines(vp,zs.filter(z=>z.t==='sail').flatMap(z=>boxLines(z.b)),[0.95,0.5,0.1,0.85]);
   for(const k of marks)lines(vp,cross3(k.p,1.2),k.col);
   if(ball){const now=performance.now(),f=Math.min(1,(now-ball.t0)/ball.ms),p=add(ball.o,mulv(ball.d,ball.len*f));lines(vp,[...ball.o,...p],[0.15,0.15,0.18,0.6]);lines(vp,cross3(p,0.9),[0.05,0.05,0.05,1]);
    if(f<1)draw();else{const done=ball;ball=null;done.end()}}
@@ -171,6 +186,16 @@ function mount(el,opts){
   if(hull!=null){const e=add(o,mulv(dir,hull));const r=HA.damageAt(M,e[0],e[2],dir[0],dir[2],p);Object.assign(res,{zone:r.zone,ang:r.ang,dmg:r.dmg,p:e})}
   res.sails=sails.filter(x=>x.t<hitT).length;res.masts=masts.filter(x=>x.t<hitT).length;
   ball={o,d:dir,len:hitT,t0:performance.now(),ms:500+hitT*4,end(){if(res.p)marks.push({p:res.p,col:res.dmg>0.05?[0.85,0.15,0.1,1]:[0.2,0.3,0.8,1]});shotsLog.unshift(res);renderShots();draw()}};draw()}
+ function renderSails(){const box=el.querySelector('.sv-sails');if(st.edit<0){box.hidden=true;return}box.hidden=false;const P=st.pats[st.edit],sm=ship().sailmap||{};
+  const rows=Object.entries(sm).map(([mesh,[i,an]])=>({mesh,i,an})).sort((x,y)=>x.i-y.i);
+  box.innerHTML=`<b>${PATS[st.edit].label}: which sails</b><p class="ha-note">Click sails in the view, or tick them here. Green boxes carry it.</p>
+   <div class="sv-sbtn"><button type="button" data-all="all">All</button><button type="button" data-all="anim">Square sails</button><button type="button" data-all="none">None</button><button type="button" data-done>Done</button></div>`+
+   rows.map(r=>`<label><input type="checkbox" data-sail="${r.i}"${P.on.has(r.i)?' checked':''}> Sail ${r.i+1} · ${r.an?'square':'fore-and-aft'} <small>${esc(r.mesh)}</small></label>`).join('');
+  box.querySelectorAll('[data-sail]').forEach(c=>c.onchange=()=>{const i=+c.dataset.sail;c.checked?P.on.add(i):P.on.delete(i);draw()});
+  box.querySelectorAll('[data-all]').forEach(b=>b.onclick=()=>{P.on=new Set(b.dataset.all==='none'?[]:rows.filter(r=>b.dataset.all==='all'||r.an).map(r=>r.i));renderSails();draw()});
+  box.querySelector('[data-done]').onclick=()=>{st.edit=-1;renderSails();draw()}}
+ el.querySelectorAll('[data-pat]').forEach(sel=>sel.addEventListener('change',()=>{st.pats[+sel.dataset.pat].tex=sel.value;draw()}));
+ el.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>{const k=+b.dataset.edit;st.edit=st.edit===k?-1:k;renderSails();draw()});
  function renderShots(){const box=el.querySelector('.sv-shots');if(!shotsLog.length){box.innerHTML='<p class="ha-note">Shots you fire appear here.</p>';return}
   box.innerHTML='<h4>Shots</h4>'+shotsLog.slice(0,8).map(r=>`<div class="sv-shot">${r.p?`<b style="color:rgb(${ZC[r.zone].map(v=>v*255|0)})">${r.zone}</b> at ${r.ang.toFixed(0)}° off square → <b>${r.dmg.toFixed(1)}</b>${r.dmg<=0.05?' (glanced off)':''}`:'<b>Missed the hull</b>'}
    <small>from ${r.bearing}° · ${esc(r.gun)} · ${esc(r.ammo)}${r.masts?` · hit ${r.masts} mast${r.masts>1?'s':''}`:''}${r.sails?` · through ${r.sails} sail box${r.sails>1?'es':''} (up to 3 count)`:''}</small></div>`).join('')+
@@ -183,14 +208,17 @@ function mount(el,opts){
  cv.addEventListener('wheel',e=>{e.preventDefault();dist=Math.max(8,Math.min(400,dist*(e.deltaY>0?1.12:0.89)));draw()},{passive:false});
  function aimClick(e){const box=hullBox();if(!box)return;const r=cv.getBoundingClientRect(),x=(e.clientX-r.left)/r.width*2-1,y=1-(e.clientY-r.top)/r.height*2;const {vp,eye}=viewProj();const inv=M4.inv(vp);
   const un=(z)=>{const v=[x,y,z,1],o=[0,0,0,0];for(let i=0;i<4;i++)o[i]=inv[i]*v[0]+inv[4+i]*v[1]+inv[8+i]*v[2]+inv[12+i]*v[3];return [o[0]/o[3],o[1]/o[3],o[2]/o[3]]};
-  const a=un(-1),b2=un(1),d=norm(sub(b2,a));const t=rayBox(a,d,box,1e4);if(t==null)return;const pt=add(a,mulv(d,t));
+  const a=un(-1),b2=un(1),d=norm(sub(b2,a));
+  if(st.edit>=0){let best=null;for(const z of (ship().zones||[]).filter(z=>z.t==='sail')){const t=rayBox(a,d,z.b,1e4);if(t!=null&&(!best||t<best.t))best={t,i:z.n-1}}
+   if(best){const P=st.pats[st.edit];P.on.has(best.i)?P.on.delete(best.i):P.on.add(best.i);renderSails();draw()}return}
+  const t=rayBox(a,d,box,1e4);if(t==null)return;const pt=add(a,mulv(d,t));
   // shoot from the side of the ship the camera is on
   st.bearing=Math.round(((Math.atan2(-d[2],-d[0])*180/Math.PI)+360)%360/2)*2%360;el.querySelector('[data-k=bearing]').value=st.bearing;el.querySelector('.sv-b').textContent=st.bearing+'°';
   repaint();fireAt(pt)}
  el.querySelector('.sv-fire').onclick=()=>{const box=hullBox();if(!box)return;const c=[(box.min[0]+box.max[0])/2,+st.aimy,(box.min[2]+box.max[2])/2];fireAt(c)};
  el.querySelectorAll('[data-k]').forEach(i=>i.addEventListener(i.type==='checkbox'?'change':i.type==='range'?'input':'change',()=>{const k=i.dataset.k;st[k]=i.type==='checkbox'?i.checked:i.type==='range'?+i.value:i.value;
   if(k==='bearing')el.querySelector('.sv-b').textContent=st.bearing+'°';if(k==='ship')loadShip();if(['bearing','paint','gun','ammo','ship'].includes(k))repaint();if(k==='fig'&&st.fig)needModel('BowFigures');
-  const dn=[];if(st.decal)dn.push('Emblems are laid over the sails with the sail\'s own UVs, so their placement is approximate.');if(st.fig&&!ship().fig)dn.push('This ship has no figurehead mount in its hitbox data.');
+  const dn=[];if(st.pats.some(P=>P.tex))dn.push('Patterns are laid over each sail with the sail\'s own UVs, so their placement is approximate.');if(st.fig&&!ship().fig)dn.push('This ship has no figurehead mount in its hitbox data.');
   el.querySelector('.sv-dnote').textContent=dn.join(' ');draw()}));
  new ResizeObserver(draw).observe(cv);script(base+'index.js');renderShots();
  const api={view(o){if(o.yaw!=null)yaw=o.yaw;if(o.pitch!=null)pitch=o.pitch;if(o.dist)dist=o.dist;if(o.target)target=o.target;draw()},state:st};el.shipViewer=api;return api}

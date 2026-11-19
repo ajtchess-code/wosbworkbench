@@ -229,6 +229,7 @@ CSS = r'''
 .sv-load{position:absolute;inset:0;display:grid;place-items:center;font-size:15px;color:#345;background:rgba(255,255,255,.4)}.sv-load[hidden]{display:none}
 .sv-side{display:grid;gap:8px;align-content:start;font-size:13px}.sv-side fieldset{border:1px solid #dde3ea;border-radius:6px;padding:6px 8px;display:grid;gap:5px}.sv-side legend{font-weight:600}
 .sv-side select{max-width:100%}.sv-legend{display:flex;gap:6px;align-items:center;font-size:11px;color:#555}.sv-legend i{flex:1;height:8px;background:linear-gradient(90deg,#28325a,#3c6ebe,#5abe78,#f0c83c,#dc3228)}
+.sv-sails{max-height:260px;overflow:auto;border:1px solid #dde3ea;border-radius:6px;padding:6px;display:grid;gap:2px}.sv-sails small{color:#889}.sv-sbtn{display:flex;gap:4px;flex-wrap:wrap}.sv-pat{display:flex;gap:6px;align-items:end;flex-wrap:wrap}
 .sv-shot{border-top:1px solid #eee;padding:4px 0}.sv-shot small{display:block;color:#667}.sv-fire{padding:5px 8px}
 @media(max-width:900px){.sv{grid-template-columns:1fr}.sv-stage{height:440px}}
 .ha-controls{display:flex;flex-wrap:wrap;gap:12px 18px;margin:8px 0;align-items:center}.ha-controls select,.ha-controls input{font:inherit;padding:3px 5px}
@@ -475,7 +476,9 @@ class SiteBuilder:
             for z in zones:
                 z['b'] = {'min': [round(v, 3) for v in z['b']['min']], 'max': [round(v, 3) for v in z['b']['max']]}
             out[f.name.replace('.hitboxes.json', '')] = {'zones': zones, 'sails': len(d['sails']), 'masts': len(d['masts']), 'ports': d.get('port_counts'),
-                                                          'fig': d.get('figurehead_mount'), 'half': round((d['corpus']['max'][0] - d['corpus']['min'][0]) / 2, 3)}
+                                                          'fig': d.get('figurehead_mount'), 'half': round((d['corpus']['max'][0] - d['corpus']['min'][0]) / 2, 3),
+                                                          # model sail mesh -> the client's per-sail index (SailStrengthIndex) used by the pattern slots
+                                                          'sailmap': {s['name'].split('_', 1)[-1]: [s['strength_index'], bool(s.get('animated'))] for s in d['sails'] if s.get('name')}}
         return out
 
     def _model_for(self, ship):
@@ -978,7 +981,7 @@ class SiteBuilder:
         ships = []
         for s_ in d['ships']:
             hb = hitboxes.get(s_.get('model')) or {}
-            ships.append({'n': s_['n'], 'model': s_.get('model'), 'zones': hb.get('zones') or [], 'fig': hb.get('fig'), 'half': hb.get('half'),
+            ships.append({'n': s_['n'], 'model': s_.get('model'), 'zones': hb.get('zones') or [], 'fig': hb.get('fig'), 'half': hb.get('half'), 'sailmap': hb.get('sailmap') or {},
                           'armor': s_['armor'], 'hp': s_['hp'], 'rank': s_['rank']})
         try:
             designs = battle_sim.design_catalog(self.db, self.build)
