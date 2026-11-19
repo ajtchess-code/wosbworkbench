@@ -16,7 +16,8 @@ BRAND = Path(__file__).resolve().parent / 'viewer' / 'brand'
 DEFAULT_URL = 'https://wosbwiki.org/'
 THIN_WORDS = 80           # pages with less text (tables included) than this are kept out of search results and ads
 ALWAYS_INDEX = re.compile(r'^(index\.html|map\.html|about\.html|privacy\.html|category/|tools/|wiki/|guide/|ship/|cannon/)')
-NEVER_INDEX = re.compile(r'^(recent\.html|404\.html|tools/(battle|boarding)-simulator\.html)$')
+NEVER_INDEX = re.compile(r'^(recent\.html|404\.html|admin/.*|tools/(battle|boarding)-simulator\.html)$')
+NO_ADS = re.compile(r'^(404\.html|admin/|tools/(battle|boarding)-simulator\.html)')   # full-screen tools and utility pages
 ALWAYS_INDEX_EXTRA = re.compile(r'^(terms|disclaimer|sitemap)\.html$')
 # Crawlers that collect pages to train AI models. Search engines (Googlebot, Bingbot) and the AdSense crawler are unaffected.
 AI_CRAWLERS = ['GPTBot', 'ChatGPT-User', 'OAI-SearchBot', 'CCBot', 'ClaudeBot', 'Claude-Web', 'anthropic-ai', 'Google-Extended', 'Applebot-Extended',
@@ -38,7 +39,7 @@ def _description(page_html, title, site_name):
     return d if len(d) <= 160 else d[:157].rsplit(' ', 1)[0] + '…'
 
 
-def finalize(out, *, site_url=DEFAULT_URL, site_name='WoSB Wiki', lastmod=None, ad_client='', inject_ads=False):
+def finalize(out, *, site_url=DEFAULT_URL, site_name='WoSB Wiki', lastmod=None, ad_client='', inject_ads=False, gtm_id=''):
     """Add head metadata to every page and write the brand files, sitemap.xml and robots.txt. Returns counts."""
     out = Path(out)
     site_url = site_url.rstrip('/') + '/'
@@ -70,7 +71,13 @@ def finalize(out, *, site_url=DEFAULT_URL, site_name='WoSB Wiki', lastmod=None, 
         url = site_url + ('' if rel == 'index.html' else rel)
         desc = _description(page, title, site_name)
         e = lambda s: html.escape(s, quote=True)
-        head = [f'<meta name="description" content="{e(desc)}">',
+        head = []
+        if gtm_id:
+            # Google Tag Manager (Google Analytics is configured inside the container), as high in <head> as possible
+            head.append("<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());"
+                        "dataLayer.push({'gtm.start':new Date().getTime(),event:'gtm.js'});</script>"
+                        f'<script async src="https://www.googletagmanager.com/gtm.js?id={e(gtm_id)}"></script>')
+        head += [f'<meta name="description" content="{e(desc)}">',
                 f'<link rel="canonical" href="{e(url)}">',
                 '<meta name="robots" content="noindex,follow">' if noindex else '<meta name="robots" content="index,follow,max-image-preview:large">',
                 f'<meta property="og:site_name" content="{e(site_name)}">', f'<meta property="og:type" content="{"website" if rel == "index.html" else "article"}">',
@@ -84,8 +91,8 @@ def finalize(out, *, site_url=DEFAULT_URL, site_name='WoSB Wiki', lastmod=None, 
                 f'<link rel="apple-touch-icon" href="{base}apple-touch-icon.png">', f'<link rel="manifest" href="{base}site.webmanifest">']
         if ad_client:
             head.append(f'<meta name="google-adsense-account" content="{e(ad_client)}">')
-            # Auto ads only beside real content: thin and utility pages stay ad-free, as AdSense asks.
-            if inject_ads and not noindex:
+            # The AdSense code goes on every page, as AdSense asks, except full-screen tools and utility pages.
+            if inject_ads and not NO_ADS.match(rel):
                 head.append(f'<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={e(ad_client)}" crossorigin="anonymous"></script>')
         if rel == 'index.html':
             head.append('<script type="application/ld+json">' + json.dumps({
@@ -106,5 +113,5 @@ def finalize(out, *, site_url=DEFAULT_URL, site_name='WoSB Wiki', lastmod=None, 
     (out / 'sitemap.xml').write_text('\n'.join(xml) + '\n', encoding='utf-8')
     ai = ''.join(f'User-agent: {b}\n' for b in AI_CRAWLERS) + 'Disallow: /\n\n'
     (out / 'robots.txt').write_text('User-agent: Mediapartners-Google\nAllow: /\n\n' + ai +
-                                    f'User-agent: *\nAllow: /\nDisallow: /pack/\nDisallow: /search.json\n\nSitemap: {site_url}sitemap.xml\n', encoding='utf-8')
+                                    f'User-agent: *\nAllow: /\nDisallow: /pack/\nDisallow: /api/\nDisallow: /admin/\nDisallow: /search.json\n\nSitemap: {site_url}sitemap.xml\n', encoding='utf-8')
     return {'indexed': len(indexed), 'noindex': hidden}

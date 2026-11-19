@@ -27,7 +27,7 @@ SITE_NAME = 'WoSB Wiki'
 SITE_URL = 'https://wosbwiki.org/'
 # Who runs the public site and how it is paid for. SiteBuilder fills this from its ``hosting`` argument.
 HOSTING_DEFAULTS = {'site_url': SITE_URL, 'site_name': SITE_NAME, 'ad_client': 'ca-pub-6442579332215350', 'donate_url': 'https://paypal.me/litefootz',
-                    'discord_url': '', 'contact_email': 'contact@wosbwiki.org', 'standalone': True}
+                    'discord_url': '', 'contact_email': 'contact@wosbwiki.org', 'standalone': True, 'gtm_id': 'GTM-TMZFVXTL'}
 HOSTING = dict(HOSTING_DEFAULTS)
 COSMETIC_KIND = {'ShipFullDesign': 'Ship design (skin)', 'SailTexture': 'Sail cloth', 'Decal1': 'Paint', 'Decal2': 'Sail pattern', 'Decal3': 'Premium sail pattern',
                  'Flag': 'Flag', 'Flag2': 'Second flag', 'BowFigure': 'Figurehead', 'Satellite': 'Lantern', 'MastColor': 'Mast colour'}
@@ -65,10 +65,10 @@ ENTITIES = {
         ('PlacesForUnitsCount', 'Unit slots', None), ('ExtraPlacesForUpgrades', 'Extra upgrade slots', None)],
         ['Type', 'Rank', 'Hull HP', 'Armor', 'Speed', 'Mobility', 'Crew', 'Cargo']),
     'cannon': ('Cannons', 'Cannons', [
-        ('Category', 'Category', None), ('Poundage', 'Poundage', None), ('Penetration', 'Penetration', None),
+        ('Category', 'Category', 'camel'), ('Poundage', 'Poundage', None), ('Penetration', 'Penetration', None),
         ('Distance', 'Range', None), ('Cooldown', 'Reload (s)', None), ('Angle', 'Vertical angle', None),
         ('Scatter', 'Scatter', 'first'), ('SpeedFactor', 'Ball speed', 'first'), ('SplashRadius', 'Splash radius', 'first'),
-        ('Price', 'Price', 'int'), ('CraftingType', 'Obtained by', None), ('Extra', 'Notes', None)],
+        ('Price', 'Price', 'int'), ('CraftingType', 'Obtained by', 'obtain'), ('Extra', 'Notes', 'extra')],
         ['Category', 'Poundage', 'Penetration', 'Range', 'Reload (s)', 'Price']),
     'ammo': ('CannonBalls', 'Ammunition', [
         ('DamageFactor', 'Damage factor', None), ('Penetration', 'Penetration bonus', None),
@@ -177,6 +177,11 @@ def _fmt(value, kind):
         return SLOT_NAMES.get(str(value), _camel(value))
     if kind == 'cosmetic':
         return COSMETIC_KIND.get(str(value), _camel(value))
+    if kind == 'obtain':
+        return {'ByGold': 'Bought with gold', 'ByCraft': 'Crafted', 'Craft': 'Crafted', 'ByPremium': 'Premium shop'}.get(str(value), _camel(value))
+    if kind == 'extra':
+        return '; '.join(f'{_camel(k).capitalize()} ×{v}' if v else _camel(k).capitalize() for k, _, v in
+                         (part.strip().partition(':') for part in str(value).split(';') if part.strip()))
     if kind == 'fxname':
         return None if str(value) in ('None', '') else fx_label(str(value))[0]
     if isinstance(value, float):
@@ -326,7 +331,7 @@ h1{font:400 28px/1.3 Georgia,"Linux Libertine",serif;margin:0 0 4px;border-botto
 h2{font:400 21px/1.3 Georgia,serif;border-bottom:1px solid var(--border);margin:22px 0 8px}h3{font-size:16px;margin:16px 0 6px}
 .crumbs{font-size:12px;color:var(--muted);margin-bottom:10px}
 .infobox{float:right;clear:right;width:300px;margin:0 0 14px 18px;border:1px solid var(--border);background:#f8f9fa;font-size:13px;border-collapse:collapse}
-.infobox caption{font-weight:700;font-size:15px;padding:6px;background:var(--accent);color:#fff}
+.infobox caption{font-weight:700;font-size:15px;padding:6px;background:var(--accent);color:#fff}.infobox td.ibimg{text-align:center;background:#fff;padding:8px}.infobox td.ibimg img{max-width:100%;max-height:220px;object-fit:contain}.entry .infobox td.ibimg img{max-height:72px}img.ticon{width:28px;height:28px;object-fit:contain;vertical-align:middle;margin-right:6px}.iv{border:1px solid var(--border);border-radius:6px;background:#eef2f6;padding:10px;max-width:640px}.iv-gl{display:block;width:100%;height:340px;border:0;background:#eef2f6;touch-action:none;cursor:grab}.iv-go{background:var(--accent);color:#fff;border:0;border-radius:4px;padding:8px 14px;font:inherit;cursor:pointer}.iv-msg{display:block;color:var(--muted);margin-top:4px}
 .infobox th{text-align:left;padding:4px 8px;vertical-align:top;width:45%;background:var(--head)}.infobox td{padding:4px 8px}
 table.wikitable{border-collapse:collapse;background:#f8f9fa;margin:10px 0;font-size:13px}
 .wikitable th,.wikitable td{border:1px solid var(--border);padding:4px 8px}.wikitable th{background:var(--head);cursor:pointer;white-space:nowrap}
@@ -346,6 +351,27 @@ footer{margin:0 0 0 176px;padding:16px 26px 28px;font-size:12px;color:var(--mute
 footer .legal a{margin-right:14px}.donate{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;background:#fff8e6;border:1px solid #ecd9a8;border-radius:8px;padding:10px 14px;margin-bottom:10px;font-size:13px;color:#4a3d1c}
 .donatebtn{background:#f2c14e;color:#1b1b1b!important;border-radius:999px;padding:6px 16px;font-weight:700;text-decoration:none!important;margin-left:auto}
 .skip{position:absolute;left:-999px;top:0;background:#fff;padding:6px 10px;z-index:99}.skip:focus{left:8px}
+#acct{position:relative;margin-left:10px}#acct[hidden]{display:none}.acct-login{display:inline-flex;align-items:center;gap:6px;background:#5865f2;color:#fff!important;border-radius:6px;padding:6px 12px;font-weight:600;white-space:nowrap}
+.acct-login:hover{text-decoration:none;filter:brightness(1.08)}.acct-login.big{padding:10px 18px;font-size:15px}.acct-btn{display:flex;align-items:center;gap:6px;border:1px solid var(--border);background:#fff;border-radius:999px;padding:2px 10px 2px 2px;cursor:pointer;font:inherit}
+.acct-btn img{border-radius:50%}.acct-init{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:#5865f2;color:#fff;font-style:normal;font-weight:700}.acct-menu{position:absolute;right:0;top:40px;background:#fff;border:1px solid var(--border);border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,.15);min-width:180px;z-index:30;display:grid}
+.acct-menu[hidden]{display:none}.acct-menu a,.acct-menu button{padding:10px 14px;text-align:left;border:0;background:none;font:inherit;color:var(--link);cursor:pointer}.acct-menu a:hover,.acct-menu button:hover{background:#f3f6fa;text-decoration:none}
+.report-bar{clear:both;display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;margin:28px 0 0;padding:10px 14px;border:1px dashed #a7c1dd;border-radius:8px;background:#f5f9fd;font-size:13px;color:var(--muted)}
+.report-bar[hidden]{display:none}.report-bar button{background:#fff;border:1px solid var(--accent);color:var(--accent);border-radius:6px;padding:6px 12px;font:inherit;font-weight:600;cursor:pointer}.report-bar button:hover{background:var(--accent);color:#fff}
+.rp-wrap{position:fixed;inset:0;background:rgba(10,20,30,.55);z-index:60;display:grid;place-items:center;padding:12px}body.rp-open{overflow:hidden}
+.rp{position:relative;background:#fff;border-radius:10px;padding:18px 20px;width:min(520px,100%);max-height:92vh;overflow:auto;display:grid;gap:10px;box-shadow:0 18px 60px rgba(0,0,0,.35)}
+.rp h2{margin:0;border:0;font-size:20px}.rp label{display:grid;gap:4px;font-weight:600;font-size:13px}.rp label small{font-weight:400;color:var(--muted)}
+.rp select,.rp textarea,.rp input{font:inherit;font-weight:400;padding:8px 10px;border:1px solid var(--border);border-radius:6px;width:100%}.rp-page,.rp-who{margin:0;font-size:13px;color:var(--muted)}
+.rp-x{position:absolute;right:8px;top:6px;border:0;background:none;font-size:24px;cursor:pointer;color:var(--muted)}.rp-msg{margin:0;min-height:1em;color:#b03a2e;font-size:13px}
+.rp-actions{display:flex;gap:8px}.rp-send{background:var(--accent);color:#fff;border:0;border-radius:6px;padding:9px 18px;font:inherit;font-weight:600;cursor:pointer}.rp-send:disabled{opacity:.6}
+.rp-cancel{background:#fff;border:1px solid var(--border);border-radius:6px;padding:9px 14px;font:inherit;cursor:pointer}
+.ad-bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0 12px}.ad-tabs{display:flex;gap:4px;flex-wrap:wrap}.ad-tabs button{border:1px solid var(--border);background:#f8f9fa;border-radius:6px;padding:6px 12px;font:inherit;cursor:pointer}
+.ad-tabs button.on{background:var(--accent);color:#fff;border-color:var(--accent)}.ad-q{flex:1;min-width:180px;padding:7px 10px;border:1px solid var(--border);border-radius:6px;font:inherit}
+.ad-reload{border:1px solid var(--border);background:#fff;border-radius:6px;padding:6px 12px;font:inherit;cursor:pointer}
+.ad-item{border:1px solid var(--border);border-left:5px solid #e0a030;border-radius:6px;padding:10px 14px;margin:0 0 10px;background:#fff}.ad-item.ad-resolved{border-left-color:#4caf50}.ad-item.ad-wontfix{border-left-color:#9e9e9e}
+.ad-item header{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;font-size:13px}.ad-item time{margin-left:auto;color:var(--muted)}.ad-kind{border-radius:999px;padding:1px 10px;font-size:12px;font-weight:600;background:#eef2f6}
+.ad-k-wrong{background:#fde2dc;color:#8a2a12}.ad-k-missing{background:#e3eefb;color:#1d4e6f}.ad-k-suggestion{background:#e6f5e6;color:#2e6b2e}.ad-msg{white-space:pre-wrap;margin:8px 0}.ad-from{margin:2px 0;font-size:12px;color:var(--muted)}
+.ad-act{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}.ad-act select,.ad-act input{font:inherit;padding:5px 8px;border:1px solid var(--border);border-radius:5px}.ad-note{flex:1;min-width:160px}
+.ad-act button{border:1px solid var(--border);background:#fff;border-radius:5px;padding:5px 12px;font:inherit;cursor:pointer}.ad-save{background:var(--accent)!important;color:#fff;border-color:var(--accent)!important}.ad-err{color:#b03a2e;font-size:12px}.ad-empty{color:var(--muted)}
 #menu,#toplogo{display:none}#scrim{display:none}.tw{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}.tw>table.wikitable{margin:0}.tw{margin:10px 0}
 .entries{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;margin:10px 0}.entry{border:1px solid var(--border);background:#fbfcfd;border-radius:6px;padding:8px 12px;scroll-margin-top:70px}
 .entry:target{outline:3px solid #f2c14e;background:#fffbea}.entry h3{margin:2px 0 6px;font:600 16px/1.3 Georgia,serif}.entry .infobox{float:none;width:100%;margin:0 0 8px}.entry .infobox caption{display:none}
@@ -357,7 +383,7 @@ footer .legal a{margin-right:14px}.donate{display:flex;flex-wrap:wrap;gap:6px 12
 #menu{display:inline-grid;gap:4px;align-content:center;justify-items:center;width:44px;height:44px;border:1px solid var(--border);border-radius:8px;background:#fff;cursor:pointer;padding:0}
 #menu span{display:block;width:20px;height:2px;background:var(--ink);border-radius:2px}
 #toplogo{display:flex;align-items:center;gap:6px;color:var(--accent);font:700 16px Georgia,serif;white-space:nowrap}#toplogo:hover{text-decoration:none}
-#search{flex:1;min-width:0}#search input{width:100%;font-size:16px;padding:9px 10px;border-radius:6px}
+#search{flex:1;min-width:0}#search input{width:100%;font-size:16px;padding:9px 10px;border-radius:6px}.acct-login span,.acct-btn span{display:none}.acct-btn{padding:2px}#acct{margin-left:0}
 #results{position:fixed;left:8px;right:8px;top:58px;width:auto;max-height:70vh}#results a{padding:10px 12px;font-size:15px}
 #side{position:fixed;top:0;bottom:0;left:0;width:280px;max-width:85vw;transform:translateX(-105%);transition:transform .2s ease;background:#f6f6f6;z-index:40;overflow-y:auto;
  padding:10px 14px 40px;box-shadow:4px 0 18px rgba(0,0,0,.25)}
@@ -401,7 +427,7 @@ document.querySelectorAll('table.sortable').forEach(t=>{t.querySelectorAll('th')
 LOGO = '<img src="{base}assets/brand/emblem.png" alt="" width="80" height="80">'
 
 
-def _page(title, body, *, depth=0, crumbs=None, tab='Page'):
+def _page(title, body, *, depth=0, crumbs=None, tab='Page', report=True):
     base = '../' * depth
     h = HOSTING
     side = [f'<a id="logo" href="{base}index.html">{LOGO.format(base=base)}{_e(SITE_NAME)}</a>', '<h3>Navigation</h3>']
@@ -425,18 +451,23 @@ def _page(title, body, *, depth=0, crumbs=None, tab='Page'):
             f'<header id="top"><button id="menu" type="button" aria-label="Open menu" aria-controls="side" aria-expanded="false"><span></span><span></span><span></span></button>'
             f'<a id="toplogo" href="{base}index.html"><img src="{base}assets/brand/emblem.png" alt="" width="34" height="34"><b>{_e(SITE_NAME)}</b></a>'
             f'<span class="tabs"><a class="on">{_e(tab)}</a></span>'
-            '<div id="search" role="search"><input type="search" placeholder="Search the WoSB Wiki" aria-label="Search the wiki" autocomplete="off"><div id="results"></div></div></header>'
-            f'<main id="content">{crumb}<h1>{_e(SITE_NAME if title == "Main page" else title)}</h1>{body}</main>'
+            '<div id="search" role="search"><input type="search" placeholder="Search the WoSB Wiki" aria-label="Search the wiki" autocomplete="off"><div id="results"></div></div>'
+            + ('<div id="acct" hidden></div>' if h.get('standalone') else '') + '</header>'
+            f'<main id="content">{crumb}<h1>{_e(SITE_NAME if title == "Main page" else title)}</h1>{body}'
+            + ('<div class="report-bar" hidden><button type="button" data-report>Report a problem with this page</button>'
+               '<span>Spotted something wrong or missing? Let us know.</span></div>' if h.get('standalone') and report else '') + '</main>'
             f'<footer id="foot">{donate}<p>© {year} {_e(SITE_NAME)} · Band of Misfits. Our guides, tools and logo are our own work. <b>World of Sea Battle</b> and all of its imagery, '
             '3D models, textures, designs, names and game data are the property of Thera Interactive. This is an unofficial fan site and is not affiliated with or endorsed by Thera Interactive.</p>'
             f'<p class="legal"><a href="{base}about.html">About</a><a href="{base}privacy.html">Privacy policy</a><a href="{base}terms.html">Terms of use</a>'
-            f'<a href="{base}disclaimer.html">Copyright disclaimer</a><a href="{base}sitemap.html">All pages</a></p></footer>'
-            f'<script src="{base}assets/site.js"></script></body></html>')
+            f'<a href="{base}disclaimer.html">Copyright disclaimer</a><a href="{base}sitemap.html">All pages</a>'
+            + (f'<a href="{base}about.html#contact" data-report="general">Tell us</a>' if h.get('standalone') else '') + '</p></footer>'
+            f'<script src="{base}assets/site.js"></script>' + (f'<script src="{base}assets/community.js" defer></script>' if h.get('standalone') else '') + '</body></html>')
 
 
-def _infobox(title, rows):
+def _infobox(title, rows, image=None):
     cells = ''.join(f'<tr><th>{_e(k)}</th><td>{_e(v)}</td></tr>' for k, v in rows if v not in (None, ''))
-    return f'<table class="infobox"><caption>{_e(title)}</caption>{cells}</table>'
+    pic = (f'<tr><td colspan="2" class="ibimg"><img src="{_e(image)}" alt="{_e(title)}" loading="lazy"></td></tr>') if image else ''
+    return f'<table class="infobox"><caption>{_e(title)}</caption>{pic}{cells}</table>'
 
 
 def _table(headers, rows, *, cls='wikitable sortable'):
@@ -465,6 +496,7 @@ class SiteBuilder:
             for r in recs:
                 self.urls[(kind, r['_title'].casefold())] = f'{kind}/{_slug(r["_title"])}.html'
         self.articles = self._articles()
+        self.icons = {}           # (kind, title casefold) -> 'assets/icons/<kind>/<slug>.webp' (filled by _copy_icons)
         self.article_urls = {a['slug']: f'wiki/{_slug(a["slug"])}.html' for a in self.articles}
 
     def _articles(self):
@@ -563,6 +595,88 @@ class SiteBuilder:
         tail = ('\n\n**See also:** ' + ' · '.join(f'[{t}]({u})' for t, u in see)) if see else ''
         return f'# {title}\n\n' + '\n\n'.join(paras) + tail + '\n\n*From the in-game Gamepedia.*'
 
+    def _catalog_dirs(self):
+        """Catalog export folders (they hold Images/ next to AI-Data/), newest first."""
+        dirs = []
+        for sf, in self.db.conn.execute("SELECT DISTINCT source_file FROM records WHERE dataset='Entity_Images'"):
+            p = Path(str(sf).replace('\\', '/')) if sf else None
+            if p and p.parent.name == 'AI-Data':
+                dirs.append(p.parent.parent)
+            elif sf:   # a Windows path read on another OS, or a moved folder
+                dirs.append(Path(str(sf)).parent.parent)
+        try:
+            from workbench_db import home
+            dirs += sorted(home().glob('Reports/*/Catalog-*'), key=lambda d: d.stat().st_mtime, reverse=True)
+        except Exception:
+            pass
+        seen, out = set(), []
+        for d in dirs:
+            if str(d) not in seen and (d / 'Images').is_dir():
+                seen.add(str(d)); out.append(d)
+        return out
+
+    def _copy_icons(self, *, size=128):
+        """The game's own icon for each item (Entity_Images links from the catalog export), as small WebP files."""
+        from PIL import Image
+        roots = self._catalog_dirs()
+        if not roots:
+            return 0
+        by_ds = {v[0]: k for k, v in ENTITIES.items()}
+        links = defaultdict(list)
+        for raw, in self.db.conn.execute("SELECT raw_json FROM records WHERE dataset='Entity_Images'"):
+            l = json.loads(raw)
+            kind = by_ds.get(l.get('Category'))
+            if kind and l.get('PNGPath'):
+                exact = 0 if str(l.get('Relationship', '')).startswith(('Exact', 'Client StaticInfoID')) else 1
+                links[(kind, str(l.get('EntityID')).casefold())].append((exact, l['PNGPath']))
+        n = 0
+        for kind, recs in self.entities.items():
+            for r in recs:
+                keys = [str(r.get(f)).casefold() for f in ('ID', 'Name', 'StaticInfoID', 'IconName') if r.get(f) not in (None, '')]
+                cands = sorted({c for k in keys for c in links.get((kind, k), [])})
+                src = next((root / c for _, c in cands for root in roots if (root / c).is_file()), None)
+                if not src:
+                    continue
+                rel = f'assets/icons/{kind}/{_slug(r["_title"])}.webp'
+                dst = self.out / rel; dst.parent.mkdir(parents=True, exist_ok=True)
+                try:
+                    im = Image.open(src).convert('RGBA')
+                    bbox = im.getchannel('A').getbbox()
+                    if bbox:
+                        im = im.crop(bbox)
+                    im.thumbnail((size, size), Image.LANCZOS)
+                    im.save(dst, 'WEBP', quality=88, method=4)
+                except OSError:
+                    continue
+                self.icons[(kind, r['_title'].casefold())] = rel; n += 1
+        return n
+
+    def _design_thumbs(self, *, size=128):
+        """Cosmetics without an icon: a thumbnail of the design's own texture (flags, sail cloth, patterns)."""
+        import battle_sim, model_pack
+        roots = battle_sim.texture_roots(self.recovery_dir, self.game_roots)
+        if not roots:
+            return 0
+        idx = model_pack.TextureIndex(roots)
+        n = 0
+        for r in self.entities.get('cosmetic', []):
+            key = ('cosmetic', r['_title'].casefold())
+            if key in self.icons or not r.get('Texture'):
+                continue
+            src = idx.find(str(r['Texture']))
+            if not src:
+                continue
+            try:
+                uri, _alpha = model_pack.encode_texture(src, max_size=size)
+            except Exception:
+                continue
+            import base64
+            rel = f'assets/icons/cosmetic/{_slug(r["_title"])}.webp'
+            dst = self.out / rel; dst.parent.mkdir(parents=True, exist_ok=True)
+            dst.write_bytes(base64.b64decode(uri.split(',', 1)[1]))
+            self.icons[key] = rel; n += 1
+        return n
+
     def _write(self, rel, content):
         path = self.out / rel; path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(content, encoding='utf-8'); self.pages += 1
@@ -601,6 +715,15 @@ class SiteBuilder:
                 shutil.rmtree(self.out / child, ignore_errors=True)
         self.out.mkdir(parents=True, exist_ok=True)
         self._write('assets/site.css', CSS); self._write('assets/site.js', SITE_JS)
+        try:
+            self._copy_icons()
+            self._design_thumbs()
+        except Exception as exc:   # pictures are a bonus: never fail the build over them
+            self.progress and self.progress(f'Item icons skipped: {exc}')
+        for name in ('item_viewer.js', 'community.js', 'admin.js'):
+            src = Path(__file__).resolve().parent / 'viewer' / name
+            if src.is_file():
+                self._write(f'assets/{name}', src.read_text(encoding='utf-8'))
         hitboxes = self._hitboxes()
         try:
             self._hit_data(hitboxes)
@@ -634,12 +757,15 @@ class SiteBuilder:
             it['u'] = moves.get(it['u'], it['u'])
         manifest['folded'] = moved['folded']; manifest['merged_guides'] = len(amoves)
         self._sitemap_page()
+        import site_titlecase
+        manifest['titlecased'] = site_titlecase.apply(self.out)
         manifest['seo'] = site_seo.finalize(self.out, site_url=self.site_url, site_name=SITE_NAME, ad_client=HOSTING.get('ad_client') or '',
-                                            inject_ads=bool(HOSTING.get('standalone')))
+                                            inject_ads=bool(HOSTING.get('standalone')), gtm_id=HOSTING.get('gtm_id') or '')
         if HOSTING.get('standalone'):
             nf = _page('Page not found', '<p>That page isn\'t here. It may have moved when similar pages were combined.</p>'
                        '<p>Try the search box above, browse <a href="sitemap.html">all pages</a>, or go to the <a href="index.html">main page</a>.</p>')
-            manifest['host'] = site_host.write(self.out, redirects=self.redirects + moved['redirects'], ad_client=HOSTING.get('ad_client') or '', not_found_html=nf)
+            manifest['host'] = site_host.write(self.out, redirects=self.redirects + moved['redirects'], ad_client=HOSTING.get('ad_client') or '',
+                                               not_found_html=site_titlecase.apply_html(nf))
         manifest['pages'] = sum(1 for f in self.out.rglob('*.html') if f.relative_to(self.out).parts[0] != 'pack')
         (self.out / 'site.json').write_text(json.dumps(manifest, indent=1), encoding='utf-8')
         return manifest
@@ -692,7 +818,15 @@ class SiteBuilder:
         dataset, plural, fields, _cols = ENTITIES[kind]
         title = rec['_title']
         rows = [(label, _fmt(rec.get(field), fmt)) for field, label, fmt in fields]
-        body = [_infobox(title, rows)]
+        img = self.icons.get((kind, title.casefold()))
+        if kind == 'ship':
+            try:
+                import shipyard
+                art = shipyard.art_index().get(shipyard.key(title))
+                img = f'assets/shipyard/{art}' if art else img
+            except Exception:
+                pass
+        body = [_infobox(title, rows, image=('../' + img) if img else None)]
         desc = (rec.get('EnglishDescription') or '').replace('#', '')
         if desc:
             body.append(f'<p>{_e(desc)}</p>')
@@ -701,6 +835,9 @@ class SiteBuilder:
         if kind == 'ship':
             body += self._ship_sections(rec, hitboxes)
         if kind == 'cannon':
+            if rec.get('Model') and self.model_pack and self.recovery_dir:
+                body.append(f'<h2>3D model</h2><div class="iv" data-model="weapons" data-mesh="{_e(rec["Model"])}" data-pack="../pack/"></div>'
+                            '<script src="../assets/item_viewer.js" defer></script>')
             body += self._cannon_vs_ships(rec)
         if kind == 'recipe':
             body += self._recipe_sections(rec)
@@ -1025,7 +1162,9 @@ class SiteBuilder:
         if kind == 'ship':
             recs = sorted(recs, key=lambda r: (num(r.get('ShipRank')) or 9, -(num(r.get('Health')) or 0)))
         for r in recs:
-            cells = [f'<a href="../{self.urls[(kind, r["_title"].casefold())]}">{_e(r["_title"])}</a>']
+            ic = self.icons.get((kind, r['_title'].casefold()))
+            cells = [(f'<img class="ticon" src="../{ic}" alt="" loading="lazy" width="28" height="28">' if ic else '')
+                     + f'<a href="../{self.urls[(kind, r["_title"].casefold())]}">{_e(r["_title"])}</a>']
             for c in cols:
                 field, fmt = labels[c]
                 text = _e(_fmt(r.get(field), fmt) or '')
@@ -1142,7 +1281,7 @@ class SiteBuilder:
         built = datetime.now(timezone.utc).strftime('%B %d, %Y').replace(' 0', ' ')
         notice = (f'<div class="mp-notice"><b>{_e(SITE_NAME)}</b>: every number comes straight from the game client. '
                   f'<span>Data updated {built}.</span> Spotted a mistake? '
-                  + (f'<a href="{_e(h["discord_url"])}" rel="noopener">Tell us on Discord</a>.' if h.get('discord_url') else '<a href="about.html#contact">Tell us</a>.') + '</div>')
+                  + '<a href="about.html#contact" data-report="general">Tell us</a>.' + '</div>')
         quick = ('<div class="mp-quick"><p class="mp-quick-main">' + links([('New player guide', art_url('ships-guns-and-consumables')), ('Shipyard', 'category/ships.html'),
                  ('World map', 'map.html'), ('3D ships', 'tools/ship-viewer.html'), ('Battle simulator', 'tools/battle-simulator.html'),
                  ('Guides', 'category/articles.html')] + ([('Discord', h['discord_url'])] if h.get('discord_url') else [])) + '</p>'
@@ -1150,8 +1289,8 @@ class SiteBuilder:
                                 ('Crew', 'category/crew.html'), ('Captain skills', 'category/skills.html'), ('Resources', 'category/resources.html'),
                                 ('Crafting', 'category/recipes.html'), ('Ports', 'category/ports.html'), ('Missions', 'category/missions.html'),
                                 ('Cosmetics', 'category/cosmetics.html'), ('Achievements', 'category/achievements.html')]) + '</p>'
-                 '<p class="mp-quick-small">The wiki is free and run by volunteers' + (f' · <a href="{_e(h["donate_url"])}" rel="noopener">donations keep it online</a>' if h.get('donate_url') else '')
-                 + ' · <a href="sitemap.html">all pages</a></p></div>')
+                 '<p class="mp-quick-small">The wiki is free and run by volunteers' + (f' · <a href="{_e(h["donate_url"])}" rel="noopener" data-notc>donations keep it online</a>' if h.get('donate_url') else '')
+                 + ' · <a href="sitemap.html" data-notc>all pages</a></p></div>')
         # --- welcome panel
         hero_ship = art('Bellona', 'Victory', 'Anson')
         welcome = ('<div class="mp-welcome"><div class="mp-welcome-main"><h2 class="mp-title">Welcome to the WoSB Wiki!</h2>'
@@ -1180,7 +1319,7 @@ class SiteBuilder:
             except ValueError:
                 label = day
             cards.append((f'Guides updated ({label})', [f'<a href="{self.article_urls[a["slug"]]}">{_e(a["title"])}</a>' for a in days[day][:8]], None))
-        whatsnew = ('<h2 class="mp-h">What\'s new <small>(<a href="recent.html">recent changes</a>)</small></h2><div class="mp-news">' + ''.join(
+        whatsnew = ('<h2 class="mp-h">What\'s New <small>(<a href="recent.html">recent changes</a>)</small></h2><div class="mp-news">' + ''.join(
             f'<div class="mp-card"><div class="mp-card-head">{_e(t)}' + (f'<img src="{img}" alt="" loading="lazy">' if img else '') + '</div><ul>'
             + ''.join(f'<li>{x}</li>' for x in items) + '</ul></div>' for t, items, img in cards) + '</div>')
         # --- sitemap boxes
@@ -1232,12 +1371,17 @@ class SiteBuilder:
                 '<li><b>Server-side values</b> (exact cannonball damage, fire chances) are not in the client; pages mark them as measured or estimated, and the tools let players measure them.</li></ul>'
                 '<h2>Models and artwork</h2><p>Ship models, textures and map art shown in the 3D viewer, simulators and shipyard come from World of Sea Battle and belong to '
                 'Thera Interactive. They are shown for reference on this non-profit community site and are not offered for download; see the <a href="disclaimer.html">copyright disclaimer</a>.</p>'
-                '<h2>Contact</h2><p>Found a mistake, want to help, or represent the game\'s makers? ' + site_legal._contact(HOSTING).capitalize() + '.</p>'
+                '<h2 id="contact">Contact</h2><p>Found a mistake or want to help? Use <a href="#contact" data-report="general">Tell us</a>, or the '
+                '"Report a problem with this page" button at the bottom of any page. Representing the game\'s makers? ' + site_legal._contact(HOSTING).capitalize() + '.</p>'
                 '<p>See also the <a href="privacy.html">privacy policy</a>, <a href="terms.html">terms of use</a> and <a href="disclaimer.html">copyright disclaimer</a>.</p>')
         self._write('about.html', _page('About', body))
         self._write('privacy.html', _page('Privacy policy', site_legal.privacy(HOSTING)))
         self._write('terms.html', _page('Terms of use', site_legal.terms(HOSTING)))
         self._write('disclaimer.html', _page('Copyright disclaimer', site_legal.disclaimer(HOSTING)))
+        if HOSTING.get('standalone'):
+            self._write('admin/index.html', _page('Admin dashboard', '<p>Reports and messages sent from the wiki\'s "Report a problem" and "Tell us" forms.</p>'
+                        '<div id="admin-app"><p>Checking your login…</p></div><script src="../assets/admin.js" defer></script>', depth=1,
+                        crumbs=[('Main page', 'index.html'), ('Admin dashboard', None)], report=False))
 
     # ---- tools
     def _tools(self, hitboxes):

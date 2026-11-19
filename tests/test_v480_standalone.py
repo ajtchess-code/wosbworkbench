@@ -56,15 +56,15 @@ def test_host_files(tmp_path):
     h = (tmp_path / '_headers').read_text()
     assert "frame-ancestors 'none'" in h and 'X-Frame-Options: DENY' in h and 'Strict-Transport-Security' in h
     assert (tmp_path / '_redirects').read_text() == '/a.html /b.html 301\n'
-    assert json.loads((tmp_path / '_routes.json').read_text())['include'] == ['/pack/*']
+    assert json.loads((tmp_path / '_routes.json').read_text())['include'] == ['/pack/*', '/api/*']
     w = (tmp_path / '_worker.js').read_text()
-    assert 'Sec-Fetch-Site' in w and 'env.ASSETS.fetch' in w and 'status: 403' in w
+    assert 'Sec-Fetch-Site' in w and 'env.ASSETS.fetch' in w and 'status: 403' in w and '/api/auth/callback' in w
     assert (tmp_path / 'ads.txt').read_text() == 'google.com, pub-1234567890123456, DIRECT, f08c47fec0942fa0\n'
     nf = (tmp_path / '404.html').read_text()
     assert '<base href="/">' in nf and 'noindex' in nf
     (tmp_path / 'pack').rmdir()
-    site_host.write(tmp_path)
-    assert not (tmp_path / '_worker.js').exists()
+    assert site_host.write(tmp_path)['pack_guard'] is False
+    assert (tmp_path / '_worker.js').exists()            # the login/report API is there with or without a model pack
 
 
 def test_legal_pages_name_the_owner():
@@ -117,6 +117,6 @@ def test_main_page_layout(tmp_path):
     db_path = tmp_path / 'c.sqlite3'; shutil.copy(starter, db_path)
     wiki_site.build_site(CatalogDB(str(db_path)), tmp_path / 'site', model_pack=False)
     idx = (tmp_path / 'site' / 'index.html').read_text(encoding='utf-8')
-    for part in ('class="mp-quick"', 'class="mp-welcome"', 'New visitors', "What's new", 'id="sitemap"', 'class="mp-box"', 'assets/brand/emblem.png'):
+    for part in ('class="mp-quick"', 'class="mp-welcome"', 'New Visitors', "s New <small>", 'id="sitemap"', 'class="mp-box"', 'assets/brand/emblem.png'):
         assert part in idx, part
     assert (tmp_path / 'site' / 'assets' / 'brand' / 'emblem.png').is_file()

@@ -1105,7 +1105,8 @@ class App:
                                             site_url=(self.settings.get('wiki.site_url') or 'https://wosbwiki.org/'),
                                             hosting={'ad_client':self.settings.get('wiki.ad_client'),'donate_url':self.settings.get('wiki.donate_url'),
                                                      'discord_url':self.settings.get('wiki.discord_url'),'contact_email':self.settings.get('wiki.contact_email'),
-                                                     'standalone':self.settings.get('wiki.standalone',True)},
+                                                     'standalone':self.settings.get('wiki.standalone',True),
+                                                     'gtm_id':self.settings.get('wiki.gtm_id')},
                                             progress=lambda i,n,name:ctx.progress(i/max(1,n),f'Packing model {i+1}/{n}: {name}'))
             finally:db.close()
         def done(m):

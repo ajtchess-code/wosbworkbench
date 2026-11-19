@@ -16,7 +16,7 @@ The build already contains everything the host needs:
 |---|---|
 | `_headers` | Blocks framing by other sites, forces HTTPS (HSTS), turns off MIME sniffing, and sets strict referrer and permissions policies. Data files get a same-site resource policy, so other sites can't hotlink them. |
 | `_redirects` | Permanent redirects from folded or merged pages to their new address. |
-| `_worker.js` + `_routes.json` | Runs only for `/pack/*`, the 3D models. It refuses requests that don't come from the wiki's own pages. |
+| `_worker.js` + `_routes.json` | Runs only for `/api/*` and `/pack/*`. It handles Discord login, the report forms and the admin dashboard, and refuses 3D-model requests that don't come from the wiki's own pages. |
 | `ads.txt`, `robots.txt`, `sitemap.xml` | Lines for AdSense and search engines. `robots.txt` also blocks the known AI-training crawlers. |
 | `404.html` | The not-found page. |
 | `privacy.html`, `terms.html`, `disclaimer.html` | Privacy policy, terms of use and copyright disclaimer. |
@@ -73,11 +73,53 @@ of the site's rules.
 
 1. In AdSense → Sites, add `wosbwiki.org`. Every page already carries the `google-adsense-account` meta tag, and the
    site has `ads.txt`.
-2. Turn on **Auto ads**. The ad script is only on pages with real content. Utility pages such as the simulators, recent
-   changes and the 404 page are ad-free and kept out of search.
+2. Turn on **Auto ads**. The AdSense code is on every page except the full-screen battle and boarding simulators, the
+   admin page and the 404 page.
 3. In **Privacy & messaging**, create a *European regulations* message (EEA, UK and Switzerland) and a *US state
    regulations* message. The privacy policy already describes both.
 4. In Google Search Console, add `wosbwiki.org` as a domain property and submit `https://wosbwiki.org/sitemap.xml`.
+
+## Discord login, report forms and the admin dashboard
+
+Every page has a **Report a problem with this page** button, and **Tell us** links open the same form for general messages.
+Reports go to **https://wosbwiki.org/admin/**, which only the Discord accounts you list can open. Logging in is optional for
+readers: anonymous reports pass Cloudflare's free bot check (Turnstile), and logged-in reports skip it.
+
+Until the steps below are done the buttons stay hidden, so the site works the same as before.
+
+1. **Discord application.** At https://discord.com/developers/applications create an application, for example "WoSB Wiki".
+   Under **OAuth2**, copy the **Client ID**, reset and copy the **Client Secret**, and add the redirect
+   `https://wosbwiki.org/api/auth/callback`. The wiki only asks for the `identify` scope (name and avatar).
+2. **Database.** In Cloudflare go to Storage & Databases → **D1** → Create, and name it `wosbwiki`. Then in the Pages
+   project go to Settings → **Bindings** → Add → D1 database, with variable name **`DB`**, and pick `wosbwiki`. The
+   reports table is created automatically on first use.
+3. **Bot check.** Go to **Turnstile** → Add widget, enter hostname `wosbwiki.org` and choose mode *Managed*. Copy the
+   site key and secret key.
+4. **Settings.** In the Pages project go to Settings → **Variables and Secrets** and add these to Production. Use type
+   *Secret* where it says so.
+
+   | Name | Value |
+   |---|---|
+   | `DISCORD_CLIENT_ID` | the Client ID |
+   | `DISCORD_CLIENT_SECRET` | the Client Secret (*Secret*) |
+   | `SESSION_SECRET` | 40+ random characters (*Secret*). It signs login cookies, and changing it logs everyone out. |
+   | `ADMIN_DISCORD_IDS` | Discord user IDs allowed into `/admin/`, comma-separated. To copy an ID, turn on Discord → Settings → Advanced → Developer Mode, then right-click a user → Copy User ID. |
+   | `TURNSTILE_SITE_KEY` | the Turnstile site key |
+   | `TURNSTILE_SECRET` | the Turnstile secret key (*Secret*) |
+
+5. **Redeploy.** Settings only apply to new deployments, so publish again from Workbench, or use Deployments → Retry
+   deployment.
+
+Limits:
+- Anonymous senders can send 4 reports an hour from one address; logged-in users can send 10.
+- IP addresses are stored only as a one-way hash, for that limit.
+- Admins can resolve, mark *won't fix*, add notes, delete, search and download everything as CSV.
+
+## Google Analytics (Tag Manager)
+
+Every page loads Google Tag Manager container `GTM-TMZFVXTL` (setting `wiki.gtm_id`). Add the Google Analytics tag
+inside the container in Tag Manager. Set its trigger to *Initialization – All Pages*, or *All Pages*, and turn on
+consent mode so the consent message from AdSense Privacy & messaging also controls analytics in the EEA and UK.
 
 ## Moving off bandofmisfits.org
 
@@ -99,4 +141,5 @@ the bot host, keep using **Publish wiki to Band of Misfits** as well, so the bot
 | `wiki.donate_url` | `https://paypal.me/litefootz` | Donate button |
 | `wiki.discord_url` | *(none)* | "Join our Discord" link and contact line |
 | `wiki.contact_email` | `contact@wosbwiki.org` | Contact address on the legal pages |
+| `wiki.gtm_id` | `GTM-TMZFVXTL` | Google Tag Manager container |
 | `wiki.standalone` | `true` | Ads, donate footer and Cloudflare files in the build. Set it to `false` only to host on the BOM dashboard, which then adds its own bar. |
