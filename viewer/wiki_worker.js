@@ -196,10 +196,146 @@ async function pack(request, env, url) {
   return out;
 }
 
+// ---------------------------------------------------------------- translated pages (/es/..., /ja/..., ...)
+// Pages are translated by Workers AI (binding "AI", model m2m100) the first time someone opens them. Every string is
+// remembered (KV binding "TRANSLATIONS": one map per page plus one for the menus and footer shared by all pages), so a
+// new publish only translates new or changed text. Finished pages are also kept in Cloudflare's cache.
+const LANGS = { zh: 'Chinese', hi: 'Hindi', es: 'Spanish', ar: 'Arabic', fr: 'French', bn: 'Bengali', pt: 'Portuguese', ru: 'Russian',
+  id: 'Indonesian', ur: 'Urdu', de: 'German', ja: 'Japanese', tr: 'Turkish', ko: 'Korean' };
+const RTL = new Set(['ar', 'ur']);
+const SKIP_TAGS = new Set(['script', 'style', 'code', 'pre', 'textarea', 'svg', 'kbd', 'samp']);
+const ATTRS = /(\s(?:alt|title|placeholder|aria-label)=")([^"]*)(")/g;
+const META = /(<meta\s+(?:name|property)="(?:description|og:title|og:description|twitter:title|twitter:description|og:image:alt)"\s+content=")([^"]*)(")/g;
+const decode = (s) => s.replace(/&(#x[0-9a-f]+|#\d+|amp|lt|gt|quot|#39|apos|nbsp);/gi, (m, e) => ({ amp: '&', lt: '<', gt: '>', quot: '"', '#39': "'", apos: "'", nbsp: ' ' })[e.toLowerCase()]
+  ?? String.fromCodePoint(e[1] === 'x' || e[1] === 'X' ? parseInt(e.slice(2), 16) : parseInt(e.slice(1), 10)));
+const encodeText = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+const encodeAttr = (s) => encodeText(s).replace(/"/g, '&quot;');
+const worth = (t) => /\p{L}{2,}/u.test(t) && t.length < 2000;
+async function hashKey(t) { return hex(await crypto.subtle.digest('SHA-1', enc.encode(t))).slice(0, 20); }
+
+/** Split a page into text pieces worth translating. Returns { parts, texts } where texts[i] = { text, shared }. */
+function tokenize(html) {
+  const parts = html.split(/(<script\b[\s\S]*?<\/script>|<style\b[\s\S]*?<\/style>|<!--[\s\S]*?-->|<[^>]+>)/i);
+  const stack = []; let skip = 0, shared = 0;
+  const out = [];
+  for (let i = 0; i < parts.length; i++) {
+    const s = parts[i];
+    if (i % 2 === 1) {                               // a tag
+      const m = /^<(\/?)([a-z0-9]+)/i.exec(s); if (!m) continue;
+      const tag = m[2].toLowerCase(), close = m[1] === '/', selfClose = /\/>$/.test(s) || ['br', 'img', 'input', 'meta', 'link', 'hr', 'source', 'wbr'].includes(tag);
+      if (close) { const top = stack.pop(); if (top) { if (top.skip) skip--; if (top.shared) shared--; } continue; }
+      if (selfClose) { if (!skip) out.push({ i, attr: true }); continue; }
+      const noTr = SKIP_TAGS.has(tag) || /\btranslate="no"|class="[^"]*\bnotranslate\b/.test(s);
+      const sh = /\bid="(side|top|foot)"/.test(s);
+      stack.push({ skip: noTr, shared: sh }); if (noTr) skip++; if (sh) shared++;
+      if (!skip) out.push({ i, attr: true });
+      continue;
+    }
+    const t = decode(s).trim();
+    // menus, header, footer and short labels (headings, table headers, buttons) are shared by many pages
+    if (!skip && t && worth(t)) out.push({ i, text: true, shared: shared > 0 || t.split(/\s+/).length <= 4 });
+  }
+  return { parts, items: out };
+}
+
+async function translateAll(env, lang, strings, budget) {
+  const done = {};
+  let n = 0;
+  const queue = [...strings];
+  async function one(t) {
+    try {
+      const r = await env.AI.run('@cf/meta/m2m100-1.2b', { text: t, source_lang: 'en', target_lang: lang });
+      const tr = (r && (r.translated_text || r.response)) || '';
+      if (tr && tr.trim()) done[t] = tr.trim();
+    } catch (e) { /* leave it in English for now */ }
+  }
+  while (queue.length && n < budget) {
+    const batch = queue.splice(0, Math.min(8, budget - n)); n += batch.length;
+    await Promise.all(batch.map(one));
+  }
+  return { done, left: queue.length };
+}
+
+async function loadMap(env, key) { if (!env.TRANSLATIONS) return {}; try { return (await env.TRANSLATIONS.get(key, 'json')) || {}; } catch (e) { return {}; } }
+async function saveMap(env, key, map) { if (env.TRANSLATIONS) { try { await env.TRANSLATIONS.put(key, JSON.stringify(map)); } catch (e) { /* daily write limit: try again next visit */ } } }
+
+async function translatePage(html, lang, env, path) {
+  const { parts, items } = tokenize(html);
+  const want = new Map();                          // english -> shared?
+  const piece = (s) => { const t = decode(s); const lead = t.match(/^\s*/)[0], tail = t.match(/\s*$/)[0]; return [lead, t.trim(), tail]; };
+  for (const it of items) {
+    if (it.text) { const [, t] = piece(parts[it.i]); want.set(t, (want.get(t) || false) || it.shared); }
+    else for (const m of parts[it.i].matchAll(ATTRS)) { const t = decode(m[2]).trim(); if (worth(t)) want.set(t, want.get(t) || t.split(/\s+/).length <= 4); }
+  }
+  const head = html.slice(0, html.indexOf('<body') > 0 ? html.indexOf('<body') : 0);
+  for (const m of head.matchAll(META)) { const t = decode(m[2]).trim(); if (worth(t)) want.set(t, false); }
+  const common = await loadMap(env, `${lang}:_common`), page = await loadMap(env, `${lang}:${path}`);
+  const known = async (t) => common[await hashKey(t)] ?? page[await hashKey(t)];
+  const missing = [];
+  for (const t of want.keys()) if ((await known(t)) == null) missing.push(t);
+  const budget = Number(env.TRANSLATE_BUDGET || 150);
+  const { done, left } = env.AI ? await translateAll(env, lang, missing, budget) : { done: {}, left: missing.length };
+  let commonDirty = false, pageDirty = false;
+  for (const [t, tr] of Object.entries(done)) {
+    const k = await hashKey(t);
+    if (want.get(t)) { common[k] = tr; commonDirty = true; } else { page[k] = tr; pageDirty = true; }
+  }
+  if (commonDirty) await saveMap(env, `${lang}:_common`, common);
+  if (pageDirty) await saveMap(env, `${lang}:${path}`, page);
+  const tr = async (t) => (await known(t)) ?? done[t] ?? null;
+  for (const it of items) {
+    if (it.text) {
+      const [lead, t, tail] = piece(parts[it.i]); const x = await tr(t);
+      if (x) parts[it.i] = encodeText(lead + x + tail);
+    } else {
+      let tag = parts[it.i]; const reps = [];
+      for (const m of tag.matchAll(ATTRS)) { const x = await tr(decode(m[2]).trim()); if (x) reps.push([m[0], m[1] + encodeAttr(x) + m[3]]); }
+      for (const [a, b] of reps) tag = tag.replace(a, b);
+      parts[it.i] = tag;
+    }
+  }
+  let out = parts.join('');
+  const metaReps = [];
+  for (const m of out.slice(0, out.indexOf('<body')).matchAll(META)) { const x = await tr(decode(m[2]).trim()); if (x) metaReps.push([m[0], m[1] + encodeAttr(x) + m[3]]); }
+  for (const [a, b] of metaReps) out = out.replace(a, b);
+  return { html: out, missing: left };
+}
+
+function localise(html, lang, path, origin) {
+  const dir = RTL.has(lang) ? ' dir="rtl"' : '';
+  let out = html.replace(/<html lang="en"/, `<html lang="${lang}"${dir}`);
+  // assets live at the root; pages stay inside /<lang>/
+  out = out.replace(/((?:src|href)=")((?:\.\.\/)*)(assets\/|pack\/|favicon\.ico|apple-touch-icon\.png|site\.webmanifest|search\.json)/g, '$1/$3');
+  out = out.replace(/(<link rel="canonical" href=")[^"]*(")/, `$1${origin}/${lang}${path}$2`).replace(/(<meta property="og:url" content=")[^"]*(")/, `$1${origin}/${lang}${path}$2`);
+  out = out.replace(/<body /, `<body data-lang="${lang}" `);
+  return out;
+}
+
+async function translated(request, env, url, lang) {
+  const rest = url.pathname.slice(lang.length + 1) || '/';
+  if (!/\.html$|\/$/.test(rest)) return env.ASSETS.fetch(new Request(new URL(rest + url.search, url.origin), request));   // css, images, data
+  const english = await env.ASSETS.fetch(new Request(new URL(rest, url.origin), request));
+  if (!english.ok || !(english.headers.get('content-type') || '').includes('text/html')) return english;
+  const tag = english.headers.get('etag') || '';
+  const cacheKey = new Request(`${url.origin}/__tr/${lang}${rest}?v=${encodeURIComponent(tag)}`);
+  const cache = typeof caches !== 'undefined' ? caches.default : null;
+  if (cache) { const hit = await cache.match(cacheKey); if (hit) return hit; }
+  const path = rest.endsWith('/') ? rest + 'index.html' : rest;
+  const { html, missing } = await translatePage(await english.text(), lang, env, path);
+  let page = localise(html, lang, rest, url.origin);
+  if (missing) page = page.replace(/(<main id="content">)/, `$1<p class="tr-wait" translate="no">${LANGS[lang]}: part of this page is still being translated. Refresh in a minute to see more.</p>`);
+  const res = new Response(page, { headers: { 'content-type': 'text/html; charset=utf-8', 'content-language': lang, 'x-frame-options': 'DENY',
+    'content-security-policy': "frame-ancestors 'none'", 'x-content-type-options': 'nosniff', 'cache-control': missing ? 'no-store' : 'public, max-age=600' } });
+  if (cache && !missing) await cache.put(cacheKey, res.clone());
+  return res;
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url), p = url.pathname, m = request.method;
     try {
+      const lang = p.split('/')[1];
+      if (LANGS[lang] && (m === 'GET' || m === 'HEAD')) return await translated(request, env, url, lang);
       if (p.startsWith('/pack/')) return await pack(request, env, url);
       if (p === '/api/auth/login' && m === 'GET') return await login(request, env, url);
       if (p === '/api/auth/callback' && m === 'GET') return await callback(request, env, url);
@@ -215,4 +351,5 @@ export default {
       return fail('Something went wrong on the wiki server. Please try again.', 500);
     }
   },
+  _test: { tokenize, translatePage, localise, LANGS },
 };

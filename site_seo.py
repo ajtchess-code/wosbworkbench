@@ -39,7 +39,7 @@ def _description(page_html, title, site_name):
     return d if len(d) <= 160 else d[:157].rsplit(' ', 1)[0] + '…'
 
 
-def finalize(out, *, site_url=DEFAULT_URL, site_name='WoSB Wiki', lastmod=None, ad_client='', inject_ads=False, gtm_id=''):
+def finalize(out, *, site_url=DEFAULT_URL, site_name='WoSB Wiki', lastmod=None, ad_client='', inject_ads=False, gtm_id='', langs=()):
     """Add head metadata to every page and write the brand files, sitemap.xml and robots.txt. Returns counts."""
     out = Path(out)
     site_url = site_url.rstrip('/') + '/'
@@ -77,6 +77,10 @@ def finalize(out, *, site_url=DEFAULT_URL, site_name='WoSB Wiki', lastmod=None, 
             head.append("<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());"
                         "dataLayer.push({'gtm.start':new Date().getTime(),event:'gtm.js'});</script>"
                         f'<script async src="https://www.googletagmanager.com/gtm.js?id={e(gtm_id)}"></script>')
+        if langs and not noindex:
+            page_url = site_url + ('' if rel == 'index.html' else rel)
+            head += [f'<link rel="alternate" hreflang="en" href="{e(page_url)}">', f'<link rel="alternate" hreflang="x-default" href="{e(page_url)}">']
+            head += [f'<link rel="alternate" hreflang="{l}" href="{e(site_url + l + "/" + ("" if rel == "index.html" else rel))}">' for l in langs]
         head += [f'<meta name="description" content="{e(desc)}">',
                 f'<link rel="canonical" href="{e(url)}">',
                 '<meta name="robots" content="noindex,follow">' if noindex else '<meta name="robots" content="index,follow,max-image-preview:large">',

@@ -67,7 +67,7 @@ def test_icons_copied(tmp_path):
     assert f'icons/cannon/{icons[0].name}' in (out / 'category' / 'cannons.html').read_text(encoding='utf-8')
     for f in ('_worker.js', '_routes.json', 'admin/index.html', 'assets/community.js', 'assets/admin.js', 'assets/item_viewer.js'):
         assert (out / f).is_file(), f
-    assert json.loads((out / '_routes.json').read_text())['include'] == ['/pack/*', '/api/*']
+    assert json.loads((out / '_routes.json').read_text())['include'][:2] == ['/pack/*', '/api/*']
     idx = (out / 'index.html').read_text(encoding='utf-8')
     assert 'gtm.js?id=GTM-TMZFVXTL' in idx and 'adsbygoogle.js?client=ca-pub-6442579332215350' in idx
     assert 'adsbygoogle' not in (out / 'admin' / 'index.html').read_text(encoding='utf-8')
@@ -88,3 +88,24 @@ def test_assets_are_versioned(tmp_path):
     (tmp_path / 'index.html').write_text('<link rel="stylesheet" href="assets/site.css">')
     wiki_site._version_assets(tmp_path)
     assert v not in (tmp_path / 'index.html').read_text()           # new content, new address
+
+
+@pytest.mark.skipif(not shutil.which('node'), reason='node needed for the Worker test')
+def test_worker_translation(tmp_path):
+    w = tmp_path / 'worker.mjs'; shutil.copy(ROOT / 'viewer' / 'wiki_worker.js', w)
+    r = subprocess.run(['node', '--no-warnings', str(ROOT / 'tests' / 'js' / 'translate.test.mjs'), w.as_uri()], capture_output=True, text=True, timeout=120)
+    assert r.returncode == 0, r.stderr[-2000:]
+    assert 'translate tests passed' in r.stdout
+
+
+def test_language_links_and_routes(tmp_path):
+    import site_host, site_seo
+    (tmp_path / 'ship').mkdir()
+    body = ' '.join(['frigate broadside armor'] * 60)
+    (tmp_path / 'ship' / 'a.html').write_text(f'<!doctype html><html lang="en"><head><meta name="viewport" content="x"><title>A · WoSB Wiki</title></head><body><main><p>{body}</p></main></body></html>')
+    site_seo.finalize(tmp_path, site_url='https://wosbwiki.org/', langs=site_host.LANGS)
+    s = (tmp_path / 'ship' / 'a.html').read_text()
+    assert 'hreflang="ja" href="https://wosbwiki.org/ja/ship/a.html"' in s and 'hreflang="x-default"' in s
+    site_host.write(tmp_path)
+    inc = json.loads((tmp_path / '_routes.json').read_text())['include']
+    assert '/es/*' in inc and '/ar/*' in inc and len(inc) == 16

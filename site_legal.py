@@ -57,6 +57,8 @@ def privacy(h):
         '<p><b>Analytics.</b> We use Google Analytics, through Google Tag Manager, to count visits and see which pages are useful. Google sets cookies for this '
         'and receives information such as the pages you view and your approximate location. Where consent is required, analytics cookies are only used after you agree. '
         'You can opt out with the <a href="https://tools.google.com/dlpage/gaoptout" rel="noopener">Google Analytics opt-out add-on</a>.</p>'
+        '<p><b>Translations.</b> Pages in other languages are translated automatically by Cloudflare\'s AI service from the English page text. '
+        'Only the wiki\'s own page text is sent for translation, never anything about you. Machine translations can contain mistakes; the English page is the reference.</p>'
         '<p><b>What we do not collect.</b> We do not run comments, newsletters or payment forms on this site, and we do not sell or rent personal information.</p>'
         '<h2 id="ads">Advertising and cookies</h2>'
         '<p>The site is paid for by donations and by ads served by Google AdSense. Google, as a third-party vendor, uses cookies to serve ads on this site. '

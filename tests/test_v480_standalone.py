@@ -56,7 +56,7 @@ def test_host_files(tmp_path):
     h = (tmp_path / '_headers').read_text()
     assert "frame-ancestors 'none'" in h and 'X-Frame-Options: DENY' in h and 'Strict-Transport-Security' in h
     assert (tmp_path / '_redirects').read_text() == '/a.html /b.html 301\n'
-    assert json.loads((tmp_path / '_routes.json').read_text())['include'] == ['/pack/*', '/api/*']
+    assert json.loads((tmp_path / '_routes.json').read_text())['include'][:2] == ['/pack/*', '/api/*']
     w = (tmp_path / '_worker.js').read_text()
     assert 'Sec-Fetch-Site' in w and 'env.ASSETS.fetch' in w and 'status: 403' in w and '/api/auth/callback' in w
     assert (tmp_path / 'ads.txt').read_text() == 'google.com, pub-1234567890123456, DIRECT, f08c47fec0942fa0\n'

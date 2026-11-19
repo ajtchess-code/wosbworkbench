@@ -45,7 +45,8 @@ HEADERS = """/*
 WORKER_FILE = Path(__file__).resolve().parent / 'viewer' / 'wiki_worker.js'
 WORKER = WORKER_FILE.read_text(encoding='utf-8') if WORKER_FILE.is_file() else ''
 
-ROUTES = {'version': 1, 'include': ['/pack/*', '/api/*'], 'exclude': []}
+LANGS = ['zh', 'hi', 'es', 'ar', 'fr', 'bn', 'pt', 'ru', 'id', 'ur', 'de', 'ja', 'tr', 'ko']     # translated by the Worker (Workers AI)
+ROUTES = {'version': 1, 'include': ['/pack/*', '/api/*'] + [f'/{l}/*' for l in LANGS], 'exclude': []}
 
 
 def write(out, *, redirects=(), ad_client='', not_found_html=None):

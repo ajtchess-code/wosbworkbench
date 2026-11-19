@@ -115,6 +115,32 @@ Limits:
 - IP addresses are stored only as a one-way hash, for that limit.
 - Admins can resolve, mark *won't fix*, add notes, delete, search and download everything as CSV.
 
+## Translations (14 languages)
+
+Every page is also available in Chinese (`/zh/`), Hindi (`/hi/`), Spanish (`/es/`), Arabic (`/ar/`), French
+(`/fr/`), Bengali (`/bn/`), Portuguese (`/pt/`), Russian (`/ru/`), Indonesian (`/id/`), Urdu (`/ur/`), German
+(`/de/`), Japanese (`/ja/`), Turkish (`/tr/`) and Korean (`/ko/`). Pick one from the globe button in the top bar.
+Arabic and Urdu pages read right to left.
+
+How it works:
+- Pages are translated by Cloudflare Workers AI (model `m2m100-1.2b`) the first time someone opens them.
+- Every translated string is remembered in a KV store, so later publishes only translate new or changed text.
+  Menus, the footer and short labels are shared by all pages and translated once per language.
+- A page with a lot of new text is finished over a few visits (`TRANSLATE_BUDGET` strings per visit, default 150).
+  Until then it shows a short "still being translated" note.
+- The tools' buttons and charts, the search box results and game item names stay in English.
+
+Setup, in the Pages project → Settings → **Bindings**:
+1. **Workers AI**: add a Workers AI binding with variable name **`AI`**.
+2. **KV namespace**: in Storage & Databases → KV, create `wosbwiki-translations`. Then add a KV binding with
+   variable name **`TRANSLATIONS`** pointing to it.
+3. Redeploy.
+
+Cost: Workers AI includes 10,000 free Neurons a day. Translating the whole wiki into all 14 languages is roughly a
+few million tokens, so it fills in over a couple of weeks on the free allowance, or costs a few dollars on Workers
+Paid ($5/month minimum). After that, only changes are translated. Without the `AI` binding, the language pages show
+English.
+
 ## Google Analytics (Tag Manager)
 
 Every page loads Google Tag Manager container `GTM-TMZFVXTL` (setting `wiki.gtm_id`). Add the Google Analytics tag

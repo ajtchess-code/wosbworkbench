@@ -375,7 +375,7 @@ footer .legal a{margin-right:14px}.donate{display:flex;flex-wrap:wrap;gap:6px 12
 #acct{position:relative;margin-left:10px}#acct[hidden]{display:none}.acct-login{display:inline-flex;align-items:center;gap:6px;background:#5865f2;color:#fff!important;border-radius:6px;padding:6px 12px;font-weight:600;white-space:nowrap}
 .acct-login:hover{text-decoration:none;filter:brightness(1.08)}.acct-login.big{padding:10px 18px;font-size:15px}.acct-btn{display:flex;align-items:center;gap:6px;border:1px solid var(--border);background:#fff;border-radius:999px;padding:2px 10px 2px 2px;cursor:pointer;font:inherit}
 .acct-btn img{border-radius:50%}.acct-init{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:#5865f2;color:#fff;font-style:normal;font-weight:700}.acct-menu{position:absolute;right:0;top:40px;background:#fff;border:1px solid var(--border);border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,.15);min-width:180px;z-index:30;display:grid}
-.acct-menu[hidden]{display:none}.acct-menu a,.acct-menu button{padding:10px 14px;text-align:left;border:0;background:none;font:inherit;color:var(--link);cursor:pointer}.acct-menu a:hover,.acct-menu button:hover{background:#f3f6fa;text-decoration:none}
+.acct-menu[hidden]{display:none}#langs{position:relative;margin-left:10px}#langs[hidden]{display:none}.lang-btn{display:flex;align-items:center;gap:4px;border:1px solid var(--border);background:#fff;border-radius:6px;padding:5px 8px;cursor:pointer;font:inherit;font-size:12px;font-weight:600}.lang-menu{position:absolute;right:0;top:38px;background:#fff;border:1px solid var(--border);border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,.15);display:grid;grid-template-columns:1fr 1fr;min-width:330px;z-index:31;padding:4px}.lang-menu[hidden]{display:none}.lang-menu a{padding:7px 10px;border-radius:5px;display:flex;align-items:center;gap:8px;white-space:nowrap}img.flag{width:21px;height:14px;border-radius:2px;box-shadow:0 0 0 1px rgba(0,0,0,.15);flex:none}.lang-menu a:hover{background:#f3f6fa;text-decoration:none}.lang-menu a[aria-current]{font-weight:700;background:#eef4fb}.tr-wait{background:#fff8e6;border:1px solid #ecd9a8;border-radius:6px;padding:6px 10px;font-size:13px}[dir=rtl] .infobox{float:left;margin:0 18px 12px 0}[dir=rtl] ul,[dir=rtl] ol{padding-right:22px;padding-left:0}.acct-menu a,.acct-menu button{padding:10px 14px;text-align:left;border:0;background:none;font:inherit;color:var(--link);cursor:pointer}.acct-menu a:hover,.acct-menu button:hover{background:#f3f6fa;text-decoration:none}
 .report-bar{clear:both;display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;margin:28px 0 0;padding:10px 14px;border:1px dashed #a7c1dd;border-radius:8px;background:#f5f9fd;font-size:13px;color:var(--muted)}
 .report-bar[hidden]{display:none}.report-bar button{background:#fff;border:1px solid var(--accent);color:var(--accent);border-radius:6px;padding:6px 12px;font:inherit;font-weight:600;cursor:pointer}.report-bar button:hover{background:var(--accent);color:#fff}
 .rp-wrap{position:fixed;inset:0;background:rgba(10,20,30,.55);z-index:60;display:grid;place-items:center;padding:12px}body.rp-open{overflow:hidden}
@@ -425,6 +425,16 @@ function wikiFilter(inp){const q=inp.value.toLowerCase();document.querySelectorA
 if(window.top!==window.self){try{window.top.location.replace(window.self.location.href)}catch(e){document.documentElement.style.display='none'}}
 (function(){
 const base=document.body.dataset.base||'';
+const FLAG=c=>`<img class="flag" src="/assets/flags/${c}.svg" alt="" width="21" height="14">`;
+const LANGS=[['en','English'],['zh','中文'],['hi','हिन्दी'],['es','Español'],['ar','العربية'],['fr','Français'],['bn','বাংলা'],['pt','Português'],['ru','Русский'],
+ ['id','Bahasa Indonesia'],['ur','اردو'],['de','Deutsch'],['ja','日本語'],['tr','Türkçe'],['ko','한국어']];
+const lb=document.getElementById('langs');
+if(lb&&/^https?:$/.test(location.protocol)){const cur=document.body.dataset.lang||'en';const codes=LANGS.map(l=>l[0]).filter(c=>c!=='en');
+ const parts=location.pathname.split('/');const rest=codes.includes(parts[1])?'/'+parts.slice(2).join('/'):location.pathname;
+ lb.innerHTML=`<button type="button" class="lang-btn" aria-haspopup="true" aria-expanded="false" aria-label="Language">${FLAG(cur)}<span>${cur.toUpperCase()}</span></button>
+  <div class="lang-menu" hidden>${LANGS.map(([c,n])=>`<a href="${c==='en'?rest:'/'+c+rest}${location.search}" lang="${c}"${c===cur?' aria-current="true"':''}>${FLAG(c)}${n}</a>`).join('')}</div>`;
+ const b=lb.querySelector('.lang-btn'),mm=lb.querySelector('.lang-menu');b.onclick=()=>{mm.hidden=!mm.hidden;b.setAttribute('aria-expanded',String(!mm.hidden))};
+ document.addEventListener('click',e=>{if(!lb.contains(e.target))mm.hidden=true});lb.hidden=false}
 const menu=document.getElementById('menu'),scrim=document.getElementById('scrim');
 function setMenu(open){document.body.classList.toggle('menu-open',open);if(menu)menu.setAttribute('aria-expanded',open?'true':'false')}
 if(menu){menu.addEventListener('click',()=>setMenu(!document.body.classList.contains('menu-open')));scrim.addEventListener('click',()=>setMenu(false));
@@ -473,7 +483,7 @@ def _page(title, body, *, depth=0, crumbs=None, tab='Page', report=True):
             f'<a id="toplogo" href="{base}index.html"><img src="{base}assets/brand/emblem.png" alt="" width="34" height="34"><b>{_e(SITE_NAME)}</b></a>'
             f'<span class="tabs"><a class="on">{_e(tab)}</a></span>'
             '<div id="search" role="search"><input type="search" placeholder="Search the WoSB Wiki" aria-label="Search the wiki" autocomplete="off"><div id="results"></div></div>'
-            + ('<div id="acct" hidden></div>' if h.get('standalone') else '') + '</header>'
+            + ('<div id="langs" translate="no" hidden></div><div id="acct" hidden></div>' if h.get('standalone') else '') + '</header>'
             f'<main id="content">{crumb}<h1>{_e(SITE_NAME if title == "Main page" else title)}</h1>{body}'
             + ('<div class="report-bar" hidden><button type="button" data-report>Report a problem with this page</button>'
                '<span>Spotted something wrong or missing? Let us know.</span></div>' if h.get('standalone') and report else '') + '</main>'
@@ -741,6 +751,10 @@ class SiteBuilder:
             self._design_thumbs()
         except Exception as exc:   # pictures are a bonus: never fail the build over them
             self.progress and self.progress(f'Item icons skipped: {exc}')
+        flags = Path(__file__).resolve().parent / 'viewer' / 'flags'
+        if flags.is_dir():
+            for f in flags.glob('*.svg'):
+                self._write(f'assets/flags/{f.name}', f.read_text(encoding='utf-8'))
         for name in ('item_viewer.js', 'community.js', 'admin.js'):
             src = Path(__file__).resolve().parent / 'viewer' / name
             if src.is_file():
@@ -786,7 +800,8 @@ class SiteBuilder:
         manifest['reworded'] = site_wording.apply(self.out)
         manifest['titlecased'] = site_titlecase.apply(self.out)
         manifest['seo'] = site_seo.finalize(self.out, site_url=self.site_url, site_name=SITE_NAME, ad_client=HOSTING.get('ad_client') or '',
-                                            inject_ads=bool(HOSTING.get('standalone')), gtm_id=HOSTING.get('gtm_id') or '')
+                                            inject_ads=bool(HOSTING.get('standalone')), gtm_id=HOSTING.get('gtm_id') or '',
+                                            langs=__import__('site_host').LANGS if HOSTING.get('standalone') else ())
         if HOSTING.get('standalone'):
             nf = _page('Page not found', '<p>That page isn\'t here. It may have moved when similar pages were combined.</p>'
                        '<p>Try the search box above, browse <a href="sitemap.html">all pages</a>, or go to the <a href="index.html">main page</a>.</p>')
