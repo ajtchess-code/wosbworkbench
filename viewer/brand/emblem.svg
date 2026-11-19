@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="WoSB Wiki">
+<defs><radialGradient id="sea" cx="50%" cy="38%" r="70%"><stop offset="0" stop-color="#1d5d86"/><stop offset="1" stop-color="#0a2236"/></radialGradient>
+<linearGradient id="gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f3d58e"/><stop offset="1" stop-color="#b8873a"/></linearGradient>
+<clipPath id="disc"><circle cx="100" cy="100" r="64"/></clipPath></defs>
+<g fill="url(#gold)" stroke="none"><circle cx="179.5" cy="132.9" r="7"/><circle cx="132.9" cy="179.5" r="7"/><circle cx="67.1" cy="179.5" r="7"/><circle cx="20.5" cy="132.9" r="7"/><circle cx="20.5" cy="67.1" r="7"/><circle cx="67.1" cy="20.5" r="7"/><circle cx="132.9" cy="20.5" r="7"/><circle cx="179.5" cy="67.1" r="7"/></g>
+<g stroke="url(#gold)" stroke-width="8" stroke-linecap="round"><line x1="122.2" y1="109.2" x2="175.8" y2="131.4"/><line x1="109.2" y1="122.2" x2="131.4" y2="175.8"/><line x1="90.8" y1="122.2" x2="68.6" y2="175.8"/><line x1="77.8" y1="109.2" x2="24.2" y2="131.4"/><line x1="77.8" y1="90.8" x2="24.2" y2="68.6"/><line x1="90.8" y1="77.8" x2="68.6" y2="24.2"/><line x1="109.2" y1="77.8" x2="131.4" y2="24.2"/><line x1="122.2" y1="90.8" x2="175.8" y2="68.6"/></g>
+<circle cx="100" cy="100" r="72" fill="url(#gold)"/>
+<circle cx="100" cy="100" r="64" fill="url(#sea)"/>
+<g clip-path="url(#disc)">
+ <path d="M36 132 Q52 124 68 132 T100 132 T132 132 T164 132 V170 H36Z" fill="#2f86a8" opacity=".9"/>
+ <path d="M36 142 Q52 134 68 142 T100 142 T132 142 T164 142 V170 H36Z" fill="#185b7d"/>
+ <path d="M64 124 H138 L128 136 H74Z" fill="#7a4b26"/>
+ <line x1="100" y1="44" x2="100" y2="124" stroke="#e9dcc0" stroke-width="3"/>
+ <line x1="80" y1="60" x2="80" y2="124" stroke="#e9dcc0" stroke-width="2.5"/>
+ <path d="M102 48 Q128 66 124 96 L102 96Z" fill="#f6efdc"/>
+ <path d="M102 100 Q132 108 130 120 L102 120Z" fill="#f6efdc"/>
+ <path d="M82 64 Q100 78 97 102 L82 102Z" fill="#efe4c8"/>
+ <path d="M100 38 L114 42 L100 46Z" fill="#c8442f"/>
+</g>
+<circle cx="100" cy="100" r="64" fill="none" stroke="#0a2236" stroke-width="2"/>
+</svg>

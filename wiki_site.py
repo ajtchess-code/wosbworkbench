@@ -21,7 +21,8 @@ from collections import defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
 
-SITE_NAME = 'Sea Battle Compendium'
+SITE_NAME = 'WoSB Wiki'
+SITE_URL = 'https://bandofmisfits.org/'
 PRIVATE_SECTIONS = {'Research', 'Research backlog', 'Client metadata & research evidence', 'Networking and protocols'}
 PRIVATE_SOURCE_KINDS = {'decompiled-client'}
 HIDDEN_FIELDS = {'Source', 'SourceRecord', 'Name', 'IconName', 'IconTexture', 'IconTextureName', 'Icon', 'Texture',
@@ -70,10 +71,10 @@ ENTITIES = {
     'achievement': ('Achievements', 'Achievements', [
         ('UiCategory', 'Category', None), ('CommonRatingWeight', 'Rating weight', None)], ['Category', 'Rating weight']),
     'cosmetic': ('ShipDesingElements', 'Ship cosmetics', [
-        ('Category', 'Kind', 'camel'), ('InShop', 'In shop', None), ('BonusEffectType', 'Bonus', 'camel'),
+        ('Category', 'Kind', 'camel'), ('InShop', 'In shop', 'shop'), ('BonusEffectType', 'Bonus', 'camel'),
         ('BonusEffectValue', 'Bonus value', None), ('EnglishDescription', 'Description', None)], ['Kind', 'In shop', 'Bonus']),
     'decoration': ('EnvDesingElements', 'Island decorations', [
-        ('InShop', 'How to get', None), ('EnglishDescription', 'Description', None)], ['How to get']),
+        ('InShop', 'How to get', 'shop'), ('EnglishDescription', 'Description', None)], ['How to get']),
     'recipe': ('Crafting_Recipes', 'Crafting recipes', [
         ('Category', 'Workshop', None), ('Context', 'Where', None), ('CraftHours', 'Hours', None), ('OutputQuantity', 'Makes', None),
         ('InputGold', 'Gold', 'int'), ('OutputType', 'Output type', 'camel')], ['Workshop', 'Hours', 'Makes', 'Gold']),
@@ -130,6 +131,13 @@ def _fmt(value, kind):
             return str(value)
     if kind == 'first':
         return str(value).split('|')[0]
+    if kind == 'shop':
+        v = str(value); m = re.match(r'ByGold\s+(\d+)', v)
+        if m:
+            return f'{int(m.group(1)):,} gold'
+        if v.lower().startswith('true'):
+            return 'Premium shop' + (f' (tier {v[-1]})' if 'Tier' in v else '')
+        return 'Not sold (rewards, chests, events)' if v.lower() in ('false', '') else _camel(v)
     if kind == 'bool':
         return 'Yes' if value in (True, 'true', 'True', 1) else 'No'
     if kind == 'none':
@@ -212,6 +220,10 @@ GAMEPEDIA_SEE_ALSO = {
 }
 
 CSS = r'''
+.feature{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:10px;margin:12px 0 18px}.feature a{display:grid;gap:4px;padding:12px 14px;border-radius:8px;
+background:linear-gradient(135deg,#123f60,#1d5d86);color:#f6efdc;text-decoration:none}.feature a:hover{filter:brightness(1.12)}.feature b{font:700 17px Georgia,serif;color:#f3d58e}.feature span{font-size:13px;color:#dbe7ee}
+ul.cols{columns:3 220px;padding-left:18px}#logo img{display:block;margin:0 auto 6px}
+
 .wm-bar{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;margin:6px 0;font-size:13px}.wm-bar input[type=search]{padding:4px 8px;min-width:200px}
 .wm-view{position:relative;overflow:hidden;background:#6f6a5b;border-radius:8px;touch-action:none;cursor:grab;user-select:none}.wm-view:active{cursor:grabbing}
 .wm-world{position:absolute;left:0;top:0;transform-origin:0 0}.wm-img{width:100%;height:100%;display:block}
@@ -303,28 +315,26 @@ document.querySelectorAll('table.sortable').forEach(t=>{t.querySelectorAll('th')
 })();
 '''
 
-LOGO = ('<svg width="64" height="64" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="30" fill="#1d4e6f"/>'
-        '<path d="M32 10v34M20 22h24M32 44c-8 0-13-4-15-9l4 1M32 44c8 0 13-4 15-9l-4 1" stroke="#fff" stroke-width="3" fill="none" '
-        'stroke-linecap="round"/><circle cx="32" cy="10" r="3" fill="#fff"/></svg>')
+LOGO = '<img src="{base}assets/brand/emblem.svg" alt="" width="72" height="72">'
 
 
 def _page(title, body, *, depth=0, crumbs=None, tab='Page'):
     base = '../' * depth
-    side = [f'<a id="logo" href="{base}index.html">{LOGO}{_e(SITE_NAME)}</a>', '<h3>Navigation</h3>']
+    side = [f'<a id="logo" href="{base}index.html">{LOGO.format(base=base)}{_e(SITE_NAME)}</a>', '<h3>Navigation</h3>']
     side += [f'<a href="{base}{u}">{_e(t)}</a>' for t, u in NAV]
     side += ['<h3>Tools</h3>'] + [f'<a href="{base}{u}">{_e(t)}</a>' for t, u in TOOLS]
-    side += ['<h3>Wiki</h3>', f'<a href="{base}recent.html">Recent changes</a>', f'<a href="{base}about.html">About</a>']
+    side += ['<h3>Wiki</h3>', f'<a href="{base}recent.html">Recent changes</a>', f'<a href="{base}about.html">About</a>', f'<a href="{base}privacy.html">Privacy &amp; cookies</a>', f'<a href="{base}sitemap.html">All pages</a>']
     crumb = ''
     if crumbs:
         crumb = '<div class="crumbs">' + ' › '.join(f'<a href="{base}{u}">{_e(t)}</a>' if u else _e(t) for t, u in crumbs) + '</div>'
     return ('<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
-            f'<title>{_e(title)} · {_e(SITE_NAME)}</title><link rel="stylesheet" href="{base}assets/site.css"></head>'
+            f'<title>{_e(SITE_NAME + " · World of Sea Battle wiki: ships, guns, maps and battle tools" if title == "Main page" else title + " · " + SITE_NAME)}</title><link rel="stylesheet" href="{base}assets/site.css"></head>'
             f'<body data-base="{base}"><div id="side">{"".join(side)}</div>'
             f'<div id="top"><span class="tabs"><a class="on">{_e(tab)}</a></span>'
-            '<div id="search"><input type="search" placeholder="Search the compendium" aria-label="Search"><div id="results"></div></div></div>'
-            f'<main id="content">{crumb}<h1>{_e(title)}</h1>{body}</main>'
-            f'<footer>{_e(SITE_NAME)} is a fan-made reference for World of Sea Battle. Not affiliated with the game\'s developers. '
-            'Game data is extracted from the public client; mechanics pages describe observed and client-side rules.</footer>'
+            '<div id="search"><input type="search" placeholder="Search the WoSB Wiki" aria-label="Search"><div id="results"></div></div></div>'
+            f'<main id="content">{crumb}<h1>{_e(SITE_NAME if title == "Main page" else title)}</h1>{body}</main>'
+            f'<footer>{_e(SITE_NAME)} is a community fan wiki for World of Sea Battle, run by Band of Misfits. Not affiliated with or endorsed by the game\'s developers; '
+            f'game names, models and artwork belong to their owners. Data comes from the public game client. <a href="{base}about.html">About</a> · <a href="{base}privacy.html">Privacy &amp; cookies</a></footer>'
             f'<script src="{base}assets/site.js"></script></body></html>')
 
 
@@ -342,12 +352,13 @@ def _table(headers, rows, *, cls='wikitable sortable'):
 # --------------------------------------------------------------- builder
 
 class SiteBuilder:
-    def __init__(self, db, out, *, hitboxes_dir=None, build='Steam', include_models=False, recovery_dir=None, game_roots=(), progress=None, model_pack=True, damage_calibration=None):
+    def __init__(self, db, out, *, hitboxes_dir=None, build='Steam', include_models=False, recovery_dir=None, game_roots=(), progress=None, model_pack=True, damage_calibration=None, site_url=None):
         self.db = db; self.out = Path(out); self.hitboxes_dir = Path(hitboxes_dir) if hitboxes_dir else None
         self.build = build; self.include_models = include_models
         self.recovery_dir = Path(recovery_dir) if recovery_dir else None
         self.game_roots = list(game_roots or ()); self.progress = progress; self.model_pack = model_pack
         self.damage_calibration = damage_calibration
+        self.site_url = site_url or SITE_URL
         self.search = []; self.pages = 0
         self.entities = load_entities(db, build=build)
         self.urls = {}
@@ -456,8 +467,22 @@ class SiteBuilder:
         manifest = {'site': SITE_NAME, 'generated_utc': datetime.now(timezone.utc).isoformat(timespec='seconds'),
                     'pages': self.pages, 'entities': {k: len(v) for k, v in self.entities.items()},
                     'articles': len(self.articles), 'ships_with_hitboxes': len(hitboxes), 'build': self.build, 'models': (getattr(self, 'pack_info', {}) or {}).get('models', 0)}
+        self._sitemap_page()
+        import site_seo
+        manifest['seo'] = site_seo.finalize(self.out, site_url=self.site_url, site_name=SITE_NAME)
         (self.out / 'site.json').write_text(json.dumps(manifest, indent=1), encoding='utf-8')
         return manifest
+
+    def _sitemap_page(self):
+        """A readable index of every page, grouped like the navigation."""
+        groups = defaultdict(list)
+        for it in self.search:
+            if '?' not in it['u']:
+                groups[it['c']].append(it)
+        body = '<p>Every page on the WoSB Wiki, grouped by section. Use the search box for anything specific.</p>' + ''.join(
+            f'<h2>{_e(c)}</h2><ul class="cols">' + ''.join(f'<li><a href="{_e(i["u"])}">{_e(i["t"])}</a></li>' for i in sorted(v, key=lambda i: i['t'].casefold())) + '</ul>'
+            for c, v in sorted(groups.items()))
+        self._write('sitemap.html', _page('All pages', body))
 
     def _hitboxes(self):
         """{model name: compact zone list} from 'Rebuild ship hitboxes' output."""
@@ -508,6 +533,12 @@ class SiteBuilder:
             body += self._cannon_vs_ships(rec)
         if kind == 'recipe':
             body += self._recipe_sections(rec)
+        if kind == 'cosmetic':
+            body += self._cosmetic_sections(rec)
+        if kind == 'resource':
+            body += self._resource_sections(rec)
+        if kind == 'port':
+            body += self._port_sections(rec)
         if kind in ('ammo', 'upgrade', 'skill', 'crew') and rec.get('Effects') or rec.get('EffectsBoost') or rec.get('Effect'):
             eff = rec.get('Effects') or rec.get('EffectsBoost') or rec.get('Effect')
             body.append('<h2>Effects</h2><ul>' + ''.join(f'<li>{_e(x.strip())}</li>' for x in humanize_effect(eff).split(';') if x.strip()) + '</ul>')
@@ -516,6 +547,82 @@ class SiteBuilder:
         url = self.urls[(kind, title.casefold())]
         self._write(url, _page(title, ''.join(body), depth=1, crumbs=[('Main page', 'index.html'), (plural, f'category/{cat}.html'), (title, None)]))
         self.search.append({'t': title, 'u': url, 'c': plural, 'k': ' '.join(str(v) for _, v in rows if v)})
+
+    COSMETIC_TEXT = {
+        'ShipFullDesign': ('Ship design (skin)', 'A full design repaints one particular ship: it swaps the textures of the hull, masts and rigging for a new look. '
+                           'It only fits the ship it was made for and sits in the ship\'s design slot.'),
+        'SailTexture': ('Sail cloth', 'Sail cloth replaces the cloth of every sail on the ship at once. Each sail shape (main, small, side and triangle sails) uses its own '
+                        'version of the design, the same way the game does. Paints and patterns are drawn on top of it.'),
+        'Decal1': ('Paint (pattern slot 1)', 'A paint is laid over the sail cloth. In the game\'s design screen you choose, sail by sail, which sails carry it; '
+                   'by default it goes on every sail.'),
+        'Decal2': ('Sail pattern (pattern slots 2 and 3)', 'A pattern or emblem is laid over the sail cloth and any paint. It can go in the second pattern slot, or in the '
+                   'extra pattern slot premium ships get, and each slot is switched on or off sail by sail. By default patterns go on the square sails.'),
+        'Flag': ('Flag', 'A flag flown from the ship\'s main flagpole. Ships whose model has two main flags have a second flag slot, so they can fly two different flags.'),
+        'BowFigure': ('Figurehead', 'A figurehead is mounted on the bow. The game scales it to the ship\'s length, and ships without a bow mount can\'t carry one.'),
+        'Satellite': ('Lantern', 'A lantern hung on the ship. Lanterns are mostly cosmetic but many carry a small bonus.'),
+    }
+
+    def _cosmetic_sections(self, rec):
+        cat = rec.get('Category') or ''
+        name, text = self.COSMETIC_TEXT.get(cat, ('Ship cosmetic', 'A design element for your ship.'))
+        out = [f'<h2>{_e(name)}</h2><p>{_e(text)}</p>']
+        shop = str(rec.get('InShop') or '')
+        m = re.match(r'ByGold\s+(\d+)', shop)
+        how = (f'Sold in port for {int(m.group(1)):,} gold.' if m else 'Sold in the premium shop' + (f' (price tier {shop.split()[-1][-1]}).' if 'Tier' in shop else '.')
+               if shop.lower().startswith('true') else 'Not sold in the shop: it comes from chests, events, achievements or rewards.')
+        out.append(f'<h2>How to get it</h2><p>{_e(how)}</p>')
+        if rec.get('BonusEffectType'):
+            lab, val = fx_label(f"{rec['BonusEffectType']} {rec.get('BonusEffectValue') or ''}")
+            out.append(f'<h2>Bonus</h2><p>{_e(lab)}: <b>{_e(val or rec.get("BonusEffectValue") or "")}</b>. Design bonuses count while the design is fitted.</p>')
+        out.append('<p><a href="../tools/ship-viewer.html">Try designs on a ship in the 3D ship viewer</a>, where you can combine sail cloth, paints, patterns, '
+                   'two flags and figureheads.</p>')
+        return out
+
+    PORT_TYPES = {'City': 'a city port: it has a shipyard, market, workshops and quests, and can be fought over in port battles',
+                  'Bay': 'a bay: a smaller harbour with trade and repairs',
+                  'NeutralBay': 'a neutral bay: open to every nation, a safe place to trade and repair',
+                  'PirateBay': 'a pirate bay: a haven for pirates, where wanted captains can still trade and repair'}
+
+    def _port_sections(self, rec):
+        t = self.PORT_TYPES.get(str(rec.get('Type') or ''), 'a port')
+        out = [f'<h2>About the port</h2><p>{_e(rec["_title"])} is {_e(t)}.']
+        if rec.get('BuildShipRangs'):
+            out[0] += f' Its shipyard builds ships up to rate {_e(rec["BuildShipRangs"])}.'
+        if rec.get('Flags'):
+            out[0] += ' Port features: ' + _e(_camel(str(rec['Flags'])).replace(',', ', ')) + '.'
+        out[0] += '</p>'
+        out.append(f'<p><a href="../map.html?port={_e(rec["_title"])}">Show {_e(rec["_title"])} on the world map</a>, with the trade routes, nearby port-battle sites, '
+                   'towers and resource nodes around it.</p>')
+        return out
+
+    def _resource_sections(self, rec):
+        if not hasattr(self, '_res_use'):
+            self._recipe_sections({})          # loads the ingredient tables
+            uses, makes = defaultdict(list), defaultdict(list)
+            for r in self.entities.get('recipe', []):
+                for n, q in self._ingredients.get(r.get('RecipeID'), []):
+                    uses[str(n).casefold()].append((r['_title'], q))
+                if str(r.get('OutputType')).lower() == 'resource':
+                    n = self._res_names.get(str(r.get('OutputID')))
+                    if n:
+                        makes[str(n).casefold()].append((r['_title'], r.get('OutputQuantity') or 1, r.get('CraftHours')))
+            self._res_use, self._res_make = uses, makes
+        key = rec['_title'].casefold(); out = []
+        link = lambda t: (f'<a href="../{self.urls[("recipe", t.casefold())]}">{_e(t)}</a>' if ('recipe', t.casefold()) in self.urls else _e(t))
+        if self._res_make.get(key):
+            out.append('<h2>How it is made</h2><ul>' + ''.join(f'<li>{link(t)}: makes {_e(q)}{f" in {_e(h)} h" if h else ""}</li>' for t, q, h in self._res_make[key]) + '</ul>')
+        if self._res_use.get(key):
+            out.append(f'<h2>Used in crafting</h2><p>{_e(rec["_title"])} is an ingredient in {len(self._res_use[key])} recipe{"s" if len(self._res_use[key]) != 1 else ""}:</p><ul>' +
+                       ''.join(f'<li>{link(t)} ({_e(q)} needed)</li>' for t, q in self._res_use[key]) + '</ul>')
+        mass, price = rec.get('Mass'), rec.get('MediumCost')
+        if mass or price:
+            bits = []
+            if mass:
+                bits.append(f'each unit weighs {_e(mass)} in the hold, which counts toward the ship\'s load and slows it when heavily loaded')
+            if price:
+                bits.append(f'its typical trade price is about {int(float(price)):,} gold, though prices differ from port to port')
+            out.append('<h2>Trading</h2><p>' + _e(rec['_title']) + ': ' + '; '.join(bits) + '.</p>')
+        return out
 
     def _recipe_sections(self, rec):
         if not hasattr(self, '_ingredients'):
@@ -566,7 +673,7 @@ class SiteBuilder:
             body = [f'<p>A PvE mission with <b>{len(by_wave)}</b> waves of NPC ships.</p>',
                     _table(['Wave', 'Ships'], [[str(w), ', '.join(f'{n} × {_e(label.get(src, _camel(src)))}' for src, n in grp)] for w, grp in sorted(by_wave.items())]),
                     '<p class="note">Counts are per spawn entry in the mission definition; named bosses appear as single ships.</p>']
-            self._write(slug, _page(name, ''.join(body), depth=1, crumbs=[('Missions', '../category/missions.html')]))
+            self._write(slug, _page(name, ''.join(body), depth=1, crumbs=[('Main page', 'index.html'), ('Missions & NPCs', 'category/missions.html'), (name, None)]))
             self.search.append({'t': name, 'u': slug, 'c': 'Mission', 'k': 'mission pve npc waves'})
             total = sum(n for grp in by_wave.values() for _, n in grp)
             rows.append([f'<a href="../{slug}">{_e(name)}</a>', str(len(by_wave)), str(total),
@@ -809,7 +916,7 @@ class SiteBuilder:
         except Exception:
             ov = []
         for slug, title, blurb, body in ov:
-            self._write(f'guide/{slug}.html', _page(title, body, depth=1, crumbs=[('Guides & mechanics', '../category/articles.html'), (title, None)]))
+            self._write(f'guide/{slug}.html', _page(title, body, depth=1, crumbs=[('Main page', 'index.html'), ('Guides & mechanics', 'category/articles.html'), (title, None)]))
             self.search.append({'t': title, 'u': f'guide/{slug}.html', 'c': 'Guide', 'k': 'overview data compare ' + blurb})
         if ov:
             groups['Data overviews'] = [{'title': t, 'slug': None, 'url': f'guide/{sl}.html', 'blurb': b} for sl, t, b, _ in ov]
@@ -844,8 +951,15 @@ class SiteBuilder:
                    ('Achievements', 'category/achievements.html', f'{counts.get("achievement", 0)} achievements.'),
                    ('Guides & mechanics', 'category/articles.html', f'{len(self.articles)} articles on how the game works.')]
         tools = ''.join(f'<li><a href="{u}">{_e(t)}</a></li>' for t, u in TOOLS)
-        body = (f'<div class="welcome"><b>Welcome to the {_e(SITE_NAME)}</b>, a fan reference for World of Sea Battle: every ship, cannon, '
-                'ammo type and upgrade, plus interactive tools for damage, sailing and ship comparison.</div>'
+        feat = [('3D ship viewer', 'tools/ship-viewer.html', 'Real ship models, hitboxes, damage heatmaps and every design.'),
+                ('World map', 'map.html', 'The game\'s map with ports, port battles, trade routes and resources.'),
+                ('Battle simulator', 'tools/battle-simulator.html', 'Play out duels and full port battles with real ships and rules.'),
+                ('Hit analysis', 'tools/hit-analysis.html', 'Where each ship is weak, from every angle, with every gun.'),
+                ('Fire calculator', 'tools/fire-calculator.html', 'How minor fires turn into a large fire, and how to stop them.'),
+                ('Shipyard', 'category/ships.html', 'Every ship, laid out like the game\'s shipyard.')]
+        body = (f'<p class="welcome"><b>Welcome to the {_e(SITE_NAME)}</b>, the community wiki for World of Sea Battle: every ship, cannon, '
+                'ammo type, upgrade, crew and port, read straight from the game, plus interactive tools for damage, fires, sailing and port battles.</p>'
+                '<div class="feature">' + ''.join(f'<a href="{u}"><b>{_e(t)}</b><span>{_e(d)}</span></a>' for t, u, d in feat) + '</div>'
                 '<div class="portal">' + ''.join(f'<div><h3><a href="{u}">{_e(t)}</a></h3>{_e(d)}</div>' for t, u, d in portals) + '</div>'
                 f'<h2>Tools</h2><ul>{tools}</ul>')
         self._write('index.html', _page('Main page', body, depth=0, tab='Main page'))
@@ -856,10 +970,26 @@ class SiteBuilder:
         self._write('recent.html', _page('Recent changes', body or '<p>No changes yet.</p>'))
 
     def _about(self):
-        body = ('<p>This is a fan-made reference. Stats are extracted from the game client and refreshed when the game updates. '
-                'Mechanics pages describe the client\'s rules; values the server decides (like exact cannonball damage) '
-                'are marked as measured or estimated.</p><p>No game files, models or code are published here.</p>')
+        body = ('<p>The WoSB Wiki is a free community reference for World of Sea Battle, run by the Band of Misfits guild. Ship, gun, ammo, upgrade, crew, '
+                'port and cosmetic data is read from the game client and refreshed when the game updates, so numbers match what the game itself uses.</p>'
+                '<h2>Where the facts come from</h2><ul><li><b>Game data</b>: the client\'s own tables (stats, prices, recipes, map positions).</li>'
+                '<li><b>Mechanics</b>: the client\'s rules for hit zones, fires, sailing, boarding and port battles, explained in plain words.</li>'
+                '<li><b>Server-side values</b> (exact cannonball damage, fire chances) are not in the client; pages mark them as measured or estimated, and the tools let players measure them.</li></ul>'
+                '<h2>Models and artwork</h2><p>Ship models, textures and map art shown in the 3D viewer, simulators and shipyard come from the game and belong to its makers. '
+                'They are shown for reference on this non-profit community site.</p>'
+                '<h2>Contact</h2><p>Found a mistake or want to help? Join the Band of Misfits Discord from the bar at the top of the site, or use the dashboard\'s report form.</p>')
         self._write('about.html', _page('About', body))
+        privacy = ('<p>This page explains what happens to your data when you visit the WoSB Wiki.</p>'
+                   '<h2>What we collect</h2><p>The wiki itself has no accounts and stores nothing about you. Tools that remember settings keep them in your own browser only. '
+                   'The web server keeps standard access logs (address, page, time) for security and troubleshooting, for a short time.</p>'
+                   '<h2>Advertising and cookies</h2><p>The wiki is paid for by donations and by ads from Google AdSense. Google and its partners use cookies to show ads, '
+                   'including ads based on your earlier visits to this and other websites. You can turn off personalised ads at '
+                   '<a href="https://adssettings.google.com" rel="noopener">Google Ads Settings</a>, and read how Google uses data at '
+                   '<a href="https://policies.google.com/technologies/partner-sites" rel="noopener">How Google uses information from sites that use its services</a>. '
+                   'Visitors in the European Economic Area, the UK and Switzerland are asked for consent before personalised ads are shown.</p>'
+                   '<h2>Member dashboard</h2><p>Logging in to the Band of Misfits dashboard uses Discord; that is covered by the dashboard and Discord\'s own terms.</p>'
+                   '<h2>Contact</h2><p>Questions about privacy: contact the Band of Misfits officers through the guild Discord.</p>')
+        self._write('privacy.html', _page('Privacy & cookies', privacy))
 
     # ---- tools
     def _tools(self, hitboxes):

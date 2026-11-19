@@ -1027,6 +1027,7 @@ class App:
                 hb=battle_sim.ensure_hitboxes(home(),progress=lambda f,name:ctx.progress(f,f'Rebuilding hitboxes: {name}')) or home()/'Research'/'Hitboxes'
                 return wiki_site.build_site(db,out,hitboxes_dir=hb if hb.is_dir() else None,recovery_dir=battle_sim.latest_recovery(home()),
                                             damage_calibration=battle_sim.load_calibration(home()),game_roots=installs,
+                                            site_url=(self.settings.get('wiki.site_url') or 'https://bandofmisfits.org/'),
                                             progress=lambda i,n,name:ctx.progress(i/max(1,n),f'Packing model {i+1}/{n}: {name}'))
             finally:db.close()
         def done(m):
