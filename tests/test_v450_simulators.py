@@ -143,6 +143,7 @@ class ModelPackTests(TempDir):
 
 
 class TextureDecodeTests(unittest.TestCase):
+    @unittest.skipUnless(__import__('importlib').util.find_spec('numpy'), 'numpy not installed')
     def test_numpy_bc1_block(self):
         from xnb_images import decode_bc_numpy
         red, blue = (31 << 11), 31

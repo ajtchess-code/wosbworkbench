@@ -37,7 +37,8 @@ def texture(b):
                 decode=texture2ddecoder.decode_bc1 if fmt==4 else texture2ddecoder.decode_bc3
                 im=Image.frombytes('RGBA',(w,h),decode(pixels,w,h),'raw','BGRA')
             except ImportError:
-                im=decode_bc_numpy(pixels,w,h,bc3=(fmt==6))
+                try:im=decode_bc_numpy(pixels,w,h,bc3=(fmt==6))
+                except ImportError as exc:raise ValueError('BC1/BC3 textures need texture2ddecoder or numpy; install engine/requirements.txt') from exc
     elif fmt==1:im=Image.frombytes('RGB',(w,h),pixels,'raw','BGR;16').convert('RGBA')
     elif fmt==12:
         im=Image.new('RGBA',(w,h),(255,255,255,255));im.putalpha(Image.frombytes('L',(w,h),pixels))
