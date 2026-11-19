@@ -55,13 +55,15 @@ if (Test-Path -LiteralPath $publicKey) {
   --add-data 'Research-Ballistics-Catalog.json;.' `
   --add-data 'Research-Ship-Designs.json;.' `
   --add-data 'Research-Texture-Paths.json;.' `
-  --add-data 'viewer\ship_viewer.html;viewer' `
+  --add-data 'viewer;viewer' `
   --add-data 'wiki_site;wiki_site' `
   --add-data 'engine;engine' `
   --add-data 'assets;assets' `
   @keyData `
   --hidden-import protocol_lab --hidden-import protocol_schema --hidden-import game_watcher `
   --hidden-import datamine --hidden-import wiki_engine --hidden-import update_signing `
+  --hidden-import battle_sim --hidden-import model_pack --hidden-import combat_sim --hidden-import ball_damage `
+  --hidden-import damage_fit --hidden-import wiki_site --hidden-import wiki_publish --hidden-import mechanics_pages `
   --collect-all dnfile `
   --collect-all dncil `
   --collect-all pyzipper `

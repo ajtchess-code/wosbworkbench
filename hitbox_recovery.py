@@ -158,7 +158,8 @@ def build(obj_path, external_hitbox=None):
     table += [{'node_id': base + i, 'type': 'Mast', 'name': m['name']} for i, m in enumerate(masts)]
     if len(table) >= 255:
         notes.append('255+ hitboxes: the client throws for this ship')
-    return {'format': FORMAT, 'model': Path(obj_path).name, 'hitmesh_source': hit_source,
+    ports = gun_ports(obj_path)
+    return {'format': FORMAT, 'model': Path(obj_path).name, 'hitmesh_source': hit_source, **ports,
             'world_scale': WORLD_SCALE, 'corpus': corpus,
             'corpus_half_extents_world': [(chi[a] - clo[a]) * WORLD_SCALE * 0.5 for a in range(3)],
             'deck_line_y': chi[1], 'sails': sails, 'masts': masts, 'node_table': table,
@@ -168,6 +169,47 @@ def build(obj_path, external_hitbox=None):
                            'sail_order_within_group': 'inferred (leading mast-group digit)',
                            'damage_per_zone': 'not in client: HealthDamage comes from the server'},
             'notes': notes}
+
+
+PORT_TYPES = {'CannonSidePoint': 'side', 'CannonNoLafetSidePoint': 'side', 'CannonTopPoint': 'bow', 'CannonBackPoint': 'stern',
+              'Mortar': 'mortar', 'ExtraMort': 'mortar', 'Falkonet': 'swivel', 'FireGun': 'firegun'}
+
+
+def gun_ports(obj_path):
+    """Real gun ports and the figurehead mount from the model's hardpoints (saved next to the OBJ by recovery).
+
+    Side ports are stored once per side in the model; the client mirrors left/right
+    (ShipStaticInfo LeftSidePorts/RightSidePorts), so ports are mirrored across Z here.
+    """
+    report = Path(obj_path).with_suffix('.json')
+    try:
+        hps = json.loads(report.read_text(encoding='utf-8')).get('hardpoints') or []
+    except (OSError, ValueError):
+        hps = []
+    ports = []; figure = None
+    for h in hps:
+        kind = PORT_TYPES.get(h.get('type'))
+        if h.get('type') == 'BowFigurePlace':
+            figure = h['position']
+        if not kind:
+            continue
+        x, y, z = h['position']
+        if kind == 'side':
+            ports.append({'kind': 'side', 'side': 'left' if z < 0 else 'right', 'position': [x, y, z]})
+            ports.append({'kind': 'side', 'side': 'right' if z < 0 else 'left', 'position': [x, y, -z], 'mirrored': True})
+        else:
+            ports.append({'kind': kind, 'side': kind, 'position': [x, y, z]})
+    # Mirroring can duplicate ports the model already lists on both sides.
+    seen = set(); unique = []
+    for prt in ports:
+        key = (prt['kind'], prt['side'], tuple(round(v, 2) for v in prt['position']))
+        if key not in seen:
+            seen.add(key); unique.append(prt)
+    counts = {}
+    for prt in unique:
+        counts[prt['side']] = counts.get(prt['side'], 0) + 1
+    return {'gun_ports': unique, 'port_counts': counts, 'figurehead_mount': figure,
+            'ports_source': 'model hardpoints' if hps else 'not available (re-run Full Recovery with 4.5+)'}
 
 
 def zones_for_viewer(result, *, include_levels=True):
@@ -208,7 +250,7 @@ def batch(models_dir, out_dir, *, progress=None):
             summary.append({'model': obj.stem, 'error': str(exc)[:300]}); continue
         (out / (obj.stem + '.hitboxes.json')).write_text(json.dumps(res, indent=1), encoding='utf-8')
         (out / (obj.stem + '.zones.json')).write_text(json.dumps({'zones': zones_for_viewer(res)}, indent=1), encoding='utf-8')
-        summary.append({'model': obj.stem, 'hitmesh': res['hitmesh_source'], 'sails': len(res['sails']),
+        summary.append({'model': obj.stem, 'hitmesh': res['hitmesh_source'], 'sails': len(res['sails']), 'ports': res.get('port_counts'),
                         'masts': len(res['masts']), 'nodes': len(res['node_table']),
                         'corpus_world_size': [round(2 * h, 2) for h in res['corpus_half_extents_world']],
                         'notes': res['notes'][:3]})

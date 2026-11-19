@@ -253,7 +253,7 @@ class DatamineTests(TempDir):
     def test_coverage_report_finds_gaps_and_ledger(self):
         game = self.tmp / 'game'; (game / 'CommonData').mkdir(parents=True)
         (game / 'CommonData' / 'a.xnb').write_bytes(b'XNBw' + b'\0' * 100)
-        (game / 'CommonData' / 'mystery.qzx').write_bytes(os.urandom(70 * 1024))
+        (game / 'CommonData' / 'mystery.qzx').write_bytes(b'\x13\x37' + __import__('random').Random(7).randbytes(70 * 1024))
         (game / 'native.dll').write_bytes(b'MZ' + b'\0' * 200)
         ledger = self.tmp / 'ledger.jsonl'
         ledger.write_text(json.dumps({'status': 'decoded'}) + '\n' + json.dumps({'status': 'failed', 'reason': 'custom reader'}) + '\n')

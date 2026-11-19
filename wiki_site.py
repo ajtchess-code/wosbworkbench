@@ -68,15 +68,27 @@ ENTITIES = {
         ['Type', 'Shipyard ranks']),
     'achievement': ('Achievements', 'Achievements', [
         ('UiCategory', 'Category', None), ('CommonRatingWeight', 'Rating weight', None)], ['Category', 'Rating weight']),
+    'cosmetic': ('ShipDesingElements', 'Ship cosmetics', [
+        ('Category', 'Kind', 'camel'), ('InShop', 'In shop', None), ('BonusEffectType', 'Bonus', 'camel'),
+        ('BonusEffectValue', 'Bonus value', None), ('EnglishDescription', 'Description', None)], ['Kind', 'In shop', 'Bonus']),
+    'decoration': ('EnvDesingElements', 'Island decorations', [
+        ('InShop', 'How to get', None), ('EnglishDescription', 'Description', None)], ['How to get']),
+    'recipe': ('Crafting_Recipes', 'Crafting recipes', [
+        ('Category', 'Workshop', None), ('Context', 'Where', None), ('CraftHours', 'Hours', None), ('OutputQuantity', 'Makes', None),
+        ('InputGold', 'Gold', 'int'), ('OutputType', 'Output type', 'camel')], ['Workshop', 'Hours', 'Makes', 'Gold']),
 }
 NAV = [('Main page', 'index.html'), ('Ships', 'category/ships.html'), ('Cannons', 'category/cannons.html'),
        ('Ammunition', 'category/ammo.html'), ('Ship upgrades', 'category/upgrades.html'), ('Crew', 'category/crew.html'),
        ('Captain skills', 'category/skills.html'), ('Resources', 'category/resources.html'), ('Ports', 'category/ports.html'),
-       ('Achievements', 'category/achievements.html'), ('Guides & mechanics', 'category/articles.html')]
+       ('Achievements', 'category/achievements.html'), ('Ship cosmetics', 'category/cosmetics.html'),
+       ('Island decorations', 'category/decorations.html'), ('Crafting', 'category/recipes.html'), ('World map', 'map.html'),
+       ('Guides & mechanics', 'category/articles.html')]
 TOOLS = [('Damage simulator', 'tools/damage-simulator.html'), ('Wind & sailing', 'tools/wind-rose.html'),
-         ('Ship comparison', 'tools/compare-ships.html'), ('Hitbox viewer', 'tools/hitboxes.html')]
+         ('Ship comparison', 'tools/compare-ships.html'), ('Hitbox viewer', 'tools/hitboxes.html'),
+         ('Battle simulator', 'tools/battle-simulator.html'), ('Boarding simulator', 'tools/boarding-simulator.html')]
 CATEGORY_FILE = {'ship': 'ships', 'cannon': 'cannons', 'ammo': 'ammo', 'upgrade': 'upgrades', 'crew': 'crew',
-                 'skill': 'skills', 'resource': 'resources', 'port': 'ports', 'achievement': 'achievements'}
+                 'skill': 'skills', 'resource': 'resources', 'port': 'ports', 'achievement': 'achievements',
+                 'cosmetic': 'cosmetics', 'decoration': 'decorations', 'recipe': 'recipes'}
 SLOT_NAMES = {'Sailes': 'Sails', 'Corpus': 'Hull', 'Cannons': 'Cannons', 'Crew': 'Crew'}
 EFFECT_WORDS = {'Hp': 'HP', 'Pvp': 'PvP', 'Npc': 'NPC', 'Sailes': 'Sails'}
 
@@ -274,9 +286,12 @@ def _table(headers, rows, *, cls='wikitable sortable'):
 # --------------------------------------------------------------- builder
 
 class SiteBuilder:
-    def __init__(self, db, out, *, hitboxes_dir=None, build='Steam', include_models=False):
+    def __init__(self, db, out, *, hitboxes_dir=None, build='Steam', include_models=False, recovery_dir=None, game_roots=(), progress=None, model_pack=True, damage_calibration=None):
         self.db = db; self.out = Path(out); self.hitboxes_dir = Path(hitboxes_dir) if hitboxes_dir else None
         self.build = build; self.include_models = include_models
+        self.recovery_dir = Path(recovery_dir) if recovery_dir else None
+        self.game_roots = list(game_roots or ()); self.progress = progress; self.model_pack = model_pack
+        self.damage_calibration = damage_calibration
         self.search = []; self.pages = 0
         self.entities = load_entities(db, build=build)
         self.urls = {}
@@ -322,7 +337,7 @@ class SiteBuilder:
     # ---- pages
     def build_site(self):
         if self.out.exists():
-            for child in ('ship', 'cannon', 'ammo', 'upgrade', 'crew', 'skill', 'resource', 'port', 'achievement',
+            for child in ('ship', 'cannon', 'ammo', 'upgrade', 'crew', 'skill', 'resource', 'port', 'achievement', 'cosmetic', 'decoration', 'recipe',
                           'category', 'wiki', 'tools', 'assets', 'data'):
                 shutil.rmtree(self.out / child, ignore_errors=True)
         self.out.mkdir(parents=True, exist_ok=True)
@@ -337,14 +352,14 @@ class SiteBuilder:
         self._articles_category()
         self._tools(hitboxes)
         self._main_page()
-        self._recent(); self._about()
+        self._recent(); self._about(); self._world_map()
         (self.out / 'search.json').write_text(json.dumps(self.search, separators=(',', ':')), encoding='utf-8')
         # Also inline the index so search works when opened straight from disk (file://).
         js = (self.out / 'assets' / 'site.js').read_text(encoding='utf-8')
         (self.out / 'assets' / 'site.js').write_text('window.SEARCH_INDEX=' + json.dumps(self.search, separators=(',', ':')) + ';\n' + js, encoding='utf-8')
         manifest = {'site': SITE_NAME, 'generated_utc': datetime.now(timezone.utc).isoformat(timespec='seconds'),
                     'pages': self.pages, 'entities': {k: len(v) for k, v in self.entities.items()},
-                    'articles': len(self.articles), 'ships_with_hitboxes': len(hitboxes), 'build': self.build}
+                    'articles': len(self.articles), 'ships_with_hitboxes': len(hitboxes), 'build': self.build, 'models': (getattr(self, 'pack_info', {}) or {}).get('models', 0)}
         (self.out / 'site.json').write_text(json.dumps(manifest, indent=1), encoding='utf-8')
         return manifest
 
@@ -390,6 +405,8 @@ class SiteBuilder:
             body.append(f'<p><b>{_e(title)}</b> is {"an" if plural[0] in "AEIOU" else "a"} {_e(plural[:-1].lower() if plural.endswith("s") else plural.lower())} in World of Sea Battle.</p>')
         if kind == 'ship':
             body += self._ship_sections(rec, hitboxes)
+        if kind == 'recipe':
+            body += self._recipe_sections(rec)
         if kind in ('ammo', 'upgrade', 'skill', 'crew') and rec.get('Effects') or rec.get('EffectsBoost') or rec.get('Effect'):
             eff = rec.get('Effects') or rec.get('EffectsBoost') or rec.get('Effect')
             body.append('<h2>Effects</h2><ul>' + ''.join(f'<li>{_e(x.strip())}</li>' for x in humanize_effect(eff).split(';') if x.strip()) + '</ul>')
@@ -398,6 +415,72 @@ class SiteBuilder:
         url = self.urls[(kind, title.casefold())]
         self._write(url, _page(title, ''.join(body), depth=1, crumbs=[('Main page', 'index.html'), (plural, f'category/{cat}.html'), (title, None)]))
         self.search.append({'t': title, 'u': url, 'c': plural, 'k': ' '.join(str(v) for _, v in rows if v)})
+
+    def _recipe_sections(self, rec):
+        if not hasattr(self, '_ingredients'):
+            self._ingredients = defaultdict(list); names = {}
+            for raw, in self.db.conn.execute("SELECT raw_json FROM records WHERE dataset='Resources'"):
+                r = json.loads(raw); names[str(r.get('ID'))] = r.get('EnglishName') or r.get('Name')
+            for raw, in self.db.conn.execute("SELECT raw_json FROM records WHERE dataset='Recipe_Ingredients'"):
+                r = json.loads(raw)
+                self._ingredients[r.get('RecipeID')].append((r.get('EnglishName') or names.get(str(r.get('ResourceID'))) or '?', r.get('Quantity')))
+            self._res_names = names
+        ing = self._ingredients.get(rec.get('RecipeID'), [])
+        out = []
+        if ing:
+            items = []
+            for n, q in ing:
+                url = self.urls.get(('resource', str(n).casefold()))
+                items.append(f'<li>{_e(q)} × ' + (f'<a href="../{url}">{_e(n)}</a>' if url else _e(n)) + '</li>')
+            out.append('<h2>Ingredients</h2><ul>' + ''.join(items) + '</ul>')
+        if str(rec.get('OutputType')).lower() == 'resource':
+            n = self._res_names.get(str(rec.get('OutputID')))
+            url = n and self.urls.get(('resource', str(n).casefold()))
+            if n:
+                out.append('<h2>Makes</h2><p>' + _e(rec.get('OutputQuantity') or 1) + ' × ' + (f'<a href="../{url}">{_e(n)}</a>' if url else _e(n)) + '</p>')
+        return out
+
+    def _world_map(self):
+        """World map: ports, guild forts (port battles), towers and imperial forts from the map data."""
+        import battle_sim
+        try:
+            rows = [r for r in battle_sim._records(self.db, 'Map_Objects', self.build) if r.get('SceneName') == 'World']
+            sites = battle_sim.port_battles(self.db, models_root=self.recovery_dir, build=self.build)
+        except Exception:
+            rows, sites = [], []
+        if not rows:
+            self._write('map.html', _page('World map', '<p class="note">No map data in this build.</p>')); return
+        pts = []
+        for r in rows:
+            p = r.get('Path', '')
+            k = 'guild' if 'guildfort' in p else 'imperial' if 'worldfort' in p else 'tower' if 'special\\towers\\t_' in p else 'port' if p.startswith('ports\\') else None
+            if k:
+                pts.append((k, r['Position0'], r['Position1'], p.split('\\')[-1]))
+        xs = [p[1] for p in pts]; zs = [p[2] for p in pts]
+        x0, x1, z0, z1 = min(xs) - 300, max(xs) + 300, min(zs) - 300, max(zs) + 300
+        W = 1000; H = int(W * (z1 - z0) / (x1 - x0))
+        sx = lambda x: (x - x0) / (x1 - x0) * W; sz = lambda z: (z - z0) / (z1 - z0) * H
+        style = {'port': ('#8a6d3b', 4), 'tower': ('#c0392b', 1.6), 'guild': ('#d35400', 7), 'imperial': ('#6c3483', 8)}
+        svg = [f'<svg viewBox="0 0 {W} {H}" style="width:100%;max-width:1000px;background:#cfe3ee;border:1px solid #aac">']
+        for k in ('tower', 'port', 'imperial'):
+            col, r = style[k]
+            svg += [f'<circle cx="{sx(x):.1f}" cy="{sz(z):.1f}" r="{r}" fill="{col}"><title>{_e(n)}</title></circle>' for kk, x, z, n in pts if kk == k]
+        for s_ in sites:
+            col, r = style['guild']
+            svg.append(f'<a href="tools/battle-simulator.html?preset=pbfleet&amp;site={s_["id"]}"><circle cx="{sx(s_["x"]):.1f}" cy="{sz(s_["z"]):.1f}" r="{r}" fill="{col}" stroke="#fff" stroke-width="1.5">'
+                       f'<title>Guild fort · {s_["towers"]} towers · {_e(s_["port_model"] or "")} — open in the battle simulator</title></circle></a>')
+        svg.append('</svg>')
+        legend = ('<p><span style="color:#d35400">●</span> guild fort (port battle; click to simulate) · <span style="color:#c0392b">●</span> tower · '
+                  '<span style="color:#8a6d3b">●</span> port · <span style="color:#6c3483">●</span> imperial fort</p>')
+        table = _table(['Site', 'Towers', 'Nearest port', 'Position', 'Simulate'],
+                       [[str(s_['id'] + 1), str(s_['towers']), _e(s_['port_model'] or ''), f'{s_["x"]}, {s_["z"]}',
+                         f'<a href="tools/battle-simulator.html?preset=pbfleet&amp;site={s_["id"]}">port battle</a> · '
+                         f'<a href="tools/battle-simulator.html?preset=port&amp;site={s_["id"]}">towers only</a>'] for s_ in sites])
+        body = (f'<p>{len([p for p in pts if p[0]=="port"])} ports, {len(sites)} guild forts with {sum(s_["towers"] for s_ in sites)} towers, '
+                f'and {len([p for p in pts if p[0]=="imperial"])} imperial forts, placed from the game\'s world map data.</p>'
+                + legend + ''.join(svg) + '<h2>Port-battle sites</h2>' + table)
+        self._write('map.html', _page('World map', body))
+        self.search.append({'t': 'World map', 'u': 'map.html', 'c': 'Map', 'k': 'map ports forts towers port battle'})
 
     def _ship_sections(self, rec, hitboxes):
         out = []
@@ -469,6 +552,10 @@ class SiteBuilder:
         portals = [('Ships', 'category/ships.html', f'{counts.get("ship", 0)} ships with full stats, hit zones and sailing notes.'),
                    ('Cannons', 'category/cannons.html', f'{counts.get("cannon", 0)} cannons: poundage, penetration, range, reload.'),
                    ('Ammunition', 'category/ammo.html', f'{counts.get("ammo", 0)} ammo types and their effects.'),
+                   ('Ship cosmetics', 'category/cosmetics.html', f'{counts.get("cosmetic", 0)} sails, flags, figureheads and other designs.'),
+                   ('Island decorations', 'category/decorations.html', f'{counts.get("decoration", 0)} decorations for personal islands.'),
+                   ('Crafting', 'category/recipes.html', f'{counts.get("recipe", 0)} workshop recipes with ingredients.'),
+                   ('World map', 'map.html', 'Every port, guild fort, tower and imperial fort, with port-battle layouts.'),
                    ('Ship upgrades', 'category/upgrades.html', f'{counts.get("upgrade", 0)} upgrades by slot.'),
                    ('Crew', 'category/crew.html', f'{counts.get("crew", 0)} crew and boarding units.'),
                    ('Captain skills', 'category/skills.html', f'{counts.get("skill", 0)} skills.'),
@@ -499,7 +586,7 @@ class SiteBuilder:
         ships = [{'n': r['_title'], 'hp': r.get('Health'), 'armor': r.get('Armor'), 'speed': r.get('BasicSpeed'),
                   'mob': r.get('BasicMobility'), 'crew': r.get('BaseCrewPlaces'), 'cargo': r.get('CapacityCg'),
                   'rank': r.get('ShipRank'), 'cls': r.get('TypeEnglish') or r.get('Type'),
-                  'model': self._model_for(r)} for r in self.entities.get('ship', [])]
+                  'model': self._model_for(r), 'sid': r.get('StaticInfoID')} for r in self.entities.get('ship', [])]
         roses = [json.loads(raw) for raw, in self.db.conn.execute(
             "SELECT raw_json FROM records WHERE dataset='WindRoses' ORDER BY CASE source_root WHEN ? THEN 0 ELSE 1 END", (self.build,))]
         seen = set(); rose_data = []
@@ -513,7 +600,14 @@ class SiteBuilder:
         self._write('assets/hitboxes.js', HITBOX_JS)
         crumbs = [('Main page', 'index.html'), ('Tools', None)]
         self._write('tools/damage-simulator.html', _page('Damage simulator', DAMAGE_TOOL.replace('__SHIPS__', json.dumps(ships, separators=(',', ':'))), depth=1, crumbs=crumbs, tab='Tool'))
-        self._write('tools/wind-rose.html', _page('Wind & sailing', WIND_TOOL.replace('__ROSES__', json.dumps(rose_data)), depth=1, crumbs=crumbs, tab='Tool'))
+        try:
+            import battle_sim
+            wmap = {s['n']: (s['weight'], s['sid']) for s in battle_sim.catalog_data(self.db, build=self.build)['ships']}
+        except Exception:
+            wmap = {}
+        wind_ships = [{'n': s['n'], 'weight': wmap.get(s['n'], (None,))[0], 'sid': wmap.get(s['n'], (None, s.get('sid')))[1]} for s in ships]
+        self._write('assets/wosb_sim.js', (Path(__file__).resolve().parent / 'viewer' / 'wosb_sim.js').read_text(encoding='utf-8'))
+        self._write('tools/wind-rose.html', _page('Wind & sailing', WIND_TOOL.replace('__ROSES__', json.dumps(rose_data)).replace('__SHIPS__', json.dumps(wind_ships, separators=(',', ':'))), depth=1, crumbs=crumbs, tab='Tool'))
         self._write('tools/compare-ships.html', _page('Ship comparison', COMPARE_TOOL.replace('__SHIPS__', json.dumps(ships, separators=(',', ':'))), depth=1, crumbs=crumbs, tab='Tool'))
         hb_ships = [s for s in ships if s['model'] in hitboxes]
         options = ''.join(f'<option value="{_e(s["model"])}">{_e(s["n"])}</option>' for s in hb_ships)
@@ -524,8 +618,37 @@ class SiteBuilder:
                    f'<script>window.HITBOXES={payload};</script><script src="../assets/hitboxes.js"></script>'
                    if hb_ships else '<p class="note">No hit zones in this build yet. In WoSB Workbench run <b>Datamining → Rebuild ship hitboxes</b>, then rebuild the site.</p>'))
         self._write('tools/hitboxes.html', _page('Hitbox viewer', hb_body, depth=1, crumbs=crumbs, tab='Tool'))
+        self._write('assets/wosb_sim.js', (Path(__file__).resolve().parent / 'viewer' / 'wosb_sim.js').read_text(encoding='utf-8'))
+        self._sim_tools()
         for t, u in TOOLS:
-            self.search.append({'t': t, 'u': u, 'c': 'Tool', 'k': 'tool calculator'})
+            self.search.append({'t': t, 'u': u, 'c': 'Tool', 'k': 'tool calculator simulator'})
+
+    def _sim_tools(self):
+        """Battle and boarding simulators: full-screen pages sharing assets/wosb_sim.js (no meshes published)."""
+        import battle_sim
+        back = ('<a href="../index.html" style="position:fixed;left:10px;top:64px;z-index:5;color:#8fd3ff;'
+                'font:12px Segoe UI,sans-serif;background:rgba(8,19,31,.8);padding:3px 8px;border-radius:4px">← Wiki</a>')
+        pack = {}
+        if self.model_pack and self.recovery_dir:
+            try:   # lighter LOD and 512 px textures for the public site; rebuilt only for models that changed
+                pack = battle_sim.build_model_pack(self.db, self.out / 'pack', recovery_dir=self.recovery_dir, game_roots=self.game_roots,
+                                                   lod='low', tex_size=512, build=self.build, progress=self.progress)
+            except Exception:
+                pack = {}
+        self.pack_info = pack
+        try:
+            battle_sim.build_page(self.db, self.out / 'tools' / 'battle-simulator.html', hitboxes_dir=self.hitboxes_dir,
+                                  forts_root=self.recovery_dir, include_models=False, inline_lib=False, build=self.build,
+                                  pack_base='../pack/' if pack.get('models') else None, damage_calibration=self.damage_calibration)
+            battle_sim.build_boarding_page(self.db, self.out / 'tools' / 'boarding-simulator.html', inline_lib=False, build=self.build)
+            self.pages += 2
+            for name in ('battle-simulator.html', 'boarding-simulator.html'):
+                f = self.out / 'tools' / name
+                html = f.read_text(encoding='utf-8')
+                html = html.replace('<body>', '<body>' + (back if 'battle' in name else back.replace('left:10px;top:64px', 'right:12px;top:8px')), 1)
+                f.write_text(html, encoding='utf-8')
+        except Exception as exc:  # a missing dataset should not break the site
+            self._write('tools/battle-simulator.html', _page('Battle simulator', f'<p class="note">Not available in this build ({_e(type(exc).__name__)}).</p>', depth=1))
 
 
 HITBOX_JS = r'''
@@ -592,33 +715,32 @@ document.getElementById('run').onclick=sim;sim();
 '''
 
 WIND_TOOL = r'''
-<p>How much of the wind a ship can use at each heading, and the regular and <b>unique</b> wind roses that some ships have.
-The curve is the game's wind-angle component; the coloured sectors come from each wind rose (fast-sailing "green" arcs and headwind dead zones).</p>
-<div class="tool"><label>Wind rose <select id="rose"></select></label><label>Angle off the wind <input id="ang" type="range" min="0" max="180" value="45"> <span id="angv"></span>° (0 = wind behind)</label>
-<div id="readout"></div></div><canvas id="polar" width="520" height="520"></canvas>
+<p>How much of the wind a ship can use at each heading: the game's wind-effectiveness rule, with the regular or the
+<b>unique</b> wind rose, and the ship's <b>hardness</b> (heavy ships lose less speed at poor angles). See <a href="../wiki/sailing-and-wind.html">Sailing and wind</a>.</p>
+<div class="tool"><label>Ship <select id="wship"><option value="">(custom)</option></select></label>
+<label><input type="checkbox" id="uniq"> unique wind rose</label>
+<label>Hardness <input id="hard" type="range" min="0" max="1" step="0.01" value="0"> <span id="hardv"></span></label>
+<label>Angle off the wind <input id="ang" type="range" min="0" max="180" value="45"> <span id="angv"></span>° (0 = wind behind)</label>
+<div id="readout"></div></div><canvas id="polar" width="560" height="560"></canvas>
+<script src="../assets/wosb_sim.js"></script>
 <script>
-const ROSES=__ROSES__;const sel=document.getElementById('rose');sel.innerHTML=ROSES.map((r,i)=>'<option value="'+i+'">'+(r.Name||'rose '+i)+'</option>').join('');
-function dot(deg){const t=deg*Math.PI/180,x=Math.cos(t)+0.75,y=Math.sin(t);return x/Math.hypot(x,y)}
-function comp(deg){return 1.8*(0.5+0.5*dot(deg))}
-function inArc(a,arc){if(!arc)return false;let s=arc.Start,e=arc.End;return s<=e?a>=s&&a<=e:(a>=s||a<=e)}
-function draw(){const cv=document.getElementById('polar'),c=cv.getContext('2d'),R=230,cx=260,cy=260,r=ROSES[sel.value]||{};c.clearRect(0,0,520,520);
- // headwind dead zones (bow = up)
- const sector=(a0,a1,col)=>{c.fillStyle=col;c.beginPath();c.moveTo(cx,cy);c.arc(cx,cy,R,(a0-90)*Math.PI/180,(a1-90)*Math.PI/180);c.closePath();c.fill()};
- // Angle convention: 0° = wind directly behind (downwind, top); 180° = sailing into the wind (bottom).
- if(r.HeadwindLeft)sector(180,180+r.HeadwindLeft,'rgba(210,40,40,.18)');if(r.HeadwindRight)sector(180-r.HeadwindRight,180,'rgba(210,40,40,.18)');
- if(r.GreenRight)sector(r.GreenRight.Start,r.GreenRight.End,'rgba(40,170,60,.25)');if(r.GreenLeft)sector(r.GreenLeft.Start-360,r.GreenLeft.End-360,'rgba(40,170,60,.25)');
- if(r.FordewindFineEdge){c.strokeStyle='rgba(40,120,200,.6)';c.setLineDash([4,4]);for(const a of [r.FordewindFineEdge,-r.FordewindFineEdge]){const t=(a-90)*Math.PI/180;c.beginPath();c.moveTo(cx,cy);c.lineTo(cx+Math.cos(t)*R,cy+Math.sin(t)*R);c.stroke()}c.setLineDash([])}
- c.strokeStyle='#ccc';for(let k=1;k<=4;k++){c.beginPath();c.arc(cx,cy,R*k/4,0,7);c.stroke()}
- c.strokeStyle='#1d4e6f';c.lineWidth=2;c.beginPath();for(let a=0;a<=360;a+=2){const v=comp(a)/1.8,t=(a-90)*Math.PI/180;const x=cx+Math.cos(t)*R*v,y=cy+Math.sin(t)*R*v;a?c.lineTo(x,y):c.moveTo(x,y)}c.stroke();c.lineWidth=1;
- const ang=+document.getElementById('ang').value;document.getElementById('angv').textContent=ang;const t=(ang-90)*Math.PI/180,v=comp(ang)/1.8;
- c.fillStyle='#d33';c.beginPath();c.arc(cx+Math.cos(t)*R*v,cy+Math.sin(t)*R*v,6,0,7);c.fill();c.fillStyle='#333';
- c.fillText('0° · wind behind (downwind)',cx-70,14);c.fillText('180° · into the wind',cx-50,512);
- const green=inArc(ang,r.GreenRight)||inArc(360-ang,r.GreenLeft),dead=ang>=180-(r.HeadwindRight||0);
- document.getElementById('readout').innerHTML='Wind component at '+ang+'°: <b>'+comp(ang).toFixed(3)+'</b> (max 1.8)'+(green?' · <b style="color:#282">fast-sailing arc</b>':'')+(dead?' · <b style="color:#c22">headwind zone</b>':'')+
- (r.FordewindFineEdge?' · downwind edge ±'+r.FordewindFineEdge.toFixed(1)+'°':'')}
-sel.onchange=draw;document.getElementById('ang').oninput=draw;draw();
+const ROSES=__ROSES__;const SHIPS=__SHIPS__;const S=window.WoSBSim;const sel=document.getElementById('wship');
+sel.innerHTML+=SHIPS.filter(s=>s.weight).map((s,i)=>'<option value="'+SHIPS.indexOf(s)+'">'+s.n.replace(/</g,'&lt;')+'</option>').join('');
+sel.onchange=()=>{const s=SHIPS[sel.value];if(!s)return;const h=S.hull(s.weight,s.sid);document.getElementById('hard').value=h.hardness.toFixed(2);document.getElementById('uniq').checked=S.UNIQUE_IDS.has(s.sid);draw()};
+function eff(a,tack){return S.windEff(a,{unique:document.getElementById('uniq').checked,hardness:+document.getElementById('hard').value,tack})}
+function draw(){const cv=document.getElementById('polar'),c=cv.getContext('2d'),R=250,cx=280,cy=280;c.clearRect(0,0,560,560);
+ c.strokeStyle='#ccc';c.fillStyle='#666';c.font='11px sans-serif';for(let k=1;k<=4;k++){c.beginPath();c.arc(cx,cy,R*k/4,0,7);c.stroke();c.fillText((k*25)+'%',cx+3,cy-R*k/4+12)}
+ // 0° (wind behind) at the top, starboard tack on the right, port tack on the left
+ const plot=(tack,col,side)=>{c.strokeStyle=col;c.lineWidth=2.5;c.beginPath();for(let a=0;a<=180;a+=1){const v=eff(a,tack),t=(side*a-90)*Math.PI/180;const x=cx+Math.cos(t)*R*v,y=cy+Math.sin(t)*R*v;a?c.lineTo(x,y):c.moveTo(x,y)}c.stroke()};
+ plot('right','#1d4e6f',1);plot('left',document.getElementById('uniq').checked?'#c0392b':'#1d4e6f',-1);c.lineWidth=1;
+ const ang=+document.getElementById('ang').value;document.getElementById('angv').textContent=ang;document.getElementById('hardv').textContent=(+document.getElementById('hard').value).toFixed(2);
+ for(const [tack,side] of [['right',1],['left',-1]]){const v=eff(ang,tack),t=(side*ang-90)*Math.PI/180;c.fillStyle='#d33';c.beginPath();c.arc(cx+Math.cos(t)*R*v,cy+Math.sin(t)*R*v,5,0,7);c.fill()}
+ c.fillStyle='#333';c.fillText('0° · wind behind',cx-40,14);c.fillText('180° · into the wind',cx-52,552);c.fillText('port tack',18,cy);c.fillText('starboard tack',470,cy);
+ const r=eff(ang,'right'),l=eff(ang,'left');
+ document.getElementById('readout').innerHTML='At '+ang+'° off the wind: <b>'+(r*100).toFixed(1)+'%</b> of top speed'+(Math.abs(r-l)>0.001?' on the starboard tack, <b>'+(l*100).toFixed(1)+'%</b> on the port tack (unique rose)':'')}
+for(const id of ['uniq','hard','ang'])document.getElementById(id).oninput=draw;draw();
 </script>
-<p class="note">The wind component is one part of ship speed. The ship's base speed, sail health, upgrades and sea state also apply.</p>
+<p class="note">Wind effectiveness multiplies the ship's base speed; sail damage and upgrades also apply. The unique rose rotates one tack by about 17° when beating upwind and narrows the downwind penalty.</p>
 '''
 
 COMPARE_TOOL = r'''

@@ -136,6 +136,11 @@ def seed_damage_pages(db):
                           review_status='source-verified')
         written += 1
     db.conn.commit()
+    try:
+        import mechanics_pages
+        written += mechanics_pages.seed(db)
+    except Exception:  # never block the core pages
+        pass
     return written
 
 

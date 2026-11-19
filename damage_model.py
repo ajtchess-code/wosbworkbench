@@ -341,20 +341,20 @@ def mobility(basic, m_bonus=0.0, p_bonus=0.0, *, hp_factor=1.0, low_hp_bonus=0.0
 
 
 def big_fire_flare(process_ms, burning_type, mending_level=0.0):
-    """ShipFirstHp.BigBurningFlareUpLevel — visual/gameplay intensity of a large fire.
+    """ShipFirstHp.BigBurningFlareUpLevel — intensity of a large fire.
 
-    burning_type: 0 Finite (burns out at 12 s), 1 Infinite, other = escalating.
+    burning_type is the client's PredefinedBurningType: 0 Infinite, 1 InfiniteAllowMending, 2 Finite
+    (finite fires burn out at 12 s).
     """
     if process_ms == 0:
         return 0.0
-    if burning_type == 0:
+    if burning_type == 2:
         x = process_ms / BIG_BURNING_NO_RETURN_MS
         return x * (1 - x) * 4 * 0.6
-    if burning_type == 1:
+    if burning_type == 0:
         return min(1.0, process_ms / 4000.0)
     extra = 0.0 if process_ms < BIG_BURNING_NO_RETURN_MS else (process_ms - BIG_BURNING_NO_RETURN_MS) / 2000.0
     return min(max(0.01, 1 - mending_level), (process_ms / BIG_BURNING_NO_RETURN_MS) ** 1.7 * 0.7 + extra)
-
 
 def collision_damage_event(target_uid, source_uid, damage, *, corpus_crit=False, make_burning=False,
                            upgrade_destroy_flooding=False, friendly_fire=False):
@@ -370,7 +370,7 @@ def collision_damage_event(target_uid, source_uid, damage, *, corpus_crit=False,
         flags |= Flags.FriendlyFire
     return DamageData(target_uid=target_uid, source_uid=source_uid, source=DamageID.Collision,
                       health_damage=damage, flags=flags, crit_corpus_time_sec=10.0 if corpus_crit else 0.0,
-                      burning_type=3 if make_burning else 0)
+                      burning_type=1 if make_burning else 0)
 
 
 def simulate(max_hp_value, hits, *, sail_weights=None, education_map=False, is_player=True, flood_seconds=0.0):

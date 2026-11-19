@@ -142,6 +142,55 @@ def parse_model_header(data):
             'min_vertices':max_vertex,'min_indices':max_index}
 
 
+HARDPOINT_TYPES = ['CannonSidePoint', 'CannonNoLafetSidePoint', 'CannonTopPoint', 'CannonBackPoint', 'Falkonet', 'Mortar',
+                   'BigLamp', 'BowFigurePlace', 'DeckOpenCover', 'DeckHalfOpenCover', 'HPShipSmallLight', 'ExtraMort',
+                   'HPIsleFume', 'HPLightID1', 'PortUiSlot0', 'PortUiSlot1', 'PortUiSlot2', 'PortUiSlot3', 'PortUiSlot4',
+                   'PortUiSlot5', 'ShipUnit1', 'ShipUnit2', 'ShipUnit3', 'ShipUnit4', 'ShipUnit5', 'ShipUnit6', 'ShipUnit7',
+                   'ShipUnit8', 'BuildingWeapon', 'HPAnchoredShip', 'PaddleInstance', 'HPTree', 'HPHFlora', 'HPSFlora', 'FireGun']
+
+
+def parse_model_tag(data, metadata=None):
+    """Model-level UWModelTag: hardpoints (gun ports, figurehead mount, fort guns, crew spots…).
+
+    Layout after the mesh table: root-bone ref, tag reader id, then ModelName (string object),
+    AllowColor (bool), IsSupportedMaterials (bool), Hardpoints (array object of
+    {HardpointID int32, Transform 4x4, FullName string object}), then SkinningAnimation.
+    Returns {'model_name', 'allow_color', 'supported_materials', 'hardpoints': [...], 'has_animation'}.
+    """
+    metadata = metadata or parse_model_header(data)
+    readers = metadata['readers']
+    c = Cursor(data); c.pos = metadata['mesh_end_offset']
+    n_bones = len(metadata['bones'])
+    c.u8() if n_bones < 255 else c.u32()          # root bone
+    tag = c.seven()
+    if not tag or 'UWModelTag' not in readers[tag - 1]:
+        return {'hardpoints': [], 'has_animation': False, 'note': 'no UWModelTag'}
+    str_reader = _type_index(readers, 'StringReader')
+
+    def obj_string():
+        t = c.seven()
+        if t == 0:
+            return None
+        _need(t, t == str_reader, 'unexpected string reader in model tag')
+        return c.string()
+    out = {'model_name': obj_string(), 'allow_color': bool(c.u8()), 'supported_materials': bool(c.u8()), 'hardpoints': []}
+    arr = c.seven()
+    if arr:
+        _need(arr, 'ArrayReader' in readers[arr - 1], 'hardpoint array expected')
+        count = c.i32(); _need(count, 0 <= count <= 20000, 'implausible hardpoint count')
+        for _ in range(count):
+            t = c.seven()
+            if t == 0:
+                continue
+            hid = c.i32(); mat = c.floats(16); name = obj_string()
+            out['hardpoints'].append({'type': HARDPOINT_TYPES[hid] if 0 <= hid < len(HARDPOINT_TYPES) else f'id{hid}',
+                                      'position': [mat[12], mat[13], mat[14]], 'forward': [-mat[8], -mat[9], -mat[10]],
+                                      'matrix': mat, 'name': name})
+    anim = c.seven()
+    out['has_animation'] = bool(anim)
+    return out
+
+
 def _locate_buffers(data, metadata):
     """Locate the shared VB/IB pair with exact reader and declaration validation.
 
@@ -318,7 +367,19 @@ def export_obj(data, output_path, *, include_meshes=None):
             'texture_mapping_status':'Tagged SegmentTextureInfoTag segment names preserved as OBJ usemtl names; real image files must be matched separately',
             'vertex_stride':buffers['stride'],'vertex_declaration':meta['vertex_declaration_report'],'bounds':bounds,'parts':stats,
             'damage_overlay_status':'not recovered; no weak-zone coloring',
-            'mesh_source':'XNA ModelReader + validated shared resources'}
+            'mesh_source':'XNA ModelReader + validated shared resources',
+            **_hardpoint_summary(data)}
+
+
+def _hardpoint_summary(data):
+    """Gun ports, figurehead mount, fort guns and crew spots from the model tag (best effort)."""
+    try:
+        tag=parse_model_tag(data)
+    except Exception as exc:
+        return {'hardpoints':[],'hardpoints_status':'not read: '+type(exc).__name__}
+    pts=[{'type':h['type'],'position':[round(v,4) for v in h['position']],'forward':[round(v,4) for v in h['forward']],
+          **({'name':h['name']} if h.get('name') else {})} for h in tag.get('hardpoints',[])]
+    return {'hardpoints':pts,'hardpoints_status':f'{len(pts)} hardpoints from UWModelTag','has_skinned_animation':tag.get('has_animation',False)}
 
 
 def convert_xnb(source, output_obj, *, report_path=None, include_meshes=None):

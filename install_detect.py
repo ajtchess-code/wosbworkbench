@@ -154,6 +154,16 @@ def classify_root(path, *, exists=None):
     return None
 
 
+def client_root(path, *, exists=None):
+    """The folder that actually holds the client (the launcher installs it under default\\game)."""
+    exists = exists or (lambda p: Path(p).exists())
+    p = Path(path)
+    for candidate in (p, p / 'default' / 'game', p / 'game'):
+        if exists(candidate / CLIENT_EXE) or exists(candidate / 'CommonData'):
+            return str(candidate)
+    return None
+
+
 def detect_installs(*, registry=None, exists=None, listdir=None, read_text=None, extra=()):
     """Return {'game': [...], 'steam': [...], 'launcher': [...]} of existing folders."""
     exists = exists or (lambda p: Path(p).exists())
@@ -162,6 +172,9 @@ def detect_installs(*, registry=None, exists=None, listdir=None, read_text=None,
 
     def add(kind, path):
         path = str(path)
+        if kind in ('game', 'steam') and path:
+            # Point at the client folder itself, not a parent such as C:\\Games\\World of Sea Battle.
+            path = client_root(path, exists=exists) or (path if kind == 'steam' else '')
         if path and path not in result[kind] and exists(path) and not is_workbench_dir(path, exists=exists):
             result[kind].append(path)
 
@@ -190,9 +203,9 @@ def detect_installs(*, registry=None, exists=None, listdir=None, read_text=None,
             add(kind, path)
     # A launcher folder that also contains the client counts as a game install too.
     for launcher in list(result['launcher']):
-        for sub in ('Game', 'game', 'World of Sea Battle'):
-            candidate = str(Path(launcher) / sub)
-            if classify_root(candidate, exists=exists) == 'game':
+        for candidate in (Path(launcher) / 'Game', Path(launcher) / 'game', Path(launcher) / 'World of Sea Battle',
+                          Path(launcher).parent / 'World of Sea Battle'):
+            if client_root(candidate, exists=exists):
                 add('game', candidate)
     return result
 

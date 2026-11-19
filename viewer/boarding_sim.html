@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>WoSB Boarding Simulator</title>
+<style>
+:root{font:13px/1.45 "Segoe UI",system-ui,sans-serif;color:#e6eef7;background:#08131f;color-scheme:dark}
+*{box-sizing:border-box}body{margin:0;padding:14px;max-width:1200px;margin:auto}
+h1{font-size:18px;margin:0 0 4px;color:#8fd3ff}h2{font-size:14px;margin:0 0 8px;color:#8fd3ff}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:800px){.grid{grid-template-columns:1fr}}
+.card{background:#0f2133;border:1px solid #24405a;border-radius:8px;padding:10px}
+.row{display:flex;gap:6px;align-items:center;margin:4px 0;flex-wrap:wrap}.row label{min-width:96px;color:#a9c0d6}
+select,input{background:#071624;color:#e6eef7;border:1px solid #2f5371;border-radius:4px;padding:3px 5px;font:inherit}
+input[type=number]{width:70px}select[multiple]{width:100%;height:110px}
+button{background:#1c6f93;color:#fff;border:0;border-radius:4px;padding:6px 12px;cursor:pointer;font:inherit}
+.muted{color:#8aa3ba;font-size:11px}.ok{color:#4cd964}.bad{color:#ff6a5a}
+table{border-collapse:collapse;width:100%;font-size:12px}td,th{border-bottom:1px solid #1d3449;padding:3px 5px;text-align:right}th:first-child,td:first-child{text-align:left}
+canvas{width:100%;height:220px;background:#071624;border-radius:6px;display:block}
+.big{font-size:20px;font-weight:600}
+</style></head><body>
+<h1>Boarding simulator</h1>
+<p class="muted">Runs the client's boarding fight loop: crew is split into groups of 16 + places/15, each group strikes every 3 s (±5%) for its damage × (HP left)<sup>0.7</sup>, split across up to 3 target groups; musketeer defence cuts damage to ×0.2. Who wins when time runs out is decided by the server; the 1.5× strength rule used here is inferred.</p>
+<div class="grid">
+ <div class="card" id="sideA"></div>
+ <div class="card" id="sideB"></div>
+</div>
+<div class="card" style="margin-top:12px">
+ <div class="row"><button id="run">Simulate boarding</button><button id="many" style="background:#24405a">Run 200 with jitter</button>
+ <label style="min-width:0">Duration</label><input type="number" id="dur" value="30"> s
+ <label style="min-width:0">Distance</label><input type="number" id="dist" value="6">
+ <label style="min-width:0">Angle between hulls</label><input type="number" id="ang" value="10">°
+ <label><input type="checkbox" id="moving"> ships moving</label></div>
+ <div id="check" class="muted"></div>
+ <div class="row"><span class="big" id="verdict"></span></div>
+ <canvas id="chart"></canvas>
+ <div id="summary"></div>
+</div>
+<!--__SIM_LIB__-->
+<script>
+'use strict';
+const D=/*__SIM_DATA__*/;
+const S=window.WoSBSim;
+const UNIT_TYPES=D.units.filter(u=>u.type!=='Special');
+const nameOf=u=>{const m=/unit_([a-z]+)_(\w+)/.exec(u.id)||[];return `${(m[1]||u.type).replace(/^./,c=>c.toUpperCase())} unit ${m[2]||''}`.trim()};
+const SPECIALS=D.units.filter(u=>u.type==='Special'&&/Boarding|Crew|Unit|Musket/.test(u.fx));
+const BOARD_FX=/Boarding|Crew|Unit|Musket|Bondman/;
+const choices=[...D.upgrades.filter(u=>BOARD_FX.test(u.fx)).map(u=>({n:u.n+' (upgrade)',fx:u.fx})),...D.skills.filter(s=>BOARD_FX.test(s.fx)).map(s=>({n:s.n+' (skill)',fx:s.fx})),...SPECIALS.map(s=>({n:nameOf(s)+' (special crew)',fx:s.fx}))];
+function side(id,title,shipName){const el=document.getElementById(id);
+ el.innerHTML=`<h2>${title}</h2><div class="row"><label>Ship</label><select data-k="ship">${D.ships.map(s=>`<option${s.n===shipName?' selected':''}>${s.n}</option>`).join('')}</select></div>
+ <div class="row"><label>HP now</label><input type="number" data-k="hp" value="${id==='sideA'?100:45}">%</div>
+ <div class="muted" data-k="info"></div>
+ <table><tr><th>Crew type</th><th>Dmg</th><th>HP</th><th>Count</th></tr>${UNIT_TYPES.map((u,i)=>`<tr><td>${nameOf(u)}</td><td>${u.dmg}</td><td>${u.hp}</td><td><input type="number" min="0" data-u="${i}" value="0"></td></tr>`).join('')}</table>
+ <div class="row"><button data-k="fill" style="background:#24405a">Fill with sailors</button><button data-k="mus" style="background:#24405a">Max boarders</button></div>
+ <div class="row"><label>Upgrades & skills</label></div><select multiple data-k="fx">${choices.map((c,i)=>`<option value="${i}">${c.n} — ${c.fx}</option>`).join('')}</select>
+ <div class="row"><label>Extra crew %</label><input type="number" data-k="extra" value="0"><span class="muted">(MMoreExtraCrew etc.)</span></div>`;
+ const q=k=>el.querySelector(`[data-k="${k}"]`);const ship=()=>D.ships.find(s=>s.n===q('ship').value);
+ const info=()=>{const s=ship();q('info').textContent=`${s.crew} crew · ${s.places} places · group size ${16+Math.floor(s.places/15)} · ${s.hp} HP · weight ${s.weight}`};
+ const fill=kind=>{const s=ship();const ins=[...el.querySelectorAll('[data-u]')];ins.forEach(i=>i.value=0);
+  const idx=UNIT_TYPES.findIndex(u=>kind==='sailor'?u.type==='Sailor':/boarding_1/.test(u.id));ins[idx<0?0:idx].value=Math.round(s.crew*(1+(+q('extra').value||0)/100))};
+ q('ship').onchange=()=>{info();fill('sailor')};q('fill').onclick=()=>fill('sailor');q('mus').onclick=()=>fill('boarding');info();fill('sailor');
+ return {el,q,ship}}
+const A=side('sideA','Attacker','Bellona'),B=side('sideB','Defender','Essex');
+function effects(s){const out={};for(const o of s.q('fx').selectedOptions){for(const part of choices[+o.value].fx.split(/[;,]/)){const m=/([PBM]\w+)\s*([+-]?[\d.]+)?/.exec(part.trim());if(!m)continue;const v=m[2]===undefined?1:+m[2];out[m[1]]=(out[m[1]]||0)+(m[1][0]==='P'?v/100:v)}}return out}
+function buildSide(s,name,jitter=0){const ship=s.ship(),fx=effects(s);const types={},crew={};
+ s.el.querySelectorAll('[data-u]').forEach(i=>{const n=+i.value;if(!n)return;const u=UNIT_TYPES[+i.dataset.u];const k=String(+i.dataset.u);
+  const dmgMul=1+(/musketeer/.test(u.id)?(fx.PImproveSomeCrewDamage||0):0);types[k]={damage:u.dmg*dmgMul,health:u.hp};crew[k]=n});
+ const g=S.makeGroups(crew,types,ship.places);if(jitter)g.groups.forEach(x=>x.timer=3*(1+0.1*(Math.random()-0.5)));
+ const hpf=Math.max(0.05,(+s.q('hp').value||100)/100);
+ const protect=new Set();if(fx.BBoardingStartsMusketeersDefence){const mus=UNIT_TYPES.findIndex(u=>/musketeer/.test(u.id));let left=fx.BBoardingStartsMusketeersDefence*1;for(const gr of g.groups)if(left>0&&gr.units[String(mus)]){protect.add(gr.i);left--}}
+ return {name,groups:g.groups,size:g.size,protect,noTarget:!!fx.BBoardingStartsWithNoTarget,weightBonus:fx.PMoreWeightAtBoarding||0,fx,hpf,ship}}
+function canBoard(a,b){const why=[];const dist=+document.getElementById('dist').value,ang=+document.getElementById('ang').value,mov=document.getElementById('moving').checked;
+ const reach=((mov?11:7))*(1+(a.fx.PBoardingDistance||0));
+ if(b.hpf>0.5)why.push(`defender HP must be ≤ 50% (is ${(b.hpf*100).toFixed(0)}%)`);
+ if(Math.abs(Math.cos(ang*Math.PI/180))<0.8)why.push(`hulls must be near-parallel (|cos| ≥ 0.8; ${ang}° gives ${Math.abs(Math.cos(ang*Math.PI/180)).toFixed(2)})`);
+ if(dist>reach)why.push(`gap ${dist} > hook reach ${reach.toFixed(1)} (7, or 11 when moving, × (1 + PBoardingDistance) beyond the hull half-widths)`);
+ return why}
+function draw(res,a,b){const c=document.getElementById('chart'),x=c.getContext('2d');c.width=c.clientWidth*devicePixelRatio;c.height=c.clientHeight*devicePixelRatio;
+ const W=c.width,H=c.height,pad=30*devicePixelRatio;x.clearRect(0,0,W,H);const max=Math.max(res.log[0]?.a||1,res.log[0]?.b||1,...res.log.map(l=>Math.max(l.a,l.b)));
+ const dur=+document.getElementById('dur').value;x.strokeStyle='#24405a';x.strokeRect(pad,8,W-pad-8,H-pad-8);x.fillStyle='#8aa3ba';x.font=`${10*devicePixelRatio}px Segoe UI`;
+ for(let s=0;s<=dur;s+=5)x.fillText(s+'s',pad+(W-pad-8)*s/dur-6,H-8);
+ for(const [k,col] of [['a','#59b7ff'],['b','#ff7a59']]){x.strokeStyle=col;x.lineWidth=2*devicePixelRatio;x.beginPath();
+  res.log.forEach((l,i)=>{const px=pad+(W-pad-8)*l.t/dur,py=8+(H-pad-16)*(1-l[k]/max);i?x.lineTo(px,py):x.moveTo(px,py)});x.stroke()}
+ x.fillStyle='#59b7ff';x.fillText('Attacker crew HP',pad+6,22);x.fillStyle='#ff7a59';x.fillText('Defender crew HP',pad+130,22)}
+function run(){const a=buildSide(A,'Attacker'),b=buildSide(B,'Defender');const why=canBoard(a,b);
+ document.getElementById('check').innerHTML=why.length?'<span class="bad">Boarding would not start in game:</span> '+why.join('; '):'<span class="ok">Boarding can start.</span> (also needs: neither ship sinking, not bow-on)';
+ const hp0a=a.groups.reduce((s,g)=>s+g.hp,0),hp0b=b.groups.reduce((s,g)=>s+g.hp,0);
+ const res=S.board(a,b,{duration:+document.getElementById('dur').value});
+ document.getElementById('verdict').innerHTML=res.winner==='undecided'?'Undecided at time-out (neither side ≥ 1.5× the other)':`<span class="${res.winner==='Attacker'?'ok':'bad'}">${res.winner} wins</span> after ${res.seconds.toFixed(1)} s`;
+ document.getElementById('summary').innerHTML=`<table><tr><th></th><th>Groups</th><th>Group size</th><th>Crew HP start</th><th>Crew HP end</th><th>Men left</th><th>Protected groups</th></tr>
+ <tr><td>Attacker</td><td>${a.groups.length}</td><td>${a.size}</td><td>${hp0a.toFixed(0)}</td><td>${res.hpA.toFixed(0)}</td><td>${res.unitsA}</td><td>${a.protect.size}</td></tr>
+ <tr><td>Defender</td><td>${b.groups.length}</td><td>${b.size}</td><td>${hp0b.toFixed(0)}</td><td>${res.hpB.toFixed(0)}</td><td>${res.unitsB}</td><td>${b.protect.size}</td></tr></table>
+ <p class="muted">Each crew member adds its type's damage (SampleDamage) and health to its group, as in UnitCollection. Effects applied — attacker: ${Object.entries(a.fx).map(([k,v])=>k+' '+v).join(', ')||'none'}; defender: ${Object.entries(b.fx).map(([k,v])=>k+' '+v).join(', ')||'none'}.</p>`;
+ draw(res,a,b);return res}
+document.getElementById('run').onclick=run;
+document.getElementById('many').onclick=()=>{const w={Attacker:0,Defender:0,undecided:0};let secs=0;for(let i=0;i<200;i++){const r=S.board(buildSide(A,'Attacker',1),buildSide(B,'Defender',1),{duration:+document.getElementById('dur').value});w[r.winner]++;secs+=r.seconds}
+ document.getElementById('verdict').innerHTML=`200 runs: attacker ${w.Attacker} · defender ${w.Defender} · undecided ${w.undecided} · average ${(secs/200).toFixed(1)} s`};
+run();
+</script></body></html>

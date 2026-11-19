@@ -60,7 +60,7 @@ PAGE_GROUPS=[('HOME',['Overview']),
              ('SHIP 3D',['Ship 3D']),
              ('CAPTURE & PROTOCOL',['Network Research Lab','Advanced Research']),
              ('SETTINGS',['Settings','Import & export','Updates'])]
-GAME_PATHS=[r'C:\Games\World of Sea Battle',r'C:\Games\Wosb Launcher',r'C:\Program Files (x86)\Steam\steamapps\common\World of Sea Battle']
+GAME_PATHS=[r'C:\Games\World of Sea Battle\default\game',r'C:\Games\Wosb Launcher',r'C:\Program Files (x86)\Steam\steamapps\common\World of Sea Battle']
 
 class SidebarNavigation:
     """Grouped, always-visible page navigation (replaces the hidden 'More tools' drawer)."""
@@ -532,8 +532,10 @@ class App:
         if hasattr(self,'full_game_var') and (installs.get('game') or installs.get('steam')):
             self.full_game_var.set(installs.get('game') or installs.get('steam'))
         if hasattr(self,'path_vars'):
+            import install_detect
             for var,key in zip(self.path_vars,('game','launcher','steam')):
                 if installs.get(key):var.set(installs[key])
+                elif install_detect.is_workbench_dir(var.get().strip() or '.'):var.set('')
         if hasattr(self,'gameplay_port'):self.gameplay_port.set(str(self.settings.get('capture.port',23771)))
         if hasattr(self,'auto_capture_var'):self.auto_capture_var.set(bool(self.settings.get('capture.auto_capture',False)))
 
@@ -665,7 +667,10 @@ class App:
                  ('Damage model reference','How the client applies hull, sail, crew, fire and flooding damage, with a hit simulator.',self._dm_damage_model),
                  ('Unpack launcher code (app.asar)','Extract the Electron launcher\'s JavaScript so it can be read and searched.',self._dm_asar),
                  ('Free disk space','Remove duplicate Catalog-2, Catalog-3… exports (about 2.3 GB each), keeping the newest.',self._dm_cleanup),
-                 ('Build wiki website','A public fan wiki: ship/cannon/item pages, categories, guides, damage simulator, wind and comparison tools.',self._build_wiki_site)]
+                 ('Calibrate cannonball damage','Log measured hits (cannon, ammo, target, HP before/after) and fit the simulators\' damage to them.',self._dm_calibrate),
+                 ('Battle & boarding simulators','3D battles with the real ship, tower and fort models: fleets, port battles, orders, scripts, batch runs; plus the boarding fight.',self._open_simulators),
+                 ('Publish wiki to GitHub Pages','Push the built wiki folder to a gh-pages branch so the community can use it at <you>.github.io.',self._publish_wiki),
+                 ('Build wiki website','A public fan wiki: ship/cannon/item pages, categories, guides, battle/boarding/damage simulators, wind and comparison tools.',self._build_wiki_site)]
         for i,(title,desc,cmd) in enumerate(actions):
             card=ttk.Frame(grid,style='Card.TFrame',padding=12);card.grid(row=i//3,column=i%3,sticky='nsew',padx=(0,10),pady=(0,10))
             ttk.Label(card,text=title,style='CardTitle.TLabel').pack(anchor='w')
@@ -679,6 +684,13 @@ class App:
         """Earlier builds could save the Workbench's own folder as the game install."""
         try:cleared=self.settings.repair_installs()
         except Exception:return
+        if not (self.settings.get('installs.game') or '').strip():
+            try:
+                import install_detect
+                found=install_detect.detect_installs().get('game') or []
+                if found:self.settings.update({'installs.game':found[0]});cleared=cleared or []
+            except Exception:pass
+        self._apply_settings_to_pages()
         if not cleared:return
         roots=self._known_installs()
         self._notice('Fixed install settings',
@@ -924,6 +936,59 @@ class App:
             return total
         self._run_async(task,lambda t:self._notice('Disk space freed',f'{t/1e9:.1f} GB removed.',kind='success'),'Removing old catalogs…')
 
+    def _dm_calibrate(self):
+        import damage_fit,battle_sim
+        path=home()/'Research'/'Damage-Trials.csv';path.parent.mkdir(parents=True,exist_ok=True)
+        if not path.exists():
+            damage_fit.save_trials(path,[])
+            self._notice('Damage trials sheet created','Fill one row per measured hit (cannon, ammo, target ship or armor, HP before and after; '
+                         'distance, angle and zone if known), save, then run this again. HP readings from the HP-bar tool help.',kind='info',
+                         action=('Open sheet',lambda:webbrowser.open(path.as_uri())))
+            return
+        res=battle_sim.calibration_from_trials(self.db,path)
+        if not res.get('calibrated'):
+            self._notice('Not enough measurements',str(res.get('reason')),kind='warning',action=('Open sheet',lambda:webbrowser.open(path.as_uri())));return
+        out=home()/'Research'/'Damage-Calibration.json';out.write_text(json.dumps(res,indent=1),encoding='utf-8')
+        self._notice('Damage calibrated',f"{res['samples']} hits · armor weight {res['armor_weight']} · scale {res['scale']} · mean error ±{res['mape']}%. "
+                     'Rebuild the simulators or the wiki to use it.',kind='success')
+
+    def _open_simulators(self):
+        out=home()/'Simulators'
+        def task(ctx):
+            import battle_sim
+            hb=home()/'Research'/'Hitboxes'
+            rec=battle_sim.latest_recovery(home())
+            ctx.set_output(out)
+            prog=lambda i,n,name:ctx.progress(i/max(1,n),f'Packing model {i+1}/{n}: {name}')
+            return battle_sim.build_simulators(self.db,out,hitboxes_dir=hb if hb.is_dir() else None,recovery_dir=rec,
+                                               game_roots=self._known_installs(),progress=prog,damage_calibration=battle_sim.load_calibration(home()))
+        def done(m):
+            pk=m.get('pack') or {}
+            note=(f"{pk.get('models',0)} real models · {pk.get('textures',0)} textures" if pk.get('models') else
+                  'No recovered models yet (run Full Recovery), so ships are drawn from their hull dimensions')
+            self._notice('Simulators ready',f"{m['ships']} ships · {m['with_hitboxes']} with hitboxes · {m.get('port_sites',0)} port-battle sites · {note}.",
+                         kind='success',action=('Open battle simulator',lambda:webbrowser.open((out/'battle_sim.html').as_uri())))
+            try:webbrowser.open((out/'battle_sim.html').as_uri())
+            except Exception:pass
+        self._run_async(task,done,'Building simulators…')
+
+    def _publish_wiki(self):
+        import wiki_publish
+        from tkinter import simpledialog
+        site=home()/'WikiSite'
+        remote=(self.settings.get('wiki.remote') or '').strip()
+        if not remote:
+            remote=(simpledialog.askstring('Publish wiki','GitHub repository URL for the wiki (it will get a gh-pages branch):\n'
+                                           'e.g. https://github.com/you/wosb-wiki.git',parent=self.root) or '').strip()
+            if not remote:return
+            self.settings.update({'wiki.remote':remote})
+        def task():return wiki_publish.publish(site,remote)
+        def done(m):
+            url=wiki_publish.pages_url(remote)
+            self._notice('Wiki published',f"Pushed {m['commit']} to {m['branch']}. "+(f'Turn on GitHub Pages (Settings → Pages → branch gh-pages) once; then it is live at {url}' if url else ''),
+                         kind='success',action=('Open site',lambda:webbrowser.open(url)) if url else None)
+        self._run_async(task,done,'Publishing wiki…')
+
     def _build_wiki_site(self):
         out=home()/'WikiSite'
         def task(ctx):
@@ -931,10 +996,14 @@ class App:
             mechanics_reference.seed_damage_pages(self.db)
             ctx.set_output(out)
             hb=home()/'Research'/'Hitboxes'
-            return wiki_site.build_site(self.db,out,hitboxes_dir=hb if hb.is_dir() else None)
+            import battle_sim
+            return wiki_site.build_site(self.db,out,hitboxes_dir=hb if hb.is_dir() else None,recovery_dir=battle_sim.latest_recovery(home()),
+                                        damage_calibration=battle_sim.load_calibration(home()),
+                                        game_roots=self._known_installs(),
+                                        progress=lambda i,n,name:ctx.progress(i/max(1,n),f'Packing model {i+1}/{n}: {name}'))
         def done(m):
             self._notice('Wiki website built',f"{m['pages']:,} pages · {m['entities'].get('ship',0)} ships · {m['articles']} guides · "
-                         f"{m['ships_with_hitboxes']} ships with hit zones. Open index.html, or upload the folder to GitHub Pages or any web host.",
+                         f"{m['ships_with_hitboxes']} ships with hit zones · {m.get('models',0)} 3D models. Open index.html, or upload the folder to GitHub Pages or any web host.",
                          kind='success',action=('Open site',lambda:webbrowser.open((out/'index.html').as_uri())))
         self._run_async(task,done,'Building wiki website…')
 
@@ -3072,7 +3141,11 @@ class App:
 
     def start_scan(self):
         if self.running:return
+        import install_detect
         paths=[v.get().strip() for v,check in zip(self.path_vars,self.path_checks) if check.get() and v.get().strip()]
+        own=[p for p in paths if install_detect.is_workbench_dir(p)]
+        paths=[p for p in paths if p not in own]
+        if own:self._notice('Skipped a folder',own[0]+' is WoSB Workbench itself, not the game.',kind='warning')
         if not paths:return self._notice('Scans','Select at least one folder.')
         if not any(Path(p).is_dir() for p in paths):return self._notice('Scans','No selected folders exist on this computer.')
         self.running=True;self.cancel_event=threading.Event()

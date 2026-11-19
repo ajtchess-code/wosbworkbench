@@ -34,10 +34,10 @@ def texture(b):
         else:
             try:
                 import texture2ddecoder
-            except ImportError as exc:
-                raise ValueError('BC1/BC3 textures require texture2ddecoder; install engine/requirements.txt') from exc
-            decode=texture2ddecoder.decode_bc1 if fmt==4 else texture2ddecoder.decode_bc3
-            im=Image.frombytes('RGBA',(w,h),decode(pixels,w,h),'raw','BGRA')
+                decode=texture2ddecoder.decode_bc1 if fmt==4 else texture2ddecoder.decode_bc3
+                im=Image.frombytes('RGBA',(w,h),decode(pixels,w,h),'raw','BGRA')
+            except ImportError:
+                im=decode_bc_numpy(pixels,w,h,bc3=(fmt==6))
     elif fmt==1:im=Image.frombytes('RGB',(w,h),pixels,'raw','BGR;16').convert('RGBA')
     elif fmt==12:
         im=Image.new('RGBA',(w,h),(255,255,255,255));im.putalpha(Image.frombytes('L',(w,h),pixels))
@@ -53,6 +53,36 @@ def texture(b):
                 raw[i+2]=min(255,(raw[i+2]*255+a//2)//a)
         im=Image.frombytes('RGBA',(w,h),bytes(raw))
     return im,{'Width':w,'Height':h,'MipLevels':mips,'SurfaceFormat':fmt}
+
+
+def decode_bc_numpy(data,w,h,*,bc3=False):
+    """BC1 (DXT1) / BC3 (DXT5) decoder used when texture2ddecoder is not installed."""
+    import numpy as np
+    bw,bh=max(1,(w+3)//4),max(1,(h+3)//4);bs=16 if bc3 else 8
+    blk=np.frombuffer(data[:bw*bh*bs],dtype=np.uint8).reshape(bh*bw,bs)
+    col=blk[:,8:] if bc3 else blk
+    c0=col[:,0].astype(np.uint32)|(col[:,1].astype(np.uint32)<<8);c1=col[:,2].astype(np.uint32)|(col[:,3].astype(np.uint32)<<8)
+    bits=col[:,4].astype(np.uint32)|(col[:,5].astype(np.uint32)<<8)|(col[:,6].astype(np.uint32)<<16)|(col[:,7].astype(np.uint32)<<24)
+    def rgb(c):return np.stack([((c>>11)&31)*255//31,((c>>5)&63)*255//63,(c&31)*255//31],1).astype(np.int32)
+    a,b=rgb(c0),rgb(c1);four=(c0>c1)|bc3
+    p2=np.where(four[:,None],(2*a+b)//3,(a+b)//2);p3=np.where(four[:,None],(a+2*b)//3,0)
+    pal=np.stack([a,b,p2,p3],1)                                   # n,4,3
+    idx=(bits[:,None]>>(2*np.arange(16,dtype=np.uint32)))&3        # n,16
+    rgbpx=np.take_along_axis(pal,idx[:,:,None].astype(np.int64).repeat(3,2),1)  # n,16,3
+    if bc3:
+        a0=blk[:,0].astype(np.int32);a1=blk[:,1].astype(np.int32)
+        ab=np.zeros(len(blk),dtype=np.uint64)
+        for k in range(6):ab|=blk[:,2+k].astype(np.uint64)<<np.uint64(8*k)
+        ai=((ab[:,None]>>(np.uint64(3)*np.arange(16,dtype=np.uint64)))&np.uint64(7)).astype(np.int64)
+        j=np.arange(8)
+        eight=np.where(j==0,a0[:,None],np.where(j==1,a1[:,None],((8-j)*a0[:,None]+(j-1)*a1[:,None])//7))
+        six=np.where(j==0,a0[:,None],np.where(j==1,a1[:,None],np.where(j<6,((6-j)*a0[:,None]+(j-1)*a1[:,None])//5,np.where(j==6,0,255))))
+        apal=np.where((a0>a1)[:,None],eight,six)
+        alpha=np.take_along_axis(apal,ai,1)
+    else:
+        alpha=np.where((~four)[:,None]&(idx==3),0,255)
+    px=np.concatenate([rgbpx,alpha[:,:,None]],2).astype(np.uint8).reshape(bh,bw,4,4,4).transpose(0,2,1,3,4).reshape(bh*4,bw*4,4)
+    return Image.fromarray(px[:h,:w].copy(),'RGBA')
 
 
 def decode_dxt3(data,w,h):
