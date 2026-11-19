@@ -49,7 +49,7 @@ right-click water = move (<kbd>Shift</kbd> adds waypoint) · right-click enemy =
 <div class="row"><label>Wind drift</label><input type="number" id="drift" value="0" step="1" style="width:60px"><span class="muted">° per minute (random walk)</span></div>
 <div class="row"><label>Seed</label><input type="number" id="seed" value="1" style="width:80px"><label><input type="checkbox" id="vision"> spotting range</label><input type="number" id="visR" value="250" style="width:60px"></div>
 <div class="row"><label>View</label><label><input type="checkbox" id="vArcs" checked> arcs</label><label><input type="checkbox" id="vLand" checked> landing</label>
-<label><input type="checkbox" id="vBoxes"> hitboxes</label><label><input type="checkbox" id="vHeat" checked> heat</label><label><input type="checkbox" id="vPaths" checked> orders</label><label><input type="checkbox" id="vFollow"> follow cam</label></div>
+<label><input type="checkbox" id="vBoxes"> hitboxes</label><label><input type="checkbox" id="vHeat" checked> heat</label><label><input type="checkbox" id="vPaths" checked> orders</label><label><input type="checkbox" id="vTrails"> ball trails</label><label><input type="checkbox" id="vFollow"> follow cam</label></div>
 <div class="row"><label>Models</label><span id="packInfo" class="muted"></span></div>
 <div class="row"><label></label><button class="alt" id="packPick">Load model pack folder…</button><input type="file" id="packDir" webkitdirectory multiple style="display:none"></div>
 <div class="row"><button class="alt" id="addShip">+ Ship</button><button class="alt" id="addTower">+ Tower</button><button class="alt" id="save">Save</button><button class="alt" id="load">Load</button><button class="alt" id="share">Share link</button><input type="file" id="loadFile" accept=".json" style="display:none"></div>
@@ -201,6 +201,31 @@ function issue(list,cmd,arg,append){
 function formSlot(form,i,sp){if(form==='line')return [-i*sp,0];if(form==='abreast'){const k=Math.ceil(i/2);return [0,(i%2?1:-1)*k*sp]}
  if(form==='column2')return [-Math.floor((i+1)/2)*sp,(i%2?1:0)*sp*0.8];const k=Math.ceil(i/2);return [-k*sp*0.8,(i%2?1:-1)*k*sp*0.8]}
 
+// ------------------------------------------------------------------ visual effects (smoke, flashes, splashes, debris, wakes)
+let fx=[];
+function puff(x,y,z,o){if(quiet||fx.length>4000)return;fx.push(Object.assign({x,y,z,vx:0,vy:0,vz:0,life:1,max:1,r:1,grow:0,col:[255,255,255],a:0.6,g:0,drag:0.6,kind:'puff'},o))}
+function fxMuzzle(w,dir){const dx=Math.cos(dir),dz=Math.sin(dir),wd=windDir()*DEG;
+ puff(w[0]+dx*0.6,w[1],w[2]+dz*0.6,{life:0.12,max:0.12,r:0.9,col:[255,190,90],a:0.95,kind:'flash'});
+ for(let k=0;k<3;k++){const sp=2+Math.random()*4;puff(w[0]+dx*0.8,w[1]+0.2,w[2]+dz*0.8,{vx:dx*sp+Math.cos(wd)*1.4+(Math.random()-0.5),vy:0.3+Math.random()*0.5,vz:dz*sp+Math.sin(wd)*1.4+(Math.random()-0.5),
+  life:2.5+Math.random()*2,max:4.5,r:0.6,grow:1.3,col:[235,235,232],a:0.24,drag:0.8,soft:1})}}
+function fxWater(x,z){puff(x,0,z,{life:0.9,max:0.9,r:0.9,grow:0.6,col:[245,250,255],a:0.9,kind:'column',h:4+Math.random()*3});
+ puff(x,0.1,z,{life:1.6,max:1.6,r:0.8,grow:3,col:[230,240,245],a:0.6,kind:'ring'});
+ for(let k=0;k<5;k++)puff(x,0.5,z,{vx:(Math.random()-0.5)*3,vy:3+Math.random()*3,vz:(Math.random()-0.5)*3,g:9.8,life:0.8,max:0.8,r:0.25,col:[240,248,255],a:0.9,drag:0})}
+function fxHit(x,y,z,wood){for(let k=0;k<7;k++)puff(x,y,z,{vx:(Math.random()-0.5)*7,vy:2+Math.random()*4,vz:(Math.random()-0.5)*7,g:9.8,life:1.2,max:1.2,r:0.18+Math.random()*0.15,col:wood?[110,78,45]:[90,90,90],a:1,drag:0.1});
+ puff(x,y,z,{life:0.15,max:0.15,r:0.8,col:[255,210,120],a:1,kind:'flash'});puff(x,y,z,{vy:0.6,life:3,max:3,r:0.6,grow:1.0,col:[70,64,60],a:0.3,soft:1})}
+function fxWake(u){const c=Math.cos(u.h*DEG),sn=Math.sin(u.h*DEG),h=hullOf(u.def.model).corpus,L=h.min[0]*u.scale,W=(h.max[2]-h.min[2])*u.scale*0.45;
+ for(const side of [-1,1])puff(u.x+L*c-side*W*sn,0.05,u.z+L*sn+side*W*c,{life:7,max:7,r:0.7,grow:0.5,col:[235,242,245],a:0.35,kind:'foam'})}
+function fxStep(dt){for(const f of fx){f.life-=dt;f.vy-=f.g*dt;const k=Math.max(0,1-f.drag*dt);f.vx*=k;f.vz*=k;f.x+=f.vx*dt;f.y=Math.max(f.kind==='puff'?0:f.y,f.y+f.vy*dt);f.z+=f.vz*dt;f.r+=f.grow*dt}
+ fx=fx.filter(f=>f.life>0&&!(f.g&&f.y<=0&&f.vy<0))}
+function fxDraw(){const items=[];for(const f of fx){const p=proj([f.x,f.y,f.z]);if(p)items.push([p,f])}items.sort((a,b)=>b[0][2]-a[0][2]);
+ const S=cv.height*0.9;for(const [p,f] of items){const t=f.life/f.max,rad=Math.max(1,f.r*S/p[2]);const [r,g,b]=f.col;
+  if(f.kind==='column'){const up=Math.sin(Math.PI*(1-t))*f.h;const q=proj([f.x,up,f.z]);if(!q)continue;ctx.fillStyle=`rgba(${r},${g},${b},${0.75*t+0.15})`;
+   ctx.beginPath();ctx.ellipse(p[0],(p[1]+q[1])/2,rad*0.55,Math.max(2,Math.abs(p[1]-q[1])/2),0,0,7);ctx.fill();continue}
+  if(f.kind==='ring'||f.kind==='foam'){ctx.strokeStyle=`rgba(${r},${g},${b},${f.a*t})`;ctx.lineWidth=Math.max(1,rad*0.25);ctx.beginPath();ctx.ellipse(p[0],p[1],rad,rad*Math.max(0.15,Math.sin(cam.pitch)),0,0,7);ctx.stroke();continue}
+  const a=f.kind==='flash'?f.a*t:f.a*Math.min(1,t*1.6)*(f.kind==='puff'&&f.grow>0?Math.min(1,(1-t)*6+0.2):1);
+  if(f.soft){const gr=ctx.createRadialGradient(p[0],p[1],0,p[0],p[1],rad);gr.addColorStop(0,`rgba(${r},${g},${b},${a})`);gr.addColorStop(0.6,`rgba(${r},${g},${b},${a*0.6})`);gr.addColorStop(1,`rgba(${r},${g},${b},0)`);ctx.fillStyle=gr}
+  else ctx.fillStyle=`rgba(${r},${g},${b},${a})`;ctx.beginPath();ctx.arc(p[0],p[1],rad,0,7);ctx.fill()}}
+
 // ------------------------------------------------------------------ weapons
 function aimFor(c,a,dist){let lo=-0.6,hi=0.6;for(let i=0;i<30;i++){const m=(lo+hi)/2,s=S.shotData(c.max,m,a.curve,a.distF);if(s.dist<dist)lo=m;else hi=m}return (lo+hi)/2}
 function balls_per(c){return {DoubleShot:2,TripleShot:3,EightShot:8}[c.feature]||1}
@@ -218,7 +243,7 @@ function fireGroup(u,side,target){
   for(let k=0;k<balls_per(c);k++){const g=S.gunDispersion(pt.i*3+k+((t*7)|0),factor,shot,c.max,0);
    const dir=(brg+g.yaw/DEG)*DEG;balls.push({from:u.id,team:u.team,x0:w[0],y0:Math.max(1,w[1]),z0:w[2],dx:Math.cos(dir),dz:Math.sin(dir),dist:g.dist,shot:{dist:g.dist,height:g.height},trav:0,time:0,
      spd:45.76*((c.extra&&c.extra.SpeedFactor)||c.speed||1)*(a.speed||1),vx:(u.vx||0)*0.2,vz:(u.vz||0)*0.2,c,a,passed:[],energy:1,hitShips:[],trail:[],drop:isTower?Math.max(0,w[1]-1.5):0});fired++}
-  if(!quiet)splashes.push({x:w[0],z:w[2],y:w[1],r:2.2,life:0.7,c:'rgba(230,230,230,.8)',smoke:true})}
+  if(!quiet&&fired)fxMuzzle(w,brg*DEG)}
  if(fired){u.stats.fired+=fired;const rl=c.reload*(a.reload||1);if(isTower)return rl;u.reload[side]=rl;log(`${label(u)} fires ${side} (${fired} × ${c.n}, ${a.n}) at ${label(target)}`)}
  return fired?c.reload:0}
 function mayFire(u,v){if(u.roe.fire==='hold')return false;if(u.roe.fire==='return')return (u.lastHitBy[v.id]||-1e9)>t-20;return true}
@@ -266,15 +291,15 @@ function ballStep(b,dt){
    const fire=/CanMakeAnyBurnings/.test(b.a.fx)&&Math.random()<(/ExtraMicroburning/.test(b.a.fx)?0.25:0.1);
    damage(v,{damage:dmg,source:'cannonball',stern:zone==='stern',micro:fire},src,`${zone}, ${angle.toFixed(0)}° off normal`);
    if(v.type==='ship'){(v.hits=v.hits||[]).push({p:[lx,(la[1]+lb[1])/2,(la[2]+lb[2])/2],d:dmg});if(v.hits.length>400)v.hits.shift()}
-   if(!quiet)splashes.push({x:cur[0],z:cur[2],y:cur[1],r:2.5,life:0.5,c:'#ffd27a'});
+   if(!quiet)fxHit(cur[0],cur[1],cur[2],v.type==='ship');
    if(/Overpenetration/.test(b.a.fx)&&b.hitShips.length<2){b.hitShips.push(v.id);b.energy*=0.7;continue}
    return false}
   if(v.type==='ship'){const h=hullOf(v.def.model);
-   for(const ms of h.masts)if(segBox(la,lb,ms)!==null){if(!quiet)splashes.push({x:cur[0],z:cur[2],y:cur[1],r:2,life:0.4,c:'#c08040'});return false}
+   for(const ms of h.masts)if(segBox(la,lb,ms)!==null){if(!quiet)fxHit(cur[0],cur[1],cur[2],true);return false}
    if(!/IgnoreSailes/.test(b.a.fx))h.sails.forEach((s,i)=>{if(b.passed.includes(i)||b.passed.length>=3)return;if(s.lv.some(bx=>segBox(la,lb,bx)!==null)){b.passed.push(i);
      const sd=(b.a.sail||3.5)/100*b.energy/(s.w*h.sails.length);v.st.sail[i]=Math.max(0,v.st.sail[i]-sd);b.energy=1/(1+b.passed.length);if(b.passed.length>=3)b.energy=0}})
    if(b.energy<=0)return false}}
- if(tt>=1){if(!quiet)splashes.push({x:cur[0],z:cur[2],r:3,life:0.6,c:'#9fd6ff'});return false}
+ if(tt>=1){if(!quiet)fxWater(cur[0],cur[2]);return false}
  return true}
 
 // ------------------------------------------------------------------ port battle (fleets) — WosbPbs rules
@@ -359,7 +384,7 @@ function step(dt){if(PB.on&&PB.over)return;t+=dt;runScript();
  for(const u of units){sailStep(u,dt);weaponsStep(u,dt);if(!u.down)S.tick(u.st,dt,{inertion:u.inertion||1});
   if(u.type==='ship'&&u.st.micro.length>=1){const [ok]=S.fire.canStart(u.st.micro.length,u.st.hp,u.st.max);if(ok&&!u.st.fire&&Math.random()<dt/8){u.st.fire=true;u.st.fireMs=1;u.st.fireType=2;log(`🔥 large fire on ${label(u)}`)}}
   if(u.st.fire&&u.st.fireMs>0)S.applyHit(u.st,{source:'fire',damage:(u.def?u.def.hp:4000)*0.0015*S.fire.flare(u.st.fireMs/1000,u.st.fireType)*dt*10})}
- separate();balls=balls.filter(b=>ballStep(b,dt));splashes=splashes.filter(s=>(s.life-=dt)>0);if(PB.on)PB.tick(dt);
+ separate();if(!quiet){fxStep(dt);if(((t*7)|0)!==((t-dt)*7|0))for(const u of units)if(u.type==='ship'&&!u.st.destroyed&&(u.speedNow||0)>1)fxWake(u)}balls=balls.filter(b=>ballStep(b,dt));splashes=splashes.filter(s=>(s.life-=dt)>0);if(PB.on)PB.tick(dt);
  if(Math.floor(t)!==lastRec){lastRec=Math.floor(t);record()}}
 function record(){const hp=[0,1].map(s=>units.filter(u=>u.team===s&&!u.st.destroyed).reduce((a,u)=>a+u.st.hp,0));const dmg=[0,1].map(s=>units.filter(u=>u.team===s).reduce((a,u)=>a+u.stats.dmg,0));
  rec.hp.push({t:Math.floor(t),hp,dmg,alive:[0,1].map(s=>units.filter(u=>u.team===s&&u.type==='ship'&&!u.st.destroyed).length)});
@@ -394,18 +419,28 @@ function glInit(){const c=$('gl');const gl=c.getContext('webgl2',{antialias:true
  uniform mat4 vp;uniform mat4 model;uniform vec3 qmin;uniform vec3 qscale;out vec3 vN;out vec2 vUV;out vec3 vW;
  void main(){vec3 p=(q+32767.0)*qscale+qmin;vec4 w=model*vec4(p,1.0);vW=w.xyz;vN=normalize(mat3(model)*nr);vUV=uv;gl_Position=vp*w;}`,
  `#version 300 es
- precision highp float;in vec3 vN;in vec2 vUV;in vec3 vW;uniform sampler2D tex;uniform int useTex;uniform vec4 color;uniform vec3 eye;uniform vec3 sun;uniform float alphaCut;uniform vec3 fogC;uniform float fogD;uniform float dmg;out vec4 o;
- void main(){vec4 b=useTex==1?texture(tex,vUV)*vec4(color.rgb,1.0):color;if(b.a<alphaCut)discard;vec3 n=normalize(vN);if(!gl_FrontFacing)n=-n;
+ precision highp float;in vec3 vN;in vec2 vUV;in vec3 vW;uniform sampler2D tex;uniform sampler2D tex2;uniform sampler2D tex3;uniform int terrain;uniform int useTex;uniform vec4 color;uniform vec3 eye;uniform vec3 sun;uniform float alphaCut;uniform vec3 fogC;uniform float fogD;uniform float dmg;out vec4 o;
+ void main(){vec3 n=normalize(vN);if(!gl_FrontFacing)n=-n;vec4 b;
+  if(terrain==1){vec2 tu=vW.xz/7.0;vec3 lo=texture(tex,tu).rgb,mid=mix(texture(tex2,tu).rgb,texture(tex2,tu*0.23).rgb,0.35),st=texture(tex3,tu*0.8).rgb;
+   float beach=1.0-smoothstep(0.6,3.2,vW.y);float steep=1.0-smoothstep(0.55,0.82,n.y);vec3 c0=mix(mid,st,steep);b=vec4(mix(c0,lo,beach*(1.0-steep*0.6))*1.3,1.0);}
+  else b=useTex==1?texture(tex,vUV)*vec4(color.rgb,1.0):color;if(b.a<alphaCut)discard;
   float dl=dot(n,sun);float l=(alphaCut>0.3?max(dl,0.55*abs(dl)):max(dl,0.0))*0.75+0.38;vec3 c=b.rgb*l*(1.0-dmg*0.45);float d=length(vW-eye);c=mix(c,fogC,clamp(d/fogD,0.0,0.85)*0.9);
   if(vW.y<0.0)c=mix(c,vec3(0.05,0.18,0.25),clamp(-vW.y*0.25,0.0,0.8));o=vec4(c,1.0);}`);
  GL.water=prog(`#version 300 es
  layout(location=0) in vec2 p;uniform mat4 vp;uniform vec2 ctr;uniform float size;out vec2 wp;void main(){wp=ctr+p*size;gl_Position=vp*vec4(wp.x,0.0,wp.y,1.0);}`,
  `#version 300 es
- precision highp float;in vec2 wp;uniform float time;uniform vec3 eye;uniform vec3 sun;uniform vec3 fogC;uniform float fogD;out vec4 o;
+ precision highp float;in vec2 wp;uniform float time;uniform vec3 eye;uniform vec3 sun;uniform vec3 fogC;uniform float fogD;uniform vec2 wind;
+ uniform sampler2D nrm;uniform sampler2D foam;uniform sampler2D fmask;uniform sampler2D wtex;uniform int hasTex;out vec4 o;
  float h(vec2 p){return sin(p.x*0.045+time*0.9)*0.6+sin(p.y*0.06+time*1.3+p.x*0.02)*0.45+sin((p.x+p.y)*0.11+time*1.9)*0.22+sin((p.x-p.y)*0.21-time*2.6)*0.1;}
- void main(){float e=1.5;vec3 n=normalize(vec3(h(wp-vec2(e,0.0))-h(wp+vec2(e,0.0)),2.0*e*1.2,h(wp-vec2(0.0,e))-h(wp+vec2(0.0,e))));
-  vec3 v=normalize(eye-vec3(wp.x,0.0,wp.y));float fr=pow(1.0-max(dot(n,v),0.0),3.0);vec3 deep=vec3(0.02,0.12,0.19),sky=vec3(0.50,0.66,0.80);
-  vec3 c=mix(deep,sky,0.08+0.55*fr);vec3 r=reflect(-v,n);c+=vec3(1.0,0.95,0.8)*pow(max(dot(r,sun),0.0),180.0)*1.2;
+ void main(){float e=1.5;float hc=h(wp);vec3 n=normalize(vec3(h(wp-vec2(e,0.0))-h(wp+vec2(e,0.0)),2.0*e*1.6,h(wp-vec2(0.0,e))-h(wp+vec2(0.0,e))));
+  vec3 deep=vec3(0.035,0.16,0.22),sky=vec3(0.55,0.70,0.82);float fo=0.0;
+  if(hasTex==1){vec2 w=wind*time;vec3 a=texture(nrm,wp/38.0+w*0.012).xyz*2.0-1.0,b2=texture(nrm,wp/23.0-w.yx*0.017+0.37).xyz*2.0-1.0,c2=texture(nrm,wp/140.0+w*0.004).xyz*2.0-1.0;
+   vec3 tn=normalize(a+b2+c2*0.8);n=normalize(vec3(n.x+tn.x*0.55,n.y,n.z+tn.y*0.55));
+   deep=mix(deep,texture(wtex,wp/60.0).rgb*0.55,0.35);
+   vec4 m=texture(fmask,wp/45.0+w*0.01);fo=clamp((hc-0.55)*1.6,0.0,1.0)*m.g+m.r*0.12;fo*=texture(foam,wp/12.0).r;}
+  vec3 v=normalize(eye-vec3(wp.x,0.0,wp.y));float fr=pow(1.0-max(dot(n,v),0.0),4.0);
+  vec3 c=mix(deep,sky,0.06+0.6*fr);vec3 r=reflect(-v,n);c+=vec3(1.0,0.95,0.82)*pow(max(dot(r,sun),0.0),220.0)*1.4;
+  c=mix(c,vec3(0.92,0.95,0.96),clamp(fo,0.0,0.85));
   float d=length(vec3(wp.x,0.0,wp.y)-eye);c=mix(c,fogC,clamp(d/fogD,0.0,1.0));o=vec4(c,1.0);}`);
  GL.u={};for(const [k,p] of [['mesh',GL.mesh],['water',GL.water]]){GL.u[k]={};const n=gl.getProgramParameter(p,gl.ACTIVE_UNIFORMS);for(let i=0;i<n;i++){const a=gl.getActiveUniform(p,i);GL.u[k][a.name]=gl.getUniformLocation(p,a.name)}}
  GL.quad=gl.createVertexArray();gl.bindVertexArray(GL.quad);const qb=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,qb);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,1,1]),gl.STATIC_DRAW);gl.enableVertexAttribArray(0);gl.vertexAttribPointer(0,2,gl.FLOAT,false,0,0);
@@ -416,16 +451,16 @@ function uploadGroup(g,kind){const gl=GL.gl;const vao=gl.createVertexArray();gl.
  const buf=(data,loc,size,type,norm)=>{const b=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.bufferData(gl.ARRAY_BUFFER,data,gl.STATIC_DRAW);gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,size,type,norm,0,0)};
  buf(g.q instanceof Float32Array?g.q:Float32Array.from(g.q),0,3,gl.FLOAT,false);buf(g.nr,1,3,gl.BYTE,true);buf(g.uv,2,2,gl.FLOAT,false);
  const ib=gl.createBuffer();gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,ib);gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,g.i,gl.STATIC_DRAW);
- return {vao,count:g.i.length,itype:g.i instanceof Uint32Array?gl.UNSIGNED_INT:gl.UNSIGNED_SHORT,kind,mat:g.mat,tex:g.tex}}
+ return {vao,count:g.i.length,itype:g.i instanceof Uint32Array?gl.UNSIGNED_INT:gl.UNSIGNED_SHORT,kind,mat:g.mat,tex:g.tex,terrain:g.terrain||null}}
 function dequv(q,mn,sc){const o=new Float32Array(q.length);for(let i=0;i<q.length;i++)o[i]=(q[i]+32767)*sc[i&1]+mn[i&1];return o}
-function addModel(name,m){if(!GL.gl)return;const groups=m.groups.map(g=>uploadGroup({q:b64(g.p,Int16Array),nr:b64(g.nr,Int8Array),uv:g.uq?dequv(b64(g.uq,Int16Array),g.umin,g.usc):b64(g.uv,Float32Array),i:b64(g.i,g.i32?Uint32Array:Uint16Array),mat:g.mat,tex:g.tex},g.kind));
- GL.models[name]={groups,qmin:m.min,qscale:m.scale,bounds:m.bounds};for(const g of groups)if(g.tex)loadTexture(g.tex);packStatus()}
+function addModel(name,m){if(!GL.gl)return;const groups=m.groups.map(g=>uploadGroup({q:b64(g.p,Int16Array),nr:b64(g.nr,Int8Array),uv:g.uq?dequv(b64(g.uq,Int16Array),g.umin,g.usc):b64(g.uv,Float32Array),i:b64(g.i,g.i32?Uint32Array:Uint16Array),mat:g.mat,tex:g.tex,terrain:g.terrain},g.kind));
+ GL.models[name]={groups,qmin:m.min,qscale:m.scale,bounds:m.bounds};for(const g of groups){if(g.tex)loadTexture(g.tex);if(g.terrain)g.terrain.forEach(loadTexture)}packStatus()}
 function addTexture(name,uri){const gl=GL.gl;if(!gl)return;const img=new Image();img.onload=()=>{const t=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,t);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,img);
   gl.generateMipmap(gl.TEXTURE_2D);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR_MIPMAP_LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.REPEAT);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.REPEAT);
   const ext=gl.getExtension('EXT_texture_filter_anisotropic');if(ext)gl.texParameterf(gl.TEXTURE_2D,ext.TEXTURE_MAX_ANISOTROPY_EXT,8);GL.tex[name]=t;packStatus()};img.src=uri}
 // model pack loading (JSONP so it works from a web host and from file://)
 const PACK={base:D.packBase||null,index:null,pending:{},files:null};
-window.WOSB_PACK=ix=>{PACK.index=ix;packStatus();ensureModels()};window.WOSB_MODEL=(n,m)=>{delete PACK.pending[n];addModel(n,m)};window.WOSB_TEX=(n,uri)=>addTexture(n,uri);
+window.WOSB_PACK=ix=>{PACK.index=ix;packStatus();ensureModels();for(const t of Object.values(ix.env||{}))loadTexture(t)};window.WOSB_MODEL=(n,m)=>{delete PACK.pending[n];addModel(n,m)};window.WOSB_TEX=(n,uri)=>addTexture(n,uri);
 function loadScriptUrl(url){const s=document.createElement('script');s.src=url;s.onerror=()=>{};document.head.appendChild(s)}
 function loadPackFile(rel){if(PACK.files){const f=PACK.files[rel];if(!f)return;f.text().then(txt=>{const m=/^(WOSB_\w+)\(("(?:[^"\\]|\\.)*"),?([\s\S]*)\);\s*$/.exec(txt.trim());if(!m)return;
   const name=JSON.parse(m[2]),body=m[3]?JSON.parse(m[3]):null;if(m[1]==='WOSB_PACK')WOSB_PACK(JSON.parse(m[2]));else if(m[1]==='WOSB_MODEL')WOSB_MODEL(name,body);else if(m[1]==='WOSB_TEX')WOSB_TEX(name,body)})}
@@ -454,7 +489,7 @@ function silhouette(model){if(GL.silh[model])return GL.silh[model];const h=hullO
  for(let i=0;i<seg;i++){const a=i*(ring+1),b=(i+1)*(ring+1);I.push(a,base+i,b,b,base+i,base+i+1,a+ring,b+ring,base+i,base+i,b+ring,base+i+1)}
  const hull=meshFromArrays(P,N,I,'hull');GL.silh[model]={hull,boxes:[...h.masts.map(m=>({b:m,k:'mast'})),...h.sails.flatMap(s=>s.lv.map(b=>({b,k:'sail'})))]};return GL.silh[model]}
 let boxMesh=null;
-const KIND_COL={hull:[0.45,0.31,0.19,1],sail:[0.92,0.89,0.8,1],mast:[0.35,0.25,0.16,1],flag:[0.8,0.2,0.2,1],other:[0.6,0.55,0.48,1]};
+const KIND_COL={terrain:[0.36,0.47,0.27,1],hull:[0.45,0.31,0.19,1],sail:[0.92,0.89,0.8,1],mast:[0.35,0.25,0.16,1],flag:[0.8,0.2,0.2,1],other:[0.6,0.55,0.48,1]};
 function mm(x,y,z,h,s,roll){const c=Math.cos(h*DEG),sn=Math.sin(h*DEG),cr=Math.cos(roll||0),sr=Math.sin(roll||0);
  // world = T * Ry * Rx(roll about local x) * S ; local x forward, z starboard. Ry maps x->(c,0,s), z->(-s,0,c)
  const X=[c,0,sn],Y=[0,1,0],Z=[-sn,0,c];const Yr=[Y[0]*cr+Z[0]*sr,Y[1]*cr+Z[1]*sr,Y[2]*cr+Z[2]*sr],Zr=[Z[0]*cr-Y[0]*sr,Z[1]*cr-Y[1]*sr,Z[2]*cr-Y[2]*sr];
@@ -467,11 +502,17 @@ function drawGL(list){const gl=GL.gl;if(!gl)return;const c=$('gl');if(c.width!==
  const far=cam.dist*8+6000,vp=viewProj(c.width,c.height,1.5,far),eye=camEye(),sun=[0.45,0.8,0.35],fogD=Math.max(1500,cam.dist*5);
  // water
  gl.useProgram(GL.water);const U=GL.u.water;gl.uniformMatrix4fv(U.vp,false,vp);gl.uniform2f(U.ctr,cam.tx,cam.tz);gl.uniform1f(U.size,far);gl.uniform1f(U.time,performance.now()/1000);
- gl.uniform3fv(U.eye,eye);gl.uniform3fv(U.sun,sun);gl.uniform3fv(U.fogC,fogC);gl.uniform1f(U.fogD,fogD);gl.bindVertexArray(GL.quad);gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
- gl.useProgram(GL.mesh);const M=GL.u.mesh;gl.uniformMatrix4fv(M.vp,false,vp);gl.uniform3fv(M.eye,eye);gl.uniform3fv(M.sun,sun);gl.uniform3fv(M.fogC,fogC);gl.uniform1f(M.fogD,fogD);gl.activeTexture(gl.TEXTURE0);gl.uniform1i(M.tex,0);
+ gl.uniform3fv(U.eye,eye);gl.uniform3fv(U.sun,sun);gl.uniform3fv(U.fogC,fogC);gl.uniform1f(U.fogD,fogD);
+ const env=(PACK.index&&PACK.index.env)||{},et=['water_normal','foam','foam_mask','water'].map(r=>env[r]&&GL.tex[env[r]]);const okEnv=et.every(Boolean);gl.uniform1i(U.hasTex,okEnv?1:0);
+ const wdv=windDir()*DEG;gl.uniform2f(U.wind,Math.cos(wdv),Math.sin(wdv));
+ ['nrm','foam','fmask','wtex'].forEach((nm,k)=>{gl.activeTexture(gl.TEXTURE1+k);gl.bindTexture(gl.TEXTURE_2D,okEnv?et[k]:GL.white);gl.uniform1i(U[nm],1+k)});gl.activeTexture(gl.TEXTURE0);
+ gl.bindVertexArray(GL.quad);gl.drawArrays(gl.TRIANGLE_STRIP,0,4);
+ gl.useProgram(GL.mesh);const M=GL.u.mesh;gl.uniformMatrix4fv(M.vp,false,vp);gl.uniform3fv(M.eye,eye);gl.uniform3fv(M.sun,sun);gl.uniform3fv(M.fogC,fogC);gl.uniform1f(M.fogD,fogD);gl.activeTexture(gl.TEXTURE0);gl.uniform1i(M.tex,0);gl.uniform1i(M.tex2,1);gl.uniform1i(M.tex3,2);
  if(!boxMesh){const b=GL.box;boxMesh=meshFromArrays(b.P,b.N,b.I,'other')}
  const drawGroup=(g,model,qmin,qscale,col,dmg,cut)=>{gl.uniformMatrix4fv(M.model,false,model);gl.uniform3fv(M.qmin,qmin);gl.uniform3fv(M.qscale,qscale);
-  const tx=g.tex&&GL.tex[g.tex];gl.uniform1i(M.useTex,tx?1:0);gl.bindTexture(gl.TEXTURE_2D,tx||GL.white);gl.uniform4fv(M.color,tx?[1,1,1,1]:(col||KIND_COL[g.kind]||KIND_COL.other));
+  const tset=g.terrain&&g.terrain.map(k=>GL.tex[k]);const isT=!!(tset&&tset.every(Boolean));gl.uniform1i(M.terrain,isT?1:0);
+  if(isT){for(let k=0;k<3;k++){gl.activeTexture(gl.TEXTURE0+k);gl.bindTexture(gl.TEXTURE_2D,tset[k])}gl.activeTexture(gl.TEXTURE0)}
+  const tx=g.tex&&GL.tex[g.tex];gl.uniform1i(M.useTex,tx?1:0);if(!isT)gl.bindTexture(gl.TEXTURE_2D,tx||GL.white);gl.uniform4fv(M.color,tx?[1,1,1,1]:(col||KIND_COL[g.kind]||KIND_COL.other));
   gl.uniform1f(M.dmg,dmg||0);gl.uniform1f(M.alphaCut,(g.kind==='sail'||g.kind==='flag'||g.kind==='mast')?0.45:0.02);gl.bindVertexArray(g.vao);gl.drawElements(gl.TRIANGLES,g.count,g.itype,0)};
  for(const is of islands){const m=GL.models[is.m];if(m){const mat=mm(is.x,0,is.z,-is.r/DEG,(is.s||1)*WORLD_SCALE);for(const g of m.groups)drawGroup(g,mat,m.qmin,m.qscale,null,0)}
   else if(is.b){const b={min:[is.b[0][0],-6,is.b[0][2]],max:[is.b[1][0],Math.max(12,Math.min(100,is.b[1][1])),is.b[1][2]]};
@@ -518,7 +559,9 @@ function draw(){const list=renderList();drawGL(list);
    if(u.down&&!u.done&&u.capT>0){ctx.fillStyle='#ffd27a';ctx.fillText(`capturing ${(u.capT/(PB.CAPTURE_MS/1000)*100).toFixed(0)}%`,top[0]-w/2,top[1]+16)}}
   ctx.globalAlpha=1}
  if(V('vLand')&&selected&&selected.type==='ship'&&!selected.st.destroyed)drawLanding(selected);
- if(replayIdx<0){for(const b of balls){for(let i=1;i<b.trail.length;i++)line(b.trail[i-1],b.trail[i],b.team?'rgba(255,160,100,.85)':'rgba(150,215,255,.85)',1.6)}
+ if(replayIdx<0){fxDraw();const trails=V('vTrails');for(const b of balls){const c=b.trail[b.trail.length-1];if(!c)continue;
+   if(trails)for(let i=1;i<b.trail.length;i++)line(b.trail[i-1],b.trail[i],`rgba(225,225,225,${0.08+0.25*i/b.trail.length})`,1.2);
+   const p=proj(c);if(p){const rad=Math.max(1.6,0.32*cv.height*0.9/p[2]);ctx.fillStyle='#1c1c1c';ctx.beginPath();ctx.arc(p[0],p[1],rad,0,7);ctx.fill();ctx.fillStyle='rgba(255,255,255,.35)';ctx.beginPath();ctx.arc(p[0]-rad*0.35,p[1]-rad*0.35,rad*0.35,0,7);ctx.fill()}}
   for(const s of splashes){const p=proj([s.x,s.y||0,s.z]);if(p){ctx.globalAlpha=Math.min(1,s.life*2);if(s.smoke){ctx.fillStyle=s.c;ctx.beginPath();ctx.arc(p[0],p[1],Math.max(2,s.r*(1.6-s.life)*cv.height*0.9/p[2]),0,7);ctx.fill()}
    else{ctx.strokeStyle=s.c;ctx.lineWidth=2;ctx.beginPath();ctx.arc(p[0],p[1],Math.max(2,s.r*cv.height*0.9/p[2]),0,7);ctx.stroke()}ctx.globalAlpha=1}}}
  if(boxSel){ctx.strokeStyle='#fff';ctx.setLineDash([4,4]);ctx.strokeRect(boxSel.x0,boxSel.y0,boxSel.x1-boxSel.x0,boxSel.y1-boxSel.y0);ctx.setLineDash([])}
@@ -622,7 +665,7 @@ function restore(sn){$('preset').value=sn.preset;$('portSel').value=sn.port;$('p
  if(sn.preset==='pbfleet'){PB.on=true;PB.over=null;const c=PB.cfg();PB.clock=PB.TIME0;PB.pts=[PB.pool(c.team,true),PB.pool(Math.max(1,c.def),false)];PB.pts0=[...PB.pts];PB.kills=[0,0];PB.board=0;PB.timers={};
   PB.towers=units.filter(u=>u.type==='tower'&&!/fort/.test(u.kind));PB.maxCap=Math.floor(PB.towers.length/2);PB.captured=0}
  sel.clear();selected=units.find(u=>u.type==='ship')||units[0]||null;if(selected)sel.add(selected.id);ensureModels();selPanel();panels()}
-function reset(kind){seedRng($('seed').value);units=[];balls=[];splashes=[];islands=[];t=0;heat=null;logLines=[];PB.on=false;PB.over=null;rec={hp:[],pos:[]};replayIdx=-1;lastRec=-1;squads={};uid=0;
+function reset(kind){seedRng($('seed').value);units=[];balls=[];splashes=[];fx=[];islands=[];t=0;heat=null;logLines=[];PB.on=false;PB.over=null;rec={hp:[],pos:[]};replayIdx=-1;lastRec=-1;squads={};uid=0;
  const ps=parseScript($('script').value);script=ps.out;
  const pick=n=>D.ships.find(s=>s.n===n)?n:D.ships[Math.min(D.ships.length-1,30)].n;
  if(kind==='duel'){units.push(makeShip(pick('Bellona'),0,-90,0,90),makeShip(pick('Essex'),1,90,10,-90));cam.dist=420}

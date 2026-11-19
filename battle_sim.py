@@ -307,13 +307,15 @@ def texture_roots(recovery_dir=None, game_roots=()):
     """Where model textures can come from: recovered PNGs first, then the game's own texture XNBs."""
     roots = []
     if recovery_dir:
-        for cand in Path(recovery_dir).glob('**/ModelTextures'):
-            if cand.is_dir():
-                roots.append(cand)
+        for pattern in ('**/ModelTextures', '**/Data/Textures'):
+            for cand in Path(recovery_dir).glob(pattern):
+                if cand.is_dir():
+                    roots.append(cand)
     for g in game_roots or ():
-        for cand in (Path(g) / 'Data' / 'ModelTextures', Path(g).parent / 'Data' / 'ModelTextures'):
-            if cand.is_dir():
-                roots.append(cand)
+        for sub in ('ModelTextures', 'Textures'):
+            for cand in (Path(g) / 'Data' / sub, Path(g).parent / 'Data' / sub):
+                if cand.is_dir():
+                    roots.append(cand)
     return roots
 
 
@@ -385,3 +387,16 @@ def load_calibration(home_dir):
         return c if c.get('calibrated') else None
     except (OSError, ValueError):
         return None
+
+
+def ensure_hitboxes(home_dir, hitboxes_dir=None, *, progress=None):
+    """Use existing rebuilt hitboxes, or build them from the latest Full Recovery when there are none."""
+    import hitbox_recovery
+    hb = Path(hitboxes_dir) if hitboxes_dir else Path(home_dir) / 'Research' / 'Hitboxes'
+    if hb.is_dir() and any(hb.glob('*.hitboxes.json')):
+        return hb
+    dirs = hitbox_recovery.find_models_dirs(home_dir)
+    if not dirs:
+        return hb if hb.is_dir() else None
+    hitbox_recovery.batch(dirs[0], hb, progress=progress)
+    return hb

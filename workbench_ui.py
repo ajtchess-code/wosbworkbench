@@ -957,7 +957,7 @@ class App:
         installs=self._known_installs()
         def task(ctx):
             import battle_sim
-            hb=home()/'Research'/'Hitboxes'
+            hb=battle_sim.ensure_hitboxes(home(),progress=lambda f,name:ctx.progress(f,f'Rebuilding hitboxes: {name}')) or home()/'Research'/'Hitboxes'
             rec=battle_sim.latest_recovery(home())
             ctx.set_output(out)
             prog=lambda i,n,name:ctx.progress(i/max(1,n),f'Packing model {i+1}/{n}: {name}')
@@ -1002,7 +1002,7 @@ class App:
             try:
                 mechanics_reference.seed_damage_pages(db)
                 ctx.set_output(out)
-                hb=home()/'Research'/'Hitboxes'
+                hb=battle_sim.ensure_hitboxes(home(),progress=lambda f,name:ctx.progress(f,f'Rebuilding hitboxes: {name}')) or home()/'Research'/'Hitboxes'
                 return wiki_site.build_site(db,out,hitboxes_dir=hb if hb.is_dir() else None,recovery_dir=battle_sim.latest_recovery(home()),
                                             damage_calibration=battle_sim.load_calibration(home()),game_roots=installs,
                                             progress=lambda i,n,name:ctx.progress(i/max(1,n),f'Packing model {i+1}/{n}: {name}'))

@@ -24,10 +24,34 @@ from pathlib import Path
 
 SHIP_SKIP = re.compile(r'Connection\w*Control|AverageBox|ShipMin|ShipLowCorpus|Shape|Hitbox|externalHitbox|^SPAWN_|Collision|Dummy|Lod\d', re.I)
 SHIP_LOW_SKIP = re.compile(r'Connection\w*Control|AverageBox|DeckStuff|ShipMin|^ShipCorpus$|Shape|Hitbox|externalHitbox|^SPAWN_|Collision|Dummy', re.I)
-WORLD_SKIP = re.compile(r'shape|hitbox|collision|dummy|^SPAWN_', re.I)
+WORLD_SKIP = re.compile(r'shape|hitbox|collision|dummy|^SPAWN_|^ConnectionNpc', re.I)
+
+
+PACK_FORMAT = 2   # 2: terrain groups, environment textures
+TERRAIN_MAT = re.compile(r'^TERRAIN\d+$', re.I)
+# Terrain materials are drawn by the game's terrain shader from up to three ground textures. The material-to-texture
+# table isn't recoverable as plain data, so the simulator blends the game's own ground textures by height and
+# slope, picking the set from the island's family (snow/ice, sand/gold, green).
+TERRAIN_SETS = {
+    'snow': ('SnowGrassLand1', 'SnowGrass', 'GrassRock1'),
+    'sand': ('SandDirty', 'GrassLand2', 'GrassRock1'),
+    'green': ('SandDirty', 'Grass1', 'GrassRock1'),
+}
+ENV_TEXTURES = {'water_normal': 'term', 'foam': 'foam_hlsl', 'foam_mask': 'foam_intensivity', 'water': 'Water'}
+
+
+def terrain_set(model_name):
+    n = model_name.lower()
+    if re.search(r'snow|show|ice|north|winter|frost', n):
+        return 'snow'
+    if re.search(r'sand|gold|yel|asia|desert|vulcan|dirt', n):
+        return 'sand'
+    return 'green'
 
 
 def _kind(mesh, material):
+    if TERRAIN_MAT.match(material or ''):
+        return 'terrain'
     m = (mesh + ' ' + material).lower()
     if 'sail' in m:
         return 'sail'
@@ -218,9 +242,34 @@ def build_pack(out_dir, models, *, texture_roots=(), lod='high', tex_size=1024, 
     out = Path(out_dir); (out / 'models').mkdir(parents=True, exist_ok=True); (out / 'textures').mkdir(exist_ok=True)
     texidx = TextureIndex(texture_roots)
     old = _old_index(out) if incremental else {}
-    same = old.get('lod') == lod and old.get('tex_size') == tex_size
-    index = {'models': {}, 'textures': dict(old.get('textures', {})) if same else {}, 'lod': lod, 'tex_size': tex_size}
+    same = old.get('lod') == lod and old.get('tex_size') == tex_size and old.get('format') == PACK_FORMAT
+    index = {'models': {}, 'textures': dict(old.get('textures', {})) if same else {}, 'lod': lod, 'tex_size': tex_size, 'format': PACK_FORMAT}
     done_tex = {k: v for k, v in index['textures'].items() if (out / v['file']).is_file()}
+
+    def _add_tex(material, *, size=None):
+        key = material.lower()
+        if key in done_tex:
+            return done_tex[key]
+        src = texidx.find(material)
+        done_tex[key] = None
+        if src:
+            try:
+                uri, alpha = encode_texture(src, max_size=size or tex_size)
+                safe = re.sub(r'[^a-z0-9_.-]', '_', key)
+                (out / 'textures' / f'{safe}.js').write_text(_jsonp('WOSB_TEX', key, uri), encoding='utf-8')
+                done_tex[key] = {'file': f'textures/{safe}.js', 'alpha': alpha}
+                index['textures'][key] = done_tex[key]
+            except Exception:
+                pass
+        return done_tex[key]
+
+    index['env'] = {}
+    for role, tex in ENV_TEXTURES.items():
+        if _add_tex(tex, size=512):
+            index['env'][role] = tex.lower()
+    for set_ in TERRAIN_SETS.values():
+        for t in set_:
+            _add_tex(t)
     for i, (name, (obj, kind)) in enumerate(sorted(models.items())):
         if progress:
             progress(i, len(models), name)
@@ -235,19 +284,14 @@ def build_pack(out_dir, models, *, texture_roots=(), lod='high', tex_size=1024, 
             index['models'][name] = {'error': type(exc).__name__}
             continue
         for g in m['groups']:
+            if g['kind'] == 'terrain':
+                g['terrain'] = [t.lower() for t in TERRAIN_SETS[terrain_set(name)]]
+                for t in TERRAIN_SETS[terrain_set(name)]:
+                    _add_tex(t)
+                g['tex'] = None
+                continue
             key = g['mat'].lower()
-            if key not in done_tex:
-                src = texidx.find(g['mat'])
-                done_tex[key] = None
-                if src:
-                    try:
-                        uri, alpha = encode_texture(src, max_size=tex_size)
-                        safe = re.sub(r'[^a-z0-9_.-]', '_', key)
-                        (out / 'textures' / f'{safe}.js').write_text(_jsonp('WOSB_TEX', key, uri), encoding='utf-8')
-                        done_tex[key] = {'file': f'textures/{safe}.js', 'alpha': alpha}
-                        index['textures'][key] = done_tex[key]
-                    except Exception:
-                        pass
+            _add_tex(g['mat'])
             g['tex'] = key if done_tex.get(key) else None
         (out / 'models' / f'{name}.js').write_text(_jsonp('WOSB_MODEL', name, m), encoding='utf-8')
         index['models'][name] = {'file': f'models/{name}.js', 'tris': m['tris'], 'kind': kind,

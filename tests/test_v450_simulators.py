@@ -311,3 +311,27 @@ class BackgroundJobDatabaseTests(unittest.TestCase):
                 if re.search(r'self\.db\b(?!\.path)', code):
                     bad.append(src[:m.start()].count('\n') + 2)
         self.assertEqual(bad, [], f'background task(s) at lines {bad} use self.db; open CatalogDB(self.db.path) instead')
+
+
+class TerrainAndEnvironmentPackTests(TempDir):
+    def test_terrain_groups_get_ground_texture_sets(self):
+        from PIL import Image
+        obj = self.tmp / 'isle_snow1.obj'
+        obj.write_text("o heightmap_Mesh\nusemtl TERRAIN13\nv 0 0 0\nv 1 0 0\nv 0 0 1\nvt 0 0\nvt 1 0\nvt 0 1\nf 1/1 2/2 3/3\n")
+        tex = self.tmp / 'tex'; tex.mkdir()
+        for n in ('SnowGrassLand1', 'SnowGrass', 'GrassRock1', 'term', 'foam_hlsl', 'foam_intensivity', 'Water'):
+            Image.new('RGBA', (8, 8), (100, 120, 140, 255)).save(tex / f'{n}.png')
+        idx = model_pack.build_pack(self.tmp / 'pack', {'isle_snow1': (obj, 'world')}, texture_roots=[tex])
+        body = (self.tmp / 'pack' / 'models' / 'isle_snow1.js').read_text()
+        m = json.loads(body[body.index(',') + 1:body.rindex(')')])
+        g = m['groups'][0]
+        self.assertEqual(g['kind'], 'terrain'); self.assertEqual(g['terrain'], ['snowgrassland1', 'snowgrass', 'grassrock1'])
+        self.assertEqual(set(idx['env']), {'water_normal', 'foam', 'foam_mask', 'water'})
+        self.assertEqual(model_pack.terrain_set('cont_sand1'), 'sand'); self.assertEqual(model_pack.terrain_set('isle_green6'), 'green')
+
+    def test_ensure_hitboxes_builds_when_missing(self):
+        home = self.tmp / 'home'
+        ships = home / 'FullRecovery' / 'abc' / 'Recovered' / 'model' / 'CommonData' / 'Models' / 'Ships'; ships.mkdir(parents=True)
+        (ships / 'Ship_1_test.obj').write_text(CUBE_OBJ)
+        hb = battle_sim.ensure_hitboxes(home)
+        self.assertTrue(hb and any(Path(hb).glob('*.hitboxes.json')) or (Path(hb) / 'Hitbox-Summary.json').is_file())
