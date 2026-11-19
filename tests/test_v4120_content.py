@@ -109,3 +109,25 @@ def test_hit_mesh_kept_and_box_is_its_bounds(tmp_path):
     assert r['corpus'] == {'min': [-5.0, -2.0, -2.0], 'max': [5.0, 4.0, 2.0]}    # the box is the mesh's bounds, not the visible hull's
     m = r['hitmesh']
     assert len(m['v']) == 12 and len(m['e']) == 10                                # 4 shared points, 5 unique edges
+
+
+def test_share_links_kept_30_days_after_last_use(tmp_path):
+    import shutil, subprocess
+    from pathlib import Path
+    root = Path(__file__).resolve().parents[1]
+    if not shutil.which('node'):
+        return
+    w = tmp_path / 'worker.mjs'; shutil.copy(root / 'viewer' / 'wiki_worker.js', w)
+    r = subprocess.run(['node', '--no-warnings', str(root / 'tests' / 'js' / 'plans.test.mjs'), w.as_uri()], capture_output=True, text=True, timeout=120)
+    assert r.returncode == 0, r.stderr[-2000:]
+
+
+def test_upgrade_recipe_formula_matches_game():
+    import site_tools
+    r = site_tools.upgrade_recipes({'Category': 'Armor', 'LowCost': False, 'MainCraftResource': ''}, {})
+    # rank 7: base 150, gold (50 + 50) x2 (no main resource) x1.5 (rank above 5) = 300, nothing else
+    assert r[7] == ({}, 300)
+    # rank 1: base 5850, plates int(5850/400 - 0.5) = 14, rum 585, gold (50 + 1950) x2 x0.75 = 3000
+    assert r[1] == ({'16': 14, '2': 585}, 3000)
+    sails = site_tools.upgrade_recipes({'Category': 'Sailes', 'LowCost': False, 'MainCraftResource': 'CSailcloth'}, {})
+    assert sails[1][0] == {'17': 83} and sails[7][0] == {'3': 50}       # sailcloth below rank 6, fabric from rank 6

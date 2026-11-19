@@ -122,7 +122,7 @@ NAV = [('Main page', 'index.html'), ('Ships', 'category/ships.html'), ('Cannons'
 TOOLS = [('Damage simulator', 'tools/damage-simulator.html'), ('Wind & sailing', 'tools/wind-rose.html'),
          ('Ship comparison', 'tools/compare-ships.html'), ('Hitbox viewer', 'tools/hitboxes.html'),
          ('3D ship viewer', 'tools/ship-viewer.html'), ('Hit analysis', 'tools/hit-analysis.html'), ('Towers, forts & mortars', 'tools/defenses.html'), ('Fire calculator', 'tools/fire-calculator.html'),
-         ('Battle simulator', 'tools/battle-simulator.html'), ('Boarding simulator', 'tools/boarding-simulator.html')]
+         ('Crafting calculator', 'tools/crafting-calculator.html'), ('Battle simulator', 'tools/battle-simulator.html'), ('Boarding simulator', 'tools/boarding-simulator.html')]
 CATEGORY_FILE = {'ship': 'ships', 'cannon': 'cannons', 'ammo': 'ammo', 'upgrade': 'upgrades', 'crew': 'crew',
                  'skill': 'skills', 'resource': 'resources', 'port': 'ports', 'achievement': 'achievements',
                  'cosmetic': 'cosmetics', 'decoration': 'decorations', 'recipe': 'recipes'}
@@ -355,7 +355,7 @@ h1{font:400 28px/1.3 Georgia,"Linux Libertine",serif;margin:0 0 4px;border-botto
 h2{font:400 21px/1.3 Georgia,serif;border-bottom:1px solid var(--border);margin:22px 0 8px}h3{font-size:16px;margin:16px 0 6px}
 .crumbs{font-size:12px;color:var(--muted);margin-bottom:10px}
 .infobox{float:right;clear:right;width:300px;margin:0 0 14px 18px;border:1px solid var(--border);background:#f8f9fa;font-size:13px;border-collapse:collapse}
-.infobox caption{font-weight:700;font-size:15px;padding:6px;background:var(--accent);color:#fff}.infobox td.ibimg{text-align:center;background:#fff;padding:8px}.infobox td.ibimg img{max-width:100%;max-height:220px;object-fit:contain}.entry .infobox td.ibimg img{max-height:72px}img.ticon{width:28px;height:28px;object-fit:contain;vertical-align:middle;margin-right:6px}img.medal{object-fit:contain;vertical-align:middle;margin-right:4px}.medal-row{display:flex;gap:18px;flex-wrap:wrap;margin:8px 0}.medal-lvl{margin:0;text-align:center;font-size:13px}img.cicon{width:40px;height:40px;object-fit:contain;vertical-align:middle;margin-right:8px}.rt{display:inline-block;border-radius:999px;padding:0 8px;font-size:12px;font-weight:600;color:#fff}.rt-main{background:#1f5fbf}.rt-supply{background:#2e8b57}.rt-coastal{background:#b8860b}.rt-central{background:#7d3c98}.rt-smuggling{background:#333}
+.infobox caption{font-weight:700;font-size:15px;padding:6px;background:var(--accent);color:#fff}.infobox td.ibimg{text-align:center;background:#fff;padding:8px}.infobox td.ibimg img{max-width:100%;max-height:220px;object-fit:contain}.entry .infobox td.ibimg img{max-height:72px}img.ticon{width:28px;height:28px;object-fit:contain;vertical-align:middle;margin-right:6px}img.medal{object-fit:contain;vertical-align:middle;margin-right:4px}.medal-row{display:flex;gap:18px;flex-wrap:wrap;margin:8px 0}.medal-lvl{margin:0;text-align:center;font-size:13px}img.cicon{width:40px;height:40px;object-fit:contain;vertical-align:middle;margin-right:8px}.cc h3{margin:18px 0 6px}.cc-add{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0}.cc-pick{flex:1;min-width:240px;padding:6px}.cc-q{width:80px;padding:6px}.cc-t{display:flex;align-items:center;gap:6px;margin:4px 0}.cc-t input{width:80px}.cc label{display:block;margin:4px 0}.cc-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;margin:12px 0}.cc-cards div{background:var(--panel,#f4f7fb);border:1px solid var(--line,#d5dde8);border-radius:8px;padding:10px}.cc-cards b{display:block;font-size:20px}.cc-cards span{font-size:12px;opacity:.8}.cc-tools{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:8px 0}.cc-msg{font-size:13px;opacity:.85}.cc-sub{font-size:12px;opacity:.7;display:inline-block;margin-left:4px}.cc-table input[type=number]{width:90px}.cc-table input[type=text]{width:120px}.cc-table select{max-width:220px}.cc-table td{vertical-align:top}.cc-steps li{margin:4px 0}@media(max-width:700px){.cc-table{display:block;overflow-x:auto}}.rt{display:inline-block;border-radius:999px;padding:0 8px;font-size:12px;font-weight:600;color:#fff}.rt-main{background:#1f5fbf}.rt-supply{background:#2e8b57}.rt-coastal{background:#b8860b}.rt-central{background:#7d3c98}.rt-smuggling{background:#333}
 .portmap{margin:8px 0;max-width:560px}.portmap img{width:100%;height:auto;border:1px solid var(--border);border-radius:6px}.portmap figcaption{font-size:12px;color:var(--muted)}
 .lg{display:inline-block;width:11px;height:11px;margin:0 3px 0 8px;vertical-align:-1px;border-radius:2px}.lg-port{background:#e8c05a;border-radius:50%}.lg-tower{background:#c0392b}.lg-fort{background:#7d3c98}
 .lg-node{background:#5f6a6a}.lg-route{background:#1f5fbf;height:3px;vertical-align:3px}.lg-s2{background:#dc2828}.lg-s3{background:#f08c1e}.lg-s4{background:#ebd228}.lg-s5{background:#5ac85a}.lg-s6{background:#3c6ee6}
@@ -790,7 +790,7 @@ class SiteBuilder:
         if flags.is_dir():
             for f in flags.glob('*.svg'):
                 self._write(f'assets/flags/{f.name}', f.read_text(encoding='utf-8'))
-        for name in ('item_viewer.js', 'community.js', 'admin.js'):
+        for name in ('item_viewer.js', 'community.js', 'admin.js', 'crafting.js', 'planners.js'):
             src = Path(__file__).resolve().parent / 'viewer' / name
             if src.is_file():
                 self._write(f'assets/{name}', src.read_text(encoding='utf-8'))
@@ -1715,6 +1715,12 @@ class SiteBuilder:
                 '<div id="ft"></div>' + scripts('fire_tool.js') + '<script>FireTool.mount(document.getElementById("ft"))</script>'
                 '<p>Full explanation: <a href="../wiki/large-and-minor-fires.html">Large and minor fires</a>.</p>')
         self._write('tools/fire-calculator.html', _page('Fire calculator', body, depth=1, crumbs=crumbs, tab='Tool'))
+        try:
+            import site_tools
+            site_tools.write_pages(self, crumbs, _page)
+        except Exception as exc:          # a planner failing must not stop the wiki build
+            import traceback
+            self.progress and self.progress(f'Planning tools skipped: {exc} @ {traceback.format_exc().strip().splitlines()[-3].strip()}')
         self._ship_viewer(hitboxes, crumbs)
         info = viewer / 'fire_infographic.png'
         if info.is_file():

@@ -112,6 +112,34 @@ async function turnstileOk(env, token, ip) {
   return r.ok && (await r.json()).success === true;
 }
 
+// ---- shared planner links (crafting calculator and other planners): kept while used, removed after 30 days unused
+async function plansTable(env) {
+  await env.DB.prepare('CREATE TABLE IF NOT EXISTS plans (id TEXT PRIMARY KEY, data TEXT NOT NULL, created TEXT NOT NULL, used TEXT NOT NULL)').run();
+}
+async function savePlan(req, env, url) {
+  if (!env.DB) return fail('Share links need the site database.', 503);
+  if (!sameOrigin(req, url)) return fail('Bad origin.', 403);
+  const text = await req.text();
+  if (text.length > 20000) return fail('That plan is too large to share.', 413);
+  let body; try { body = JSON.parse(text); } catch (e) { return fail('Bad plan.', 400); }
+  if (!body || typeof body.plan !== 'object') return fail('Bad plan.', 400);
+  await plansTable(env);
+  await env.DB.prepare("DELETE FROM plans WHERE used < datetime('now', '-30 days')").run();
+  const bytes = new Uint8Array(6); crypto.getRandomValues(bytes);
+  const id = Array.from(bytes, (x) => 'abcdefghijkmnopqrstuvwxyz23456789'[x % 33]).join('') + Date.now().toString(36).slice(-3);
+  await env.DB.prepare("INSERT INTO plans (id, data, created, used) VALUES (?, ?, datetime('now'), datetime('now'))").bind(id, JSON.stringify(body.plan)).run();
+  return json({ id });
+}
+async function getPlan(env, id) {
+  if (!env.DB) return fail('Share links need the site database.', 503);
+  if (!/^[a-z0-9]{6,16}$/.test(id)) return fail('Not found.', 404);
+  await plansTable(env);
+  const row = await env.DB.prepare("SELECT data FROM plans WHERE id = ? AND used >= datetime('now', '-30 days')").bind(id).first();
+  if (!row) return fail('This link has expired or does not exist.', 404);
+  await env.DB.prepare("UPDATE plans SET used = datetime('now') WHERE id = ?").bind(id).run();
+  return json({ plan: JSON.parse(row.data) });
+}
+
 async function submit(req, env, url) {
   if (!sameOrigin(req, url)) return fail('Bad origin.', 403);
   const D = await db(env); if (!D) return fail('Reports are not set up on this site yet.', 503);
@@ -361,6 +389,8 @@ export default {
       if (p === '/api/auth/logout' && m === 'POST') { if (!sameOrigin(request, url)) return fail('Bad origin.', 403); return json({ ok: true }, 200, { 'set-cookie': cookie(SESSION, '', 0) }); }
       if (p === '/api/me' && m === 'GET') return await me(request, env);
       if (p === '/api/reports' && m === 'POST') return await submit(request, env, url);
+      if (p === '/api/plans' && m === 'POST') return await savePlan(request, env, url);
+      if (p.startsWith('/api/plans/') && m === 'GET') return await getPlan(env, p.slice(11));
       if (p === '/api/admin/reports' && m === 'GET') return await listReports(request, env, url, false);
       if (p === '/api/admin/reports.csv' && m === 'GET') return await listReports(request, env, url, true);
       if (p === '/api/admin/report' && m === 'POST') return await updateReport(request, env, url);
