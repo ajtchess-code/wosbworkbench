@@ -56,3 +56,11 @@ def test_crew_titles_and_achievement_enrichment():
     b = SimpleNamespace(db=db, build='Steam', texts={}, entities={'achievement': [ach], 'ship': []})
     site_extras.enrich_achievements(b)
     assert ach['_medal'].startswith('Bronze ')
+
+
+def test_upgrade_slot_costs_match_game_formula():
+    # Gameplay.OpenExtraUpgradeSlotPrice: base by rank, slot 1 = base/4+250, 2 = base/2+500, 3 = base+1000
+    assert site_extras.slot_costs(3) == [(1, 6500, 37, 216), (2, 13000, 37, 433), (3, 26000, 37, 866)]
+    assert site_extras.slot_costs(7)[0] == (1, 250, 1, 10)            # small ships pay Wood, never less than 10
+    assert site_extras.slot_costs(5)[0] == (1, 1375, 37, 22)
+    assert site_extras.slot_costs(9) == []

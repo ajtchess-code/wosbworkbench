@@ -115,7 +115,7 @@ NAV = [('Main page', 'index.html'), ('Ships', 'category/ships.html'), ('Cannons'
        ('Captain skills', 'category/skills.html'), ('Resources', 'category/resources.html'), ('Ports', 'category/ports.html'),
        ('Achievements', 'category/achievements.html'), ('Ship cosmetics', 'category/cosmetics.html'),
        ('Lanterns', 'guide/lanterns.html'), ('Island decorations', 'category/decorations.html'), ('Captain ranks', 'guide/captain-ranks.html'),
-       ('Elite status', 'guide/elite-status.html'), ('Crafting', 'category/recipes.html'), ('Missions & NPCs', 'category/missions.html'),
+       ('Elite status', 'guide/elite-status.html'), ('Upgrade slots', 'guide/upgrade-slots.html'), ('Crafting', 'category/recipes.html'), ('Missions & NPCs', 'category/missions.html'),
        ('World map', 'map.html'),
        ('Guides & mechanics', 'category/articles.html')]
 TOOLS = [('Damage simulator', 'tools/damage-simulator.html'), ('Wind & sailing', 'tools/wind-rose.html'),
@@ -2021,6 +2021,7 @@ class _Overviews:
                 ('elite-status', 'Elite status', 'The six Elite levels for rank 1–5 ships: what each gives and its cost in XP, gold or Coins.', lambda: site_extras.elite_page(self.site)),
                 ('sails-compared', 'Sails compared', 'Every sail upgrade side by side.', lambda: site_extras.sails_page(self.site)),
                 ('lanterns', 'Lanterns', 'Every lantern, its bonus and how to get it.', lambda: site_extras.lanterns_page(self.site)),
+                ('upgrade-slots', 'Upgrade slots', 'How locked upgrade slots open: the ship XP and Battle Marks each one costs, by ship rank.', lambda: site_extras.slots_page(self.site)),
                 ('captain-titles', 'Captain titles and medals', 'The titles you can show on your ship, and the bronze, silver and gold targets behind them.', lambda: site_extras.titles_page(self.site))):
             try:
                 body = fn()

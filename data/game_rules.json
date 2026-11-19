@@ -190,5 +190,45 @@
   "1": 21600
  },
  "quick_finish": "Battle Marks = max((8 - rank) x 10, ship cost in Battle Marks x (1 - build progress))",
- "rank_cap_note": "Rank stops at the number of rank steps + 1; afterwards every level costs the last step's XP and gives a reward instead of a rank."
+ "rank_cap_note": "Rank stops at the number of rank steps + 1; afterwards every level costs the last step's XP and gives a reward instead of a rank.",
+ "upgrade_slots": {
+  "base_xp_by_rank": {
+   "7": 0,
+   "6": 800,
+   "5": 4500,
+   "4": 14000,
+   "3": 25000,
+   "2": 50000,
+   "1": 70000
+  },
+  "xp_formula": {
+   "1": "base/4+250",
+   "2": "base/2+500",
+   "3": "base+1000"
+  },
+  "price": {
+   "7": [
+    1,
+    "xp/40",
+    10
+   ],
+   "6": [
+    1,
+    "xp/10",
+    10
+   ],
+   "5": [
+    37,
+    "xp/60",
+    0
+   ],
+   "default": [
+    37,
+    "xp/30",
+    0
+   ]
+  },
+  "third_slot_needs_branches": 5,
+  "note": "The last three upgrade slots of every ship are locked. XP earned while sailing that ship fills them in order; then you pay the resource price in port. The third needs 5 fully researched ship branches before it gathers XP."
+ }
 }

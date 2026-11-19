@@ -212,6 +212,56 @@ def elite_page(b):
     return ''.join(body)
 
 
+# ----------------------------------------------------------------------------------------------- upgrade slots
+def slot_costs(rank):
+    """[(slot, xp, resource_id, amount)] for the three locked upgrade slots of a ship of this rank (Gameplay.OpenExtraUpgradeSlotPrice)."""
+    u = rules().get('upgrade_slots')
+    if not u or str(rank) not in u['base_xp_by_rank']:
+        return []
+    base = u['base_xp_by_rank'][str(rank)]
+    out = []
+    for slot in (1, 2, 3):
+        xp = {1: base // 4 + 250, 2: base // 2 + 500, 3: base + 1000}[slot]
+        rid, _f, floor = u['price'].get(str(rank), u['price']['default'])
+        div = {7: 40, 6: 10, 5: 60}.get(rank, 30)
+        out.append((slot, xp, rid, max(floor, xp // div)))
+    return out
+
+
+def slots_html(b, rank, rec=None):
+    rows = slot_costs(rank)
+    if not rows:
+        return ''
+    names = resource_names(b.db, b.build)
+    extra = int((rec or {}).get('ExtraPlacesForUpgrades') or 0)
+    base = 6 + extra
+    need = rules()['upgrade_slots']['third_slot_needs_branches']
+    tbl = _table(['Locked slot', 'Ship XP to earn', 'Then pay'],
+                 [[f'Slot {base - 3 + s}' + (f' (needs {need} researched branches)' if s == 3 else ''), f'{xp:,}', f'{amt:,} {_e(_plural(names.get(rid, "item " + str(rid)), amt))}']
+                  for s, xp, rid, amt in rows], cls='wikitable')
+    return (f'<h2 id="slots">Upgrade Slots</h2><p>This ship has <b>{base} upgrade slots</b>'
+            + (f' (6 plus {extra} extra)' if extra else '') + '. Each Modification you fit adds one more. '
+            f'The last three start locked. XP you earn sailing this ship fills them one at a time; once a slot has its XP, '
+            f'you open it in port by paying the price below from your warehouse. The last slot only gathers XP once you have fully researched {need} ship branches.</p>' + tbl)
+
+
+def slots_page(b):
+    names = resource_names(b.db, b.build)
+    need = rules().get('upgrade_slots', {}).get('third_slot_needs_branches', 5)
+    rows = []
+    for rank in range(1, 8):
+        c = slot_costs(rank)
+        if c:
+            rows.append([f'Rank {rank}'] + [f'{xp:,} XP + {amt:,} {_e(_plural(names.get(rid, "item " + str(rid)), amt))}' for _s, xp, rid, amt in c])
+    if not rows:
+        return None
+    return ('<p>Every ship has 6 upgrade slots, plus any extra the ship comes with, plus one for each Modification fitted. '
+            'The <b>last three</b> start locked. XP earned while sailing that ship fills them in order, and once a slot has its XP '
+            'you open it in port by paying from your warehouse. The third locked slot only gathers XP after you have fully researched '
+            f'{need} ship branches. Ships that come fully researched have the first two open already.</p>'
+            + _table(['Ship rank', 'First locked slot', 'Second', 'Third'], rows, cls='wikitable'))
+
+
 # ----------------------------------------------------------------------------------------------- ship build costs
 def ship_build_html(b, rec):
     """Build materials, shipyard time, instant-finish price and Elite status for one ship page."""
@@ -250,6 +300,10 @@ def ship_build_html(b, rec):
             facts.append(f'<b>Finish instantly:</b> {full:,} Battle Marks at the start, falling as the ship gets built, never below {mn:,}.')
         out.append('<h2 id="build">Building This Ship</h2><p>' + ' '.join(facts) + '</p>'
                    + (('<p>Base materials, before port, guild and event discounts:</p>' + _table(['Material', 'Amount'], rows, cls='wikitable')) if rows else ''))
+    if rank:
+        sl = slots_html(b, rank, rec)
+        if sl:
+            out.append(sl)
     if rank and 1 <= rank <= 5:
         tbl = elite_table(rank)
         if tbl:
@@ -356,3 +410,7 @@ def titles_page(b):
             '<b>bronze</b>, <b>silver</b> and <b>gold</b>: the numbers are how many times you must earn the achievement for each level. '
             'Where a title needs two achievements, either one counts towards it.</p>'
             + _table(['Achievement(s)', 'Bronze · Silver · Gold'], rows))
+
+
+def _plural(name, n):
+    return name + 's' if n != 1 and name.endswith(('Mark', 'Shot')) else name
