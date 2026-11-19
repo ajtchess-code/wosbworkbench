@@ -105,3 +105,18 @@ def test_page_chrome_mobile_and_legal():
 def test_effect_prefixes():
     assert wiki_site.humanize_effect('CWorkshopLevel +1') == 'Workshop level +1'
     assert wiki_site.humanize_effect('CannonDamage +2') == 'Cannon damage +2'
+
+
+def test_main_page_layout(tmp_path):
+    import sqlite3, shutil
+    from pathlib import Path
+    from workbench_db import CatalogDB
+    starter = Path(__file__).resolve().parents[1] / 'Starter-Catalog.sqlite3'
+    if not starter.exists():
+        return
+    db_path = tmp_path / 'c.sqlite3'; shutil.copy(starter, db_path)
+    wiki_site.build_site(CatalogDB(str(db_path)), tmp_path / 'site', model_pack=False)
+    idx = (tmp_path / 'site' / 'index.html').read_text(encoding='utf-8')
+    for part in ('class="mp-quick"', 'class="mp-welcome"', 'New visitors', "What's new", 'id="sitemap"', 'class="mp-box"', 'assets/brand/emblem.png'):
+        assert part in idx, part
+    assert (tmp_path / 'site' / 'assets' / 'brand' / 'emblem.png').is_file()

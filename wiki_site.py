@@ -252,7 +252,28 @@ GAMEPEDIA_SEE_ALSO = {
 CSS = r'''
 .feature{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:10px;margin:12px 0 18px}.feature a{display:grid;gap:4px;padding:12px 14px;border-radius:8px;
 background:linear-gradient(135deg,#123f60,#1d5d86);color:#f6efdc;text-decoration:none}.feature a:hover{filter:brightness(1.12)}.feature b{font:700 17px Georgia,serif;color:#f3d58e}.feature span{font-size:13px;color:#dbe7ee}
-ul.cols{columns:3 220px;padding-left:18px}#logo img{display:block;margin:0 auto 6px}
+ul.cols{columns:3 220px;padding-left:18px}
+.mp-notice{text-align:center;font-size:12px;color:#33414e;margin:2px 0 8px}.mp-notice span{color:#b03a2e;font-weight:600}
+.mp-quick{max-width:820px;margin:0 auto 14px;border:1px solid #a2a9b1;background:#f8f9fa;text-align:center;font-size:12.5px}.mp-quick p{margin:0;padding:4px 10px;border-top:1px solid #dde2e7}
+.mp-quick p:first-child{border-top:0}.mp-quick-main{font-variant:small-caps;font-weight:700;font-size:14px;background:#e8f0f8}.mp-quick-small{font-size:11px;color:#54595d}
+.mp-welcome{display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:18px;background:#dfeaf7;border:1px solid #a7c1dd;padding:12px 16px;margin:0 0 16px}
+.mp-title{border:0;margin:0 0 8px;text-align:center;font:700 17px system-ui,sans-serif}
+.mp-hero{position:relative;overflow:hidden;display:flex;align-items:center;gap:16px;max-width:560px;margin:0 auto 10px;padding:14px 18px;min-height:150px;border-radius:6px;
+ background:radial-gradient(circle at 25% 40%,#2a6fa3,#0d2e4b 75%);color:#f6efdc;box-shadow:inset 0 0 0 2px #c9994a}
+.mp-hero-logo{filter:drop-shadow(0 0 6px rgba(255,255,255,.55)) drop-shadow(0 2px 4px rgba(0,0,0,.4));background:rgba(255,255,255,.85);border-radius:50%;padding:8px;position:relative;z-index:1}
+.mp-hero b{display:block;font:700 34px/1.1 Georgia,serif;color:#f3d58e;position:relative;z-index:1}.mp-hero span{font-size:13px;color:#dbe7ee;position:relative;z-index:1}
+.mp-hero-ship{position:absolute;right:-20px;bottom:-12px;height:150px;opacity:.9}
+.mp-visitors{font-size:13px}.mp-visitors h3{margin:0 0 4px}.mp-visitors ul{padding-left:18px;margin:4px 0}
+.mp-h{margin-top:10px}.mp-h small{font-size:13px}
+.mp-news{display:flex;gap:10px;overflow-x:auto;padding:4px 2px 10px;scroll-snap-type:x mandatory;background:#dfeaf7;border:1px solid #a7c1dd;padding:10px}
+.mp-card{flex:0 0 340px;scroll-snap-align:start;background:#fff;border:1px solid #c8ccd1;font-size:12.5px}.mp-card ul{margin:6px 0 8px;padding-left:22px}
+.mp-card-head{display:flex;align-items:center;justify-content:center;gap:8px;min-height:30px;background:#f4a582;color:#7a2a12;font-weight:700;padding:3px 52px;position:relative}
+.mp-card-head img{position:absolute;right:4px;top:3px;height:38px;border:1px solid #fff;background:#fff}
+.mp-boxes{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;background:#dfeaf7;border:1px solid #a7c1dd;padding:10px}
+.mp-box{background:#fff;border:1px solid #c8ccd1;font-size:12.5px;padding:0 0 6px}.mp-box h4{margin:8px 12px 2px;font-size:13px;color:#1d4e6f}.mp-box p{margin:0 12px}
+.mp-box-head{display:flex;align-items:center;justify-content:center;min-height:42px;background:#eee8aa;position:relative;padding:4px 56px}
+.mp-box-head img{position:absolute;right:4px;top:3px;height:36px;max-width:64px;object-fit:contain}.mp-ico{position:absolute;right:6px;top:3px;width:36px;height:36px}.mp-ico svg{width:36px;height:36px}
+@media(max-width:820px){.mp-welcome{grid-template-columns:1fr}.mp-hero b{font-size:26px}.mp-hero-ship{height:110px;opacity:.5}.mp-card{flex-basis:85%}.mp-quick{font-size:13px}.mp-quick p{padding:6px 8px;line-height:1.9}}#logo img{display:block;margin:0 auto 6px}
 
 .wm-bar{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;margin:6px 0;font-size:13px}.wm-bar input[type=search]{padding:4px 8px;min-width:200px}
 .wm-view{position:relative;overflow:hidden;background:#6f6a5b;border-radius:8px;touch-action:none;cursor:grab;user-select:none}.wm-view:active{cursor:grabbing}
@@ -377,7 +398,7 @@ document.querySelectorAll('table.sortable').forEach(t=>{t.querySelectorAll('th')
 })();
 '''
 
-LOGO = '<img src="{base}assets/brand/emblem.svg" alt="" width="72" height="72">'
+LOGO = '<img src="{base}assets/brand/emblem.png" alt="" width="80" height="80">'
 
 
 def _page(title, body, *, depth=0, crumbs=None, tab='Page'):
@@ -402,7 +423,7 @@ def _page(title, body, *, depth=0, crumbs=None, tab='Page'):
             f'<title>{_e(SITE_NAME + " · World of Sea Battle wiki: ships, guns, maps and battle tools" if title == "Main page" else title + " · " + SITE_NAME)}</title><link rel="stylesheet" href="{base}assets/site.css"></head>'
             f'<body data-base="{base}"{' data-host="standalone"' if h.get('standalone') else ''}><a class="skip" href="#content">Skip to content</a><nav id="side" aria-label="Site">{"".join(side)}</nav><div id="scrim"></div>'
             f'<header id="top"><button id="menu" type="button" aria-label="Open menu" aria-controls="side" aria-expanded="false"><span></span><span></span><span></span></button>'
-            f'<a id="toplogo" href="{base}index.html"><img src="{base}assets/brand/emblem.svg" alt="" width="30" height="30"><b>{_e(SITE_NAME)}</b></a>'
+            f'<a id="toplogo" href="{base}index.html"><img src="{base}assets/brand/emblem.png" alt="" width="34" height="34"><b>{_e(SITE_NAME)}</b></a>'
             f'<span class="tabs"><a class="on">{_e(tab)}</a></span>'
             '<div id="search" role="search"><input type="search" placeholder="Search the WoSB Wiki" aria-label="Search the wiki" autocomplete="off"><div id="results"></div></div></header>'
             f'<main id="content">{crumb}<h1>{_e(SITE_NAME if title == "Main page" else title)}</h1>{body}</main>'
@@ -1083,38 +1104,119 @@ class SiteBuilder:
                 f'<li><a href="../{self.article_urls[a["slug"]]}">{_e(a["title"])}</a></li>' for a in groups[sec]) + '</ul>')
         self._write('category/articles.html', _page('Guides & mechanics', ''.join(body), depth=1, crumbs=[('Main page', 'index.html'), ('Guides & mechanics', None)]))
 
+    # small original line icons for the main page's sitemap boxes
+    ICONS = {
+        'combat': '<svg viewBox="0 0 48 48"><circle cx="13" cy="35" r="7" fill="#7a4b26"/><circle cx="13" cy="35" r="3" fill="#f3d58e"/><rect x="12" y="20" width="30" height="10" rx="5" transform="rotate(-24 27 25)" fill="#2c3e50"/><circle cx="41" cy="11" r="3" fill="#2c3e50"/></svg>',
+        'world': '<svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="19" fill="#dfeaf7" stroke="#1d4e6f" stroke-width="3"/><path d="M24 8 L29 24 L24 40 L19 24Z" fill="#c8442f"/><path d="M24 24 L29 24 L24 40Z" fill="#1d4e6f"/><circle cx="24" cy="24" r="3" fill="#f3d58e"/></svg>',
+        'crew': '<svg viewBox="0 0 48 48"><circle cx="24" cy="10" r="5" fill="none" stroke="#1d4e6f" stroke-width="3"/><path d="M24 15 V42 M14 22 H34 M8 30 Q10 42 24 42 Q38 42 40 30" fill="none" stroke="#1d4e6f" stroke-width="3.5" stroke-linecap="round"/></svg>',
+        'economy': '<svg viewBox="0 0 48 48"><ellipse cx="24" cy="36" rx="15" ry="5" fill="#b8873a"/><rect x="9" y="26" width="30" height="10" fill="#d9a948"/><ellipse cx="24" cy="26" rx="15" ry="5" fill="#f3d58e"/><rect x="9" y="16" width="30" height="10" fill="#d9a948"/><ellipse cx="24" cy="16" rx="15" ry="5" fill="#f8e3a8"/></svg>',
+        'cosmetic': '<svg viewBox="0 0 48 48"><path d="M10 6 V44" stroke="#5b4636" stroke-width="3"/><path d="M12 8 Q24 2 30 9 T42 9 V27 Q36 21 30 27 T12 27Z" fill="#2f7fbf"/><path d="M20 12 l3 5 5 1-4 4 1 5-5-3-5 3 1-5-4-4 5-1z" fill="#f3d58e"/></svg>',
+        'guide': '<svg viewBox="0 0 48 48"><path d="M6 10 Q16 6 24 11 Q32 6 42 10 V40 Q32 36 24 41 Q16 36 6 40Z" fill="#f6efdc" stroke="#1d4e6f" stroke-width="2.5"/><path d="M24 11 V41" stroke="#1d4e6f" stroke-width="2"/><path d="M10 17 H20 M10 23 H20 M10 29 H18 M28 17 H38 M28 23 H38 M28 29 H36" stroke="#8aa2b8" stroke-width="2"/></svg>',
+        'tools': '<svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="8" fill="none" stroke="#1d4e6f" stroke-width="4"/><path d="M24 4 V12 M24 36 V44 M4 24 H12 M36 24 H44 M10 10 L16 16 M32 32 L38 38 M38 10 L32 16 M16 32 L10 38" stroke="#1d4e6f" stroke-width="4" stroke-linecap="round"/></svg>',
+        'wiki': '<svg viewBox="0 0 48 48"><circle cx="24" cy="24" r="19" fill="#123f60"/><path d="M13 16 L18 34 L24 20 L30 34 L35 16" fill="none" stroke="#f3d58e" stroke-width="3.5" stroke-linejoin="round"/></svg>',
+    }
+
     def _main_page(self):
+        import wiki_engine
+        h = HOSTING
         counts = {k: len(v) for k, v in self.entities.items()}
-        portals = [('Ships', 'category/ships.html', f'{counts.get("ship", 0)} ships with full stats, hit zones and sailing notes.'),
-                   ('Cannons', 'category/cannons.html', f'{counts.get("cannon", 0)} cannons: poundage, penetration, range, reload.'),
-                   ('Ammunition', 'category/ammo.html', f'{counts.get("ammo", 0)} ammo types and their effects.'),
-                   ('Ship cosmetics', 'category/cosmetics.html', f'{counts.get("cosmetic", 0)} sails, flags, figureheads and other designs.'),
-                   ('Island decorations', 'category/decorations.html', f'{counts.get("decoration", 0)} decorations for personal islands.'),
-                   ('Crafting', 'category/recipes.html', f'{counts.get("recipe", 0)} workshop recipes with ingredients.'),
-                   ('World map', 'map.html', 'Every port, guild fort, tower and imperial fort, with port-battle layouts.'),
-                   ('Missions & NPCs', 'category/missions.html', 'PvE missions wave by wave, and the kinds of NPC ships.'),
-                   ('Ships by rank', 'guide/ships-by-rank.html', 'Every ship side by side: hull, armor, speed and turning, with bars.'),
-                   ('Cannons compared', 'guide/cannons-compared.html', 'Damage per ball and per minute, range and reload by gun type.'),
-                   ('Port battle rules', 'guide/port-battle-rules.html', 'Tower HP, battle clock, respawn points and capture rules.'),
-                   ('Ship upgrades', 'category/upgrades.html', f'{counts.get("upgrade", 0)} upgrades by slot.'),
-                   ('Crew', 'category/crew.html', f'{counts.get("crew", 0)} crew and boarding units.'),
-                   ('Captain skills', 'category/skills.html', f'{counts.get("skill", 0)} skills.'),
-                   ('Resources', 'category/resources.html', f'{counts.get("resource", 0)} goods and resources.'),
-                   ('Ports', 'category/ports.html', f'{counts.get("port", 0)} ports and bays.'),
-                   ('Achievements', 'category/achievements.html', f'{counts.get("achievement", 0)} achievements.'),
-                   ('Guides & mechanics', 'category/articles.html', f'{len(self.articles)} articles on how the game works.')]
-        tools = ''.join(f'<li><a href="{u}">{_e(t)}</a></li>' for t, u in TOOLS)
-        feat = [('3D ship viewer', 'tools/ship-viewer.html', 'Real ship models, hitboxes, damage heatmaps and every design.'),
-                ('World map', 'map.html', 'The game\'s map with ports, port battles, trade routes and resources.'),
-                ('Battle simulator', 'tools/battle-simulator.html', 'Play out duels and full port battles with real ships and rules.'),
-                ('Hit analysis', 'tools/hit-analysis.html', 'Where each ship is weak, from every angle, with every gun.'),
-                ('Fire calculator', 'tools/fire-calculator.html', 'How minor fires turn into a large fire, and how to stop them.'),
-                ('Shipyard', 'category/ships.html', 'Every ship, laid out like the game\'s shipyard.')]
-        body = (f'<p class="welcome"><b>Welcome to the {_e(SITE_NAME)}</b>, the community wiki for World of Sea Battle: every ship, cannon, '
-                'ammo type, upgrade, crew and port, read straight from the game, plus interactive tools for damage, fires, sailing and port battles.</p>'
-                '<div class="feature">' + ''.join(f'<a href="{u}"><b>{_e(t)}</b><span>{_e(d)}</span></a>' for t, u, d in feat) + '</div>'
-                '<div class="portal">' + ''.join(f'<div><h3><a href="{u}">{_e(t)}</a></h3>{_e(d)}</div>' for t, u, d in portals) + '</div>'
-                f'<h2>Tools</h2><ul>{tools}</ul>')
+        ship_art = sorted((self.out / 'assets' / 'shipyard' / 'ships').glob('m*.png')) if (self.out / 'assets' / 'shipyard' / 'ships').is_dir() else []
+        def art(*names):
+            for n in names:
+                for f in ship_art:
+                    if f.stem.lower() == ('m' + n).lower():
+                        return f'assets/shipyard/ships/{f.name}'
+            return f'assets/shipyard/ships/{ship_art[0].name}' if ship_art else ''
+        def links(items):
+            return ' • '.join(f'<a href="{u}">{_e(t)}</a>' for t, u in items if u)
+        def art_url(slug):
+            for a in self.articles:
+                if a['slug'] == slug:
+                    return self.article_urls[a['slug']]
+            return None
+        guides = [(a['title'], self.article_urls[a['slug']]) for a in self.articles]
+        mech = [(t, art_url(sl)) for t, sl in [('Damage formula', 'damage-formula'), ('Damage and sinking', 'damage-and-sinking'), ('Fires', 'large-and-minor-fires'),
+                                              ('Hitboxes', 'ship-hitboxes'), ('Ammunition compared', 'ammunition-compared'), ('Boarding', 'boarding')]]
+        classes = sorted({_fmt(r.get('Type'), 'camel') or 'Other' for r in self.entities.get('ship', [])})
+        # --- notice + quick navigation (the wiki's "front desk")
+        built = datetime.now(timezone.utc).strftime('%B %d, %Y').replace(' 0', ' ')
+        notice = (f'<div class="mp-notice"><b>{_e(SITE_NAME)}</b>: every number comes straight from the game client. '
+                  f'<span>Data updated {built}.</span> Spotted a mistake? '
+                  + (f'<a href="{_e(h["discord_url"])}" rel="noopener">Tell us on Discord</a>.' if h.get('discord_url') else '<a href="about.html#contact">Tell us</a>.') + '</div>')
+        quick = ('<div class="mp-quick"><p class="mp-quick-main">' + links([('New player guide', art_url('ships-guns-and-consumables')), ('Shipyard', 'category/ships.html'),
+                 ('World map', 'map.html'), ('3D ships', 'tools/ship-viewer.html'), ('Battle simulator', 'tools/battle-simulator.html'),
+                 ('Guides', 'category/articles.html')] + ([('Discord', h['discord_url'])] if h.get('discord_url') else [])) + '</p>'
+                 '<p>' + links([('Ships', 'category/ships.html'), ('Cannons', 'category/cannons.html'), ('Ammunition', 'category/ammo.html'), ('Upgrades', 'category/upgrades.html'),
+                                ('Crew', 'category/crew.html'), ('Captain skills', 'category/skills.html'), ('Resources', 'category/resources.html'),
+                                ('Crafting', 'category/recipes.html'), ('Ports', 'category/ports.html'), ('Missions', 'category/missions.html'),
+                                ('Cosmetics', 'category/cosmetics.html'), ('Achievements', 'category/achievements.html')]) + '</p>'
+                 '<p class="mp-quick-small">The wiki is free and run by volunteers' + (f' · <a href="{_e(h["donate_url"])}" rel="noopener">donations keep it online</a>' if h.get('donate_url') else '')
+                 + ' · <a href="sitemap.html">all pages</a></p></div>')
+        # --- welcome panel
+        hero_ship = art('Bellona', 'Victory', 'Anson')
+        welcome = ('<div class="mp-welcome"><div class="mp-welcome-main"><h2 class="mp-title">Welcome to the WoSB Wiki!</h2>'
+                   f'<div class="mp-hero"><img class="mp-hero-logo" src="assets/brand/emblem.png" alt="" width="120" height="120">'
+                   f'<div><b>WoSB Wiki</b><span>Ships · Guns · Maps · Battle tools</span></div>'
+                   + (f'<img class="mp-hero-ship" src="{hero_ship}" alt="" loading="lazy">' if hero_ship else '') + '</div>'
+                   f'<p>Welcome to the WoSB Wiki, a free community reference for <b>World of Sea Battle</b>, the open-world MMO of the age of sail. '
+                   f'It covers {counts.get("ship", 0)} ships, {counts.get("cannon", 0)} cannons, {counts.get("ammo", 0)} kinds of ammunition, every upgrade, crew unit, '
+                   f'captain skill, port and cosmetic, read straight from the game, with interactive tools to test damage, fires, sailing and whole port battles.</p></div>'
+                   '<div class="mp-visitors"><h3>New visitors</h3><p>Find information by:</p><ul>'
+                   '<li>the links at the <b>top</b> and in the <b>sidebar</b></li><li>the <a href="#sitemap">sitemap</a> below</li>'
+                   '<li>the list of <a href="sitemap.html">all pages</a></li><li>the <b>search box</b> at the top right</li></ul>'
+                   '<p>Read <a href="about.html">where the facts come from</a>.</p></div></div>')
+        # --- what's new: this build, then recently changed guides grouped by day
+        cards = [(f'This update ({built})', [f'{counts.get("ship", 0)} ships, {counts.get("cannon", 0)} cannons and {counts.get("ammo", 0)} ammo types',
+                                            '<a href="tools/ship-viewer.html">3D ship viewer</a> with every design, flag and figurehead',
+                                            '<a href="tools/hit-analysis.html">Hit analysis</a> and <a href="tools/fire-calculator.html">fire calculator</a>',
+                                            '<a href="tools/battle-simulator.html">Battle simulator</a> for duels and port battles',
+                                            '<a href="map.html">World map</a> with ports, forts and trade routes'], art('Victory', 'Bellona'))]
+        days = defaultdict(list)
+        for a in sorted((a for a in self.articles if a.get('updated')), key=lambda a: a['updated'], reverse=True):
+            days[a['updated'][:10]].append(a)
+        for day in list(days)[:3]:
+            try:
+                label = datetime.strptime(day, '%Y-%m-%d').strftime('%B %d, %Y').replace(' 0', ' ')
+            except ValueError:
+                label = day
+            cards.append((f'Guides updated ({label})', [f'<a href="{self.article_urls[a["slug"]]}">{_e(a["title"])}</a>' for a in days[day][:8]], None))
+        whatsnew = ('<h2 class="mp-h">What\'s new <small>(<a href="recent.html">recent changes</a>)</small></h2><div class="mp-news">' + ''.join(
+            f'<div class="mp-card"><div class="mp-card-head">{_e(t)}' + (f'<img src="{img}" alt="" loading="lazy">' if img else '') + '</div><ul>'
+            + ''.join(f'<li>{x}</li>' for x in items) + '</ul></div>' for t, items, img in cards) + '</div>')
+        # --- sitemap boxes
+        def box(title, icon, groups, img=None):
+            pic = f'<img src="{img}" alt="" loading="lazy">' if img else f'<span class="mp-ico">{self.ICONS[icon]}</span>'
+            return (f'<div class="mp-box"><div class="mp-box-head"><b>{_e(title)}</b>{pic}</div>' + ''.join(
+                f'<h4>{_e(g)}</h4><p>{links(items)}</p>' for g, items in groups if any(u for _, u in items)) + '</div>')
+        boxes = [
+            box('Ships', 'combat', [('Ship classes', [(c, 'category/ships.html') for c in classes]),
+                                    ('Browse', [('Shipyard', 'category/ships.html'), ('Ships by rank', 'guide/ships-by-rank.html'), ('Compare ships', 'tools/compare-ships.html')]),
+                                    ('In 3D', [('3D ship viewer', 'tools/ship-viewer.html'), ('Hitbox viewer', 'tools/hitboxes.html'), ('Hit analysis', 'tools/hit-analysis.html')])],
+                art('Bellona', 'Anson')),
+            box('Combat', 'combat', [('Weapons', [('Cannons', 'category/cannons.html'), ('Cannons compared', 'guide/cannons-compared.html'), ('Ammunition', 'category/ammo.html'),
+                                                  ('Ship upgrades', 'category/upgrades.html'), ('Upgrades by effect', 'guide/upgrades-by-effect.html')]),
+                                     ('Mechanics', mech),
+                                     ('Tools', [('Damage simulator', 'tools/damage-simulator.html'), ('Fire calculator', 'tools/fire-calculator.html'),
+                                                ('Towers, forts & mortars', 'tools/defenses.html'), ('Battle simulator', 'tools/battle-simulator.html')])]),
+            box('World', 'world', [('The Archipelago', [('World map', 'map.html'), ('Ports', 'category/ports.html'), ('Missions & NPCs', 'category/missions.html')]),
+                                   ('Port battles', [('Port battle rules', 'guide/port-battle-rules.html'), ('Ports and port battles', art_url('ports-and-port-battles')),
+                                                     ('Towers & forts', 'tools/defenses.html')]),
+                                   ('Sailing', [('Sailing and wind', art_url('sailing-and-wind')), ('Wind & sailing tool', 'tools/wind-rose.html'),
+                                                ('The world and NPC ships', art_url('the-world-and-npc-ships'))])]),
+            box('Captain & crew', 'crew', [('Your crew', [('Crew units', 'category/crew.html'), ('Boarding', art_url('boarding')), ('Boarding simulator', 'tools/boarding-simulator.html')]),
+                                           ('Your captain', [('Captain skills', 'category/skills.html'), ('Achievements', 'category/achievements.html'),
+                                                             ('PvP, flags and notoriety', art_url('pvp-and-reputation')), ('Guilds and factions', art_url('guilds-and-factions'))])]),
+            box('Economy', 'economy', [('Goods', [('Resources', 'category/resources.html'), ('Crafting recipes', 'category/recipes.html')]),
+                                       ('Making money', [('Trading, crafting and making money', art_url('trading-and-crafting')), ('Ships, guns and consumables', art_url('ships-guns-and-consumables'))])]),
+            box('Cosmetics & islands', 'cosmetic', [('Ship designs', [('Ship cosmetics', 'category/cosmetics.html'), ('Try them in 3D', 'tools/ship-viewer.html')]),
+                                                    ('Personal islands', [('Island decorations', 'category/decorations.html')])]),
+            box('Guides', 'guide', [('All guides', guides[:24] or [('Guides & mechanics', 'category/articles.html')])]),
+            box('About the wiki', 'wiki', img='assets/brand/emblem.png', groups=[('Wiki', [('About', 'about.html'), ('All pages', 'sitemap.html'), ('Recent changes', 'recent.html')]),
+                                           ('Policies', [('Privacy policy', 'privacy.html'), ('Terms of use', 'terms.html'), ('Copyright disclaimer', 'disclaimer.html')]),
+                                           ('Community', [(t, u) for t, u in [('Discord', h.get('discord_url')), ('Donate', h.get('donate_url'))] if u])]),
+        ]
+        sitemap = '<h2 class="mp-h" id="sitemap">Sitemap</h2><div class="mp-boxes">' + ''.join(boxes) + '</div>'
+        body = notice + quick + welcome + whatsnew + sitemap
         self._write('index.html', _page('Main page', body, depth=0, tab='Main page'))
 
     def _recent(self):
