@@ -122,7 +122,7 @@ class RecoveryAuditTests(unittest.TestCase):
             output.parent.mkdir(parents=True)
             output.write_text('# decoded ship',encoding='utf-8')
             stat=source.stat()
-            recovery.persist('Ship.xnb',stat,'examplehash','model','decoded',
+            recovery.persist('Ship.xnb',stat,'examplehash','texture','decoded',
                              'Recovered/model/Ship.obj')
             recovery.db.execute('UPDATE assets SET details=? WHERE path=?',
                 (json.dumps({'decoder_revision':'4.1.0-asset-reader-2'}),'Ship.xnb'))

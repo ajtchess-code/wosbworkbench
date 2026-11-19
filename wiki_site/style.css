@@ -63,3 +63,4 @@ mark{background:rgba(247,185,102,.35);color:inherit;border-radius:3px;padding:0 
 .article blockquote{border-left:3px solid #57d3d0;margin:10px 0;padding:2px 14px;opacity:.92}
 .article li.task{list-style:none;margin-left:-18px}
 @media (max-width:800px){.toc{float:none;max-width:none;margin:0 0 16px}}
+ul.cols{columns:3 180px;padding-left:18px}

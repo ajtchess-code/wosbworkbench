@@ -184,3 +184,31 @@ def effect_blob(original_xnb):
     return binary,{'asset_type':'EffectReader','compiled_effect_bytes':size,
                     'compiled_effect_magic_hex':binary[:8].hex(),
                     'shader_source_reconstructed':False}
+
+
+def soundeffect_wav(payload):
+    """XNA SoundEffect XNB body → RIFF/WAVE bytes (the WAVEFORMATEX header is stored verbatim)."""
+    r=Reader(payload);readers=[]
+    for _ in range(r.seven()):readers.append(r.string());r.i32()
+    r.seven();idx=r.seven()
+    if idx<1 or idx>len(readers) or 'SoundEffectReader' not in readers[idx-1]:raise ValueError('XNB is not a SoundEffect')
+    fmt=r.read(struct.unpack('<I',r.read(4))[0])
+    if len(fmt)<16:raise ValueError('SoundEffect format header too short')
+    data=r.read(struct.unpack('<I',r.read(4))[0])
+    loop_start,loop_len,duration=r.i32(),r.i32(),r.i32()
+    tag,channels,rate,_,align,bits=struct.unpack('<HHIIHH',fmt[:16])
+    wav=b'RIFF'+struct.pack('<I',4+8+len(fmt)+8+len(data)+(len(data)&1))+b'WAVE'+b'fmt '+struct.pack('<I',len(fmt))+fmt+b'data'+struct.pack('<I',len(data))+data+(b'\0' if len(data)&1 else b'')
+    codec={1:'pcm',2:'msadpcm',3:'float',0x166:'xma2'}.get(tag,f'0x{tag:x}')
+    return wav,{'codec':codec,'channels':channels,'sample_rate':rate,'bits':bits,'block_align':align,
+                'duration_ms':duration,'loop_start':loop_start,'loop_length':loop_len,'data_bytes':len(data)}
+
+
+def plain_text(raw, *, min_len=8):
+    """Some .xnb-named files are plain text (credits, link tables). Return the text or None."""
+    for enc in ('utf-8-sig','utf-16'):
+        try:txt=raw.decode(enc)
+        except UnicodeDecodeError:continue
+        if len(txt)<min_len:return None
+        printable=sum(ch.isprintable() or ch in '\r\n\t' for ch in txt)
+        if printable/len(txt)>0.97:return txt
+    return None

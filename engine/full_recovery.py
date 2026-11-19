@@ -22,11 +22,12 @@ from collections import Counter, defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
 
-DECODER_REVISION = "4.3.1-asset-reader-3-audit"
+DECODER_REVISION = "4.5.0-asset-reader-4-audio-text"
 # This audit changes which assets are classified and fixes two previously
 # failing model files. Unchanged successful models/textures exported by the
 # preceding audited readers can be safely reused; FAILED assets are retried.
-REUSABLE_SUCCESS_REVISIONS = frozenset({"4.0.0-asset-reader-1", "4.1.0-asset-reader-2"})
+REUSABLE_MODEL_REVISIONS = frozenset()   # models re-export once in 4.5.0 (gun ports / hardpoints)
+REUSABLE_SUCCESS_REVISIONS = frozenset({"4.0.0-asset-reader-1", "4.1.0-asset-reader-2", "4.3.1-asset-reader-3-audit"})
 MAX_FILE = 512 * 1024 * 1024
 MAX_METHODS = 350000
 ASSET_EXTS = ('.xnb',)
@@ -96,6 +97,8 @@ def asset_class(names, rel, root_reader_id=1):
         return 'texture'
     if 'modelreader' in reader:
         return 'model'
+    if 'soundeffectreader' in reader or 'songreader' in reader:   # before 'effectreader': SoundEffectReader contains it
+        return 'audio'
     if 'effectreader' in reader:
         return 'effect'
     if 'material' in reader or str(rel).casefold().endswith('.material.xnb'):
@@ -161,8 +164,9 @@ class Recovery:
             old_revision=old_details.get('decoder_revision')
             current=(old_revision==DECODER_REVISION and row[4] in
                      ('decoded','indexed','preserved','unsupported'))
-            trusted_success=(row[4]=='decoded' and row[3] in ('texture','model')
-                             and old_revision in REUSABLE_SUCCESS_REVISIONS)
+            # Textures decode the same across revisions; models are re-exported once so they gain gun ports/hardpoints.
+            trusted_success=(row[4]=='decoded' and ((row[3]=='texture' and old_revision in REUSABLE_SUCCESS_REVISIONS)
+                             or (row[3]=='model' and old_revision in REUSABLE_MODEL_REVISIONS)))
             if current or trusted_success:
                 output=row[5]
                 if output and (self.out/output).is_file():
@@ -232,6 +236,12 @@ class Recovery:
                     # A failed geometry parse must not leave a misleading partial OBJ.
                     obj.unlink(missing_ok=True)
                     raise
+            if kind=='audio' and 'soundeffectreader' in root_reader_name(description['readers'],description['root_reader_id']):
+                from xnb_images import soundeffect_wav
+                wav,info=soundeffect_wav(payload)
+                out=storage.with_suffix('.wav');out.parent.mkdir(parents=True,exist_ok=True);out.write_bytes(wav)
+                details.update(info);output=out.relative_to(self.out).as_posix()
+                return self.persist(rel,stat,digest,kind,'decoded',output,details)
             if kind=='effect':
                 # A compiled effect can sometimes be preserved independently
                 # even when shader source and parameter behavior are unknown.
@@ -260,7 +270,14 @@ class Recovery:
             if isinstance(exc,XNBError) and 'Not a complete XNB header' in str(exc):
                 # Some .xnb-named resources are different binary formats;
                 # don't count them as failed texture/model decodes.
-                magic=file.read_bytes()[:16].hex()
+                data=file.read_bytes();magic=data[:16].hex()
+                from xnb_images import plain_text
+                txt=plain_text(data)
+                if txt is not None:
+                    out=(self.out/'Recovered'/'text'/safe_rel(file,self.game)).with_suffix('.txt')
+                    out.parent.mkdir(parents=True,exist_ok=True);out.write_text(txt,encoding='utf-8')
+                    return self.persist(rel,stat,digest,'text','decoded',out.relative_to(self.out).as_posix(),
+                                        details={**details,'reason':'plain_text_named_xnb','chars':len(txt),'lines':txt.count('\n')+1})
                 return self.persist(rel,stat,digest,'unknown_binary','unsupported',
                     details={**details,'reason':'unrecognized_xnb_header',
                              'first_16_bytes_hex':magic,'needs_custom_format_identification':True})
@@ -325,6 +342,17 @@ class Recovery:
             if name.startswith(('uw','wosb','reskana','thera','fna')):return (2,str(path).casefold())
             return (3,str(path).casefold())
         files.sort(key=assembly_priority)
+        destination=self.out/'Code-Recovery';manifest_path=destination/'Assemblies-Manifest.json'
+        signature=[[safe_rel(f,self.game).as_posix(),f.stat().st_size,f.stat().st_mtime_ns] for f in files]
+        if not self.force and (destination/'ManagedMethods.jsonl').is_file():
+            try:
+                if json.loads(manifest_path.read_text(encoding='utf-8'))==signature:
+                    try:atomic_json(manifest_path,signature)
+                    except OSError:pass
+                    self.phase('code','completed',f'{len(files)} assemblies unchanged since the last run; kept the existing code index')
+                    return
+            except (OSError,ValueError):
+                pass
         count=0;errors=[];assembly_rows=[];limit_hit=False;remaining_uninspected=0
         self.phase('code','running',f'{len(files)} managed-code candidates')
         destination=self.out/'Code-Recovery';destination.mkdir(parents=True,exist_ok=True)
@@ -385,6 +413,8 @@ class Recovery:
             errors.append({'assembly':'[client_signatures]','error_type':type(exc).__name__,'error':str(exc)[:350]})
         atomic_json(destination/'Assemblies.json',assembly_rows)
         atomic_json(destination/'Errors.json',errors)
+        try:atomic_json(manifest_path,signature)
+        except OSError:pass
         self.report['code']={'assemblies_indexed':len(assembly_rows),'assemblies_candidates':len(files),
             'assemblies_not_visited_due_to_limit':remaining_uninspected,
             'methods_indexed':count,'methods_limit':self.max_methods,
@@ -479,11 +509,37 @@ class Recovery:
                   '- See Reports/AssetLedger.jsonl for individual decoded, unsupported and failed reasons.',
                   '- Re-run Recovery to resume; use --recheck to reattempt unchanged items.']
         (self.out/'Reports'/'RecoverySummary.md').write_text('\n'.join(summary)+'\n',encoding='utf-8')
-        (self.out/'START-HERE.md').write_text('''# WoSB Full Recovery — Research Output\n\n- `Recovery-Status.json`: progress, phase outcomes, counts and limitations.\n- `Reports/AssetLedger.jsonl`: one line per XNB with actual decode status and reason.\n- `Recovered/texture/`: decoded local game texture PNGs.\n- `Recovered/model/`: recovered real geometry OBJ and source metadata.\n- `Decoded-Payloads/`: optional raw decompressed XNB content.\n- `Code-Recovery/ManagedMethods.jsonl`: .NET method index; IL text is optional.\n- `Catalog/`: original full English tables, preserved assets, and AI handoff (if available).\n- `Reports/ModelTextureLinks.jsonl`: candidate matches only; not verified shaders.\n\nThis tool does not execute game DLLs or query game servers. A decoded mesh or static\nIL expression is not evidence that a collision shape or server-authoritative\ndamage multiplier is correct. Back up this output when retaining raw assets.\n''',encoding='utf-8')
+        (self.out/'START-HERE.md').write_text('''# WoSB Full Recovery — Research Output\n\n- `Recovery-Status.json`: progress, phase outcomes, counts and limitations.\n- `Reports/AssetLedger.jsonl`: one line per XNB with actual decode status and reason.\n- `Recovered/texture/`: decoded local game texture PNGs.\n- `Recovered/model/`: recovered real geometry OBJ and source metadata.\n- `Recovered/audio/`: decoded sound effects (WAV); `Reports/Audio-Inventory.csv` lists every sound with its cue name.\n- `Recovered/text/`: plain-text files that carry an .xnb name (credits, link tables).\n- `Decoded-Payloads/`: optional raw decompressed XNB content.\n- `Code-Recovery/ManagedMethods.jsonl`: .NET method index; IL text is optional.\n- `Catalog/`: original full English tables, preserved assets, and AI handoff (if available).\n- `Reports/ModelTextureLinks.jsonl`: candidate matches only; not verified shaders.\n\nThis tool does not execute game DLLs or query game servers. A decoded mesh or static\nIL expression is not evidence that a collision shape or server-authoritative\ndamage multiplier is correct. Back up this output when retaining raw assets.\n''',encoding='utf-8')
+
+    def audio_inventory(self):
+        """Every sound file (decoded SoundEffect XNBs and loose .ogg/.wav/.mp3/.xwb/.xsb) with its cue name."""
+        import csv
+        exts={'.ogg','.wav','.mp3','.wma','.xwb','.xsb','.xgs','.fsb','.bank','.flac'}
+        rows=[]
+        for f in self.files():
+            rel=safe_rel(f,self.game).as_posix()
+            if f.suffix.lower() in exts or ('/sounds/' in '/'+rel.casefold()+'/' and f.suffix.lower()=='.xnb'):
+                row={'path':rel,'cue':f.stem,'group':rel.split('/')[-2] if '/' in rel else '','format':f.suffix.lower().lstrip('.'),'bytes':f.stat().st_size}
+                if f.suffix.lower()=='.xnb':
+                    hit=self.db.execute('SELECT status,details FROM assets WHERE path=?',(rel,)).fetchone()
+                    if hit:
+                        d=json.loads(hit[1]);row.update({'format':'xnb/'+(d.get('codec') or 'unknown'),'decoded':hit[0],
+                            'duration_s':round((d.get('duration_ms') or 0)/1000,2) or '','channels':d.get('channels',''),'sample_rate':d.get('sample_rate','')})
+                rows.append(row)
+        if not rows:
+            self.phase('audio','completed','no sound files found');return
+        out=self.out/'Reports'/'Audio-Inventory.csv';out.parent.mkdir(parents=True,exist_ok=True)
+        cols=['group','cue','format','duration_s','channels','sample_rate','bytes','decoded','path']
+        with out.open('w',newline='',encoding='utf-8') as fh:
+            w=csv.DictWriter(fh,fieldnames=cols,extrasaction='ignore');w.writeheader();w.writerows(sorted(rows,key=lambda r:(r['group'],r['cue'])))
+        self.report['audio']={'files':len(rows),'inventory':out.relative_to(self.out).as_posix()}
+        self.phase('audio','completed',f'{len(rows)} sound files listed')
 
     def run(self):
         try:
             self.assets()
+            try:self.audio_inventory()
+            except Exception as exc:self.phase('audio','failed',str(exc))
             self.check_cancel()
             if self.catalog:
                 try:self.catalog_export()

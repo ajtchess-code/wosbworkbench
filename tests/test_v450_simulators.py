@@ -1,4 +1,5 @@
 import base64
+import importlib.util
 import json
 import re
 import shutil
@@ -143,7 +144,7 @@ class ModelPackTests(TempDir):
 
 
 class TextureDecodeTests(unittest.TestCase):
-    @unittest.skipUnless(__import__('importlib').util.find_spec('numpy'), 'numpy not installed')
+    @unittest.skipUnless(importlib.util.find_spec('numpy'), 'numpy not installed')
     def test_numpy_bc1_block(self):
         from xnb_images import decode_bc_numpy
         red, blue = (31 << 11), 31
@@ -256,3 +257,44 @@ class WikiPublishTests(TempDir):
         import wiki_publish
         self.assertEqual(wiki_publish.pages_url('https://github.com/Me/wosb-wiki.git'), 'https://me.github.io/wosb-wiki/')
         self.assertEqual(wiki_publish.pages_url('git@github.com:me/me.github.io.git'), 'https://me.github.io/')
+
+
+def _xnb(payload):
+    import struct
+    return b'XNBw' + bytes([5, 0]) + struct.pack('<I', 10 + len(payload)) + payload
+
+
+def _soundeffect_payload(samples=b'\x00\x01' * 800, rate=22050):
+    import struct
+    name = b'Microsoft.Xna.Framework.Content.SoundEffectReader'
+    fmt = struct.pack('<HHIIHH', 1, 1, rate, rate * 2, 2, 16) + b'\0\0'
+    return (bytes([1, len(name)]) + name + struct.pack('<i', 0) + bytes([0, 1]) +
+            struct.pack('<I', len(fmt)) + fmt + struct.pack('<I', len(samples)) + samples + struct.pack('<iii', 0, 800, 36))
+
+
+class AudioAndTextRecoveryTests(TempDir):
+    def test_soundeffect_to_wav(self):
+        from xnb_images import soundeffect_wav
+        wav, info = soundeffect_wav(_soundeffect_payload())
+        self.assertTrue(wav.startswith(b'RIFF') and wav[8:12] == b'WAVE')
+        self.assertEqual((info['codec'], info['channels'], info['sample_rate'], info['duration_ms']), ('pcm', 1, 22050, 36))
+        import wave, io
+        with wave.open(io.BytesIO(wav)) as w:
+            self.assertEqual((w.getframerate(), w.getnframes()), (22050, 800))
+
+    def test_full_recovery_decodes_audio_text_and_inventories(self):
+        from full_recovery import Recovery
+        game = self.tmp / 'game'; (game / 'Data' / 'Sounds' / 'ui').mkdir(parents=True)
+        (game / 'Data' / 'Sounds' / 'ui' / 'click.xnb').write_bytes(_xnb(_soundeffect_payload()))
+        (game / 'Data' / 'Sounds' / 'ui' / 'theme.ogg').write_bytes(b'OggS' + b'\0' * 60)
+        (game / 'Data' / 'authors.xnb').write_text('Developers\nArtists\nThanks to the community\n', encoding='utf-8')
+        out = self.tmp / 'out'
+        rec = Recovery(game, out, catalog=False, code=False, payloads=False)
+        rec.run()
+        ledger = [json.loads(l) for l in (out / 'Reports' / 'AssetLedger.jsonl').read_text(encoding='utf-8').splitlines()]
+        by = {r['path']: r for r in ledger}
+        self.assertEqual(by['Data/Sounds/ui/click.xnb']['status'], 'decoded')
+        self.assertTrue((out / by['Data/Sounds/ui/click.xnb']['output']).read_bytes().startswith(b'RIFF'))
+        self.assertEqual((by['Data/authors.xnb']['kind'], by['Data/authors.xnb']['status']), ('text', 'decoded'))
+        inv = (out / 'Reports' / 'Audio-Inventory.csv').read_text(encoding='utf-8')
+        self.assertIn('click', inv); self.assertIn('theme', inv); self.assertIn('xnb/pcm', inv)

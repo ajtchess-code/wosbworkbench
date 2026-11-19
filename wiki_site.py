@@ -81,7 +81,8 @@ NAV = [('Main page', 'index.html'), ('Ships', 'category/ships.html'), ('Cannons'
        ('Ammunition', 'category/ammo.html'), ('Ship upgrades', 'category/upgrades.html'), ('Crew', 'category/crew.html'),
        ('Captain skills', 'category/skills.html'), ('Resources', 'category/resources.html'), ('Ports', 'category/ports.html'),
        ('Achievements', 'category/achievements.html'), ('Ship cosmetics', 'category/cosmetics.html'),
-       ('Island decorations', 'category/decorations.html'), ('Crafting', 'category/recipes.html'), ('World map', 'map.html'),
+       ('Island decorations', 'category/decorations.html'), ('Crafting', 'category/recipes.html'), ('Missions & NPCs', 'category/missions.html'),
+       ('World map', 'map.html'),
        ('Guides & mechanics', 'category/articles.html')]
 TOOLS = [('Damage simulator', 'tools/damage-simulator.html'), ('Wind & sailing', 'tools/wind-rose.html'),
          ('Ship comparison', 'tools/compare-ships.html'), ('Hitbox viewer', 'tools/hitboxes.html'),
@@ -337,7 +338,7 @@ class SiteBuilder:
     # ---- pages
     def build_site(self):
         if self.out.exists():
-            for child in ('ship', 'cannon', 'ammo', 'upgrade', 'crew', 'skill', 'resource', 'port', 'achievement', 'cosmetic', 'decoration', 'recipe',
+            for child in ('ship', 'cannon', 'ammo', 'upgrade', 'crew', 'skill', 'resource', 'port', 'achievement', 'cosmetic', 'decoration', 'recipe', 'mission',
                           'category', 'wiki', 'tools', 'assets', 'data'):
                 shutil.rmtree(self.out / child, ignore_errors=True)
         self.out.mkdir(parents=True, exist_ok=True)
@@ -352,7 +353,7 @@ class SiteBuilder:
         self._articles_category()
         self._tools(hitboxes)
         self._main_page()
-        self._recent(); self._about(); self._world_map()
+        self._recent(); self._about(); self._world_map(); self._missions()
         (self.out / 'search.json').write_text(json.dumps(self.search, separators=(',', ':')), encoding='utf-8')
         # Also inline the index so search works when opened straight from disk (file://).
         js = (self.out / 'assets' / 'site.js').read_text(encoding='utf-8')
@@ -439,6 +440,44 @@ class SiteBuilder:
             if n:
                 out.append('<h2>Makes</h2><p>' + _e(rec.get('OutputQuantity') or 1) + ' × ' + (f'<a href="../{url}">{_e(n)}</a>' if url else _e(n)) + '</p>')
         return out
+
+    def _missions(self):
+        """PvE missions (waves of NPC ships per map) and the NPC kinds the client knows."""
+        waves = defaultdict(set)
+        for raw, in self.db.conn.execute("SELECT raw_json FROM records WHERE dataset='NPC_Mission_Waves'"):
+            r = json.loads(raw)
+            waves[(r.get('EnglishMapName') or r.get('MapKey'), r.get('MapKey'))].add((r.get('Wave') or 0, r.get('Entry') or 0, r.get('SourceType') or '', r.get('Count') or 0))
+        kinds = set()
+        for raw, in self.db.conn.execute("SELECT raw_json FROM records WHERE dataset='NPC_Types'"):
+            r = json.loads(raw)
+            if str(r.get('Type', '')).endswith('.NpcType') and r.get('Member') not in ('None',):
+                kinds.add((r.get('Value'), r.get('Member')))
+        if not waves and not kinds:
+            return
+        label = {'Pirate': 'Pirates', 'BossByName': 'Named boss', 'Trader': 'Traders', 'Reinforced': 'Reinforced pirates'}
+        rows = []
+        for (name, key), ws in sorted(waves.items(), key=lambda kv: str(kv[0][0])):
+            slug = 'mission/' + _slug(name) + '.html'
+            by_wave = defaultdict(list); acc = defaultdict(int)
+            for w, e, src, n in sorted(ws):
+                acc[(w, src)] += n
+            for (w, src), n in sorted(acc.items()):
+                by_wave[w].append((src, n))
+            body = [f'<p>A PvE mission with <b>{len(by_wave)}</b> waves of NPC ships.</p>',
+                    _table(['Wave', 'Ships'], [[str(w), ', '.join(f'{n} × {_e(label.get(src, _camel(src)))}' for src, n in grp)] for w, grp in sorted(by_wave.items())]),
+                    '<p class="note">Counts are per spawn entry in the mission definition; named bosses appear as single ships.</p>']
+            self._write(slug, _page(name, ''.join(body), depth=1, crumbs=[('Missions', '../category/missions.html')]))
+            self.search.append({'t': name, 'u': slug, 'c': 'Mission', 'k': 'mission pve npc waves'})
+            total = sum(n for grp in by_wave.values() for _, n in grp)
+            rows.append([f'<a href="../{slug}">{_e(name)}</a>', str(len(by_wave)), str(total),
+                         ', '.join(sorted({label.get(src, _camel(src)) for grp in by_wave.values() for src, _ in grp}))])
+            self.pages += 1
+        body = ['<h2>Missions</h2>', _table(['Mission', 'Waves', 'Ships', 'Enemies'], rows)]
+        if kinds:
+            body += ['<h2>NPC kinds</h2><p>The kinds of computer-controlled ships the client knows about.</p><ul class="cols">',
+                     ''.join(f'<li>{_e(_camel(m).replace("_", " "))}</li>' for _, m in sorted(kinds)), '</ul>']
+        self._write('category/missions.html', _page('Missions & NPCs', ''.join(body), depth=1))
+        self.search.append({'t': 'Missions & NPCs', 'u': 'category/missions.html', 'c': 'Category', 'k': 'npc missions pve pirates boss'})
 
     def _world_map(self):
         """World map: ports, guild forts (port battles), towers and imperial forts from the map data."""
@@ -556,6 +595,7 @@ class SiteBuilder:
                    ('Island decorations', 'category/decorations.html', f'{counts.get("decoration", 0)} decorations for personal islands.'),
                    ('Crafting', 'category/recipes.html', f'{counts.get("recipe", 0)} workshop recipes with ingredients.'),
                    ('World map', 'map.html', 'Every port, guild fort, tower and imperial fort, with port-battle layouts.'),
+                   ('Missions & NPCs', 'category/missions.html', 'PvE missions wave by wave, and the kinds of NPC ships.'),
                    ('Ship upgrades', 'category/upgrades.html', f'{counts.get("upgrade", 0)} upgrades by slot.'),
                    ('Crew', 'category/crew.html', f'{counts.get("crew", 0)} crew and boarding units.'),
                    ('Captain skills', 'category/skills.html', f'{counts.get("skill", 0)} skills.'),
