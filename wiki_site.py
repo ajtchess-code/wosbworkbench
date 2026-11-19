@@ -91,8 +91,9 @@ ENTITIES = {
         ('Mass', 'Mass', None), ('MediumCost', 'Typical price', 'int'), ('Effects', 'Effects', 'effects')],
         ['Mass', 'Typical price']),
     'port': ('WorldPorts', 'Ports', [
-        ('Type', 'Type', 'camel'), ('Flags', 'Features', 'camel'), ('BuildShipRangs', 'Shipyard ranks', None)],
-        ['Type', 'Shipyard ranks']),
+        ('Type', 'Type', 'porttype'), ('LegalFraction', 'Faction', 'faction'), ('ProducedResourceId', 'Produces', 'produce'),
+        ('BuildShipRangs', 'Shipyard builds', 'rankup'), ('PbsTeamLimitation', 'Port battle size', 'pbsize'), ('Flags', 'Features', 'portflags')],
+        ['Type', 'Faction', 'Produces', 'Shipyard builds']),
     'achievement': ('Achievements', 'Achievements', [
         ('UiCategory', 'Category', None), ('CommonRatingWeight', 'Rating weight', None)], ['Category', 'Rating weight']),
     'cosmetic': ('ShipDesingElements', 'Ship cosmetics', [
@@ -177,6 +178,22 @@ def _fmt(value, kind):
         return SLOT_NAMES.get(str(value), _camel(value))
     if kind == 'cosmetic':
         return COSMETIC_KIND.get(str(value), _camel(value))
+    if kind == 'porttype':
+        return {'City': 'City', 'Bay': 'Bay', 'NeutralBay': 'Neutral bay', 'PirateBay': 'Pirate bay'}.get(str(value), _camel(value))
+    if kind == 'faction':
+        import site_world
+        return site_world.faction_name(str(value))
+    if kind == 'produce':
+        import site_world
+        return site_world.PRODUCE.get(str(value), _camel(str(value)))
+    if kind == 'rankup':
+        return f'Rank {value} and smaller'
+    if kind == 'pbsize':
+        return f'{value} per side'
+    if kind == 'portflags':
+        names = {'StartPort': 'Starting port', 'UnitsSamurai': 'Samurai crews', 'UnitsMusketeer': 'Musketeer crews', 'UnitsFisher': 'Fisher crews',
+                 'NearIce': 'Northern ice', 'Arab': 'Arab port', 'OnlyPirateFlag': 'Pirates only', 'Stronghold': 'Stronghold', 'CaptureWithoutWindow': 'No battle window'}
+        return ', '.join(names.get(f, _camel(f)) for f in str(value).split()) or None
     if kind == 'obtain':
         return {'ByGold': 'Bought with gold', 'ByCraft': 'Crafted', 'Craft': 'Crafted', 'ByPremium': 'Premium shop'}.get(str(value), _camel(value))
     if kind == 'extra':
@@ -283,7 +300,7 @@ ul.cols{columns:3 220px;padding-left:18px}
 .wm-bar{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;margin:6px 0;font-size:13px}.wm-bar input[type=search]{padding:4px 8px;min-width:200px}
 .wm-view{position:relative;overflow:hidden;background:#6f6a5b;border-radius:8px;touch-action:none;cursor:grab;user-select:none}.wm-view:active{cursor:grabbing}
 .wm-world{position:absolute;left:0;top:0;transform-origin:0 0}.wm-img{width:100%;height:100%;display:block}
-.wm-routes{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}.wm-routes polyline{fill:none;stroke:#1f5fbf;stroke-width:1.6;stroke-opacity:.75;vector-effect:non-scaling-stroke;stroke-dasharray:5 4}
+.wm-routes{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}.wm-shallow{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;image-rendering:pixelated}.wm-routes polyline{fill:none;vector-effect:non-scaling-stroke}.wm-rline{stroke-width:var(--sw,2.4px);stroke-opacity:.85;stroke-dasharray:6 4;pointer-events:none}.wm-rhit{stroke:transparent;stroke-width:var(--hw,14px);pointer-events:stroke;cursor:pointer}.wm-routes g:hover .wm-rline{stroke-opacity:1}.wm-routes g.sel .wm-rline{stroke-width:var(--sws,4.5px);stroke-opacity:1;stroke-dasharray:none}.wm-layers{position:relative}.wm-layers summary{cursor:pointer;border:1px solid var(--border);border-radius:6px;padding:4px 10px;background:#fff;list-style:none}.wm-layers[open]>label{display:block}.wm-layers>label{display:none;white-space:nowrap}.wm-layers[open]{z-index:6}.wm-layers[open]::after{content:none}.wm-layers[open]{background:#fff;border:1px solid var(--border);border-radius:6px;padding:0 10px 6px}.wm-rtypes{display:flex;flex-wrap:wrap;gap:4px 10px}.wm-rt i,.wm-dot{display:inline-block;width:14px;height:4px;border-radius:2px;margin:0 4px 2px;vertical-align:middle}.wm-small{font-size:11px;max-width:260px}.wm-big .wm-pin span{font-size:13px}.wm-legend{font-size:12px;color:var(--muted);margin:6px 0}
 .wm-pins{position:absolute;inset:0;pointer-events:none}.wm-pin{position:absolute;transform:translate(-50%,-50%);pointer-events:auto;border:1.5px solid #fff;border-radius:50%;width:11px;height:11px;padding:0;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.5)}
 .wm-pin span{display:none;position:absolute;left:12px;top:-4px;white-space:nowrap;font:600 11px system-ui;color:#fff;text-shadow:0 1px 2px #000,0 0 3px #000}
 .wm-labels .wm-pin span{display:block}.wm-port{width:13px;height:13px}.wm-pb{background:#e0552b;width:16px;height:16px;border-color:#ffe2a8}
@@ -331,7 +348,11 @@ h1{font:400 28px/1.3 Georgia,"Linux Libertine",serif;margin:0 0 4px;border-botto
 h2{font:400 21px/1.3 Georgia,serif;border-bottom:1px solid var(--border);margin:22px 0 8px}h3{font-size:16px;margin:16px 0 6px}
 .crumbs{font-size:12px;color:var(--muted);margin-bottom:10px}
 .infobox{float:right;clear:right;width:300px;margin:0 0 14px 18px;border:1px solid var(--border);background:#f8f9fa;font-size:13px;border-collapse:collapse}
-.infobox caption{font-weight:700;font-size:15px;padding:6px;background:var(--accent);color:#fff}.infobox td.ibimg{text-align:center;background:#fff;padding:8px}.infobox td.ibimg img{max-width:100%;max-height:220px;object-fit:contain}.entry .infobox td.ibimg img{max-height:72px}img.ticon{width:28px;height:28px;object-fit:contain;vertical-align:middle;margin-right:6px}.iv{border:1px solid var(--border);border-radius:6px;background:#eef2f6;padding:10px;max-width:640px}.iv-gl{display:block;width:100%;height:340px;border:0;background:#eef2f6;touch-action:none;cursor:grab}.iv-go{background:var(--accent);color:#fff;border:0;border-radius:4px;padding:8px 14px;font:inherit;cursor:pointer}.iv-msg{display:block;color:var(--muted);margin-top:4px}
+.infobox caption{font-weight:700;font-size:15px;padding:6px;background:var(--accent);color:#fff}.infobox td.ibimg{text-align:center;background:#fff;padding:8px}.infobox td.ibimg img{max-width:100%;max-height:220px;object-fit:contain}.entry .infobox td.ibimg img{max-height:72px}img.ticon{width:28px;height:28px;object-fit:contain;vertical-align:middle;margin-right:6px}.rt{display:inline-block;border-radius:999px;padding:0 8px;font-size:12px;font-weight:600;color:#fff}.rt-main{background:#1f5fbf}.rt-supply{background:#2e8b57}.rt-coastal{background:#b8860b}.rt-central{background:#7d3c98}.rt-smuggling{background:#333}
+.portmap{margin:8px 0;max-width:560px}.portmap img{width:100%;height:auto;border:1px solid var(--border);border-radius:6px}.portmap figcaption{font-size:12px;color:var(--muted)}
+.lg{display:inline-block;width:11px;height:11px;margin:0 3px 0 8px;vertical-align:-1px;border-radius:2px}.lg-port{background:#e8c05a;border-radius:50%}.lg-tower{background:#c0392b}.lg-fort{background:#7d3c98}
+.lg-node{background:#5f6a6a}.lg-route{background:#1f5fbf;height:3px;vertical-align:3px}.lg-s2{background:#dc2828}.lg-s3{background:#f08c1e}.lg-s4{background:#ebd228}.lg-s5{background:#5ac85a}.lg-s6{background:#3c6ee6}
+.iv{border:1px solid var(--border);border-radius:6px;background:#eef2f6;padding:10px;max-width:640px}.iv-gl{display:block;width:100%;height:340px;border:0;background:#eef2f6;touch-action:none;cursor:grab}.iv-go{background:var(--accent);color:#fff;border:0;border-radius:4px;padding:8px 14px;font:inherit;cursor:pointer}.iv-msg{display:block;color:var(--muted);margin-top:4px}
 .infobox th{text-align:left;padding:4px 8px;vertical-align:top;width:45%;background:var(--head)}.infobox td{padding:4px 8px}
 table.wikitable{border-collapse:collapse;background:#f8f9fa;margin:10px 0;font-size:13px}
 .wikitable th,.wikitable td{border:1px solid var(--border);padding:4px 8px}.wikitable th{background:var(--head);cursor:pointer;white-space:nowrap}
@@ -726,6 +747,10 @@ class SiteBuilder:
                 self._write(f'assets/{name}', src.read_text(encoding='utf-8'))
         hitboxes = self._hitboxes()
         try:
+            self._prepare_world()
+        except Exception as exc:   # the map and port pages fall back to plain text
+            self.world = None; self.progress and self.progress(f'World data skipped: {exc}')
+        try:
             self._hit_data(hitboxes)
         except Exception as exc:  # keep the rest of the wiki building
             self._hd = None; self.progress and self.progress(f'Hit analysis data skipped: {exc}')
@@ -748,7 +773,7 @@ class SiteBuilder:
                     'articles': len(self.articles), 'ships_with_hitboxes': len(hitboxes), 'build': self.build, 'models': (getattr(self, 'pack_info', {}) or {}).get('models', 0)}
         # fold thin entity pages into their category, and point merged guides at their new page
         import site_compact, site_host, site_seo
-        moved = site_compact.compact(self.out, {**CATEGORY_FILE, 'mission': 'missions'}, plural={**{k: v[1] for k, v in ENTITIES.items()}, 'mission': 'Missions'})
+        moved = site_compact.compact(self.out, {**CATEGORY_FILE, 'mission': 'missions'}, keep_kinds=('ship', 'cannon', 'port'), plural={**{k: v[1] for k, v in ENTITIES.items()}, 'mission': 'Missions'})
         amoves = {o.lstrip('/'): n.lstrip('/') for o, n in self.redirects}
         if amoves:
             site_compact._rewrite(self.out, amoves)
@@ -757,7 +782,8 @@ class SiteBuilder:
             it['u'] = moves.get(it['u'], it['u'])
         manifest['folded'] = moved['folded']; manifest['merged_guides'] = len(amoves)
         self._sitemap_page()
-        import site_titlecase
+        import site_titlecase, site_wording
+        manifest['reworded'] = site_wording.apply(self.out)
         manifest['titlecased'] = site_titlecase.apply(self.out)
         manifest['seo'] = site_seo.finalize(self.out, site_url=self.site_url, site_name=SITE_NAME, ad_client=HOSTING.get('ad_client') or '',
                                             inject_ads=bool(HOSTING.get('standalone')), gtm_id=HOSTING.get('gtm_id') or '')
@@ -831,7 +857,7 @@ class SiteBuilder:
         desc = (rec.get('EnglishDescription') or '').replace('#', '')
         if desc:
             body.append(f'<p>{_e(desc)}</p>')
-        else:
+        elif kind != 'port':           # port pages open with their own description
             body.append(f'<p><b>{_e(title)}</b> is {"an" if plural[0] in "AEIOU" else "a"} {_e(plural[:-1].lower() if plural.endswith("s") else plural.lower())} in World of Sea Battle.</p>')
         if kind == 'ship':
             body += self._ship_sections(rec, hitboxes)
@@ -892,16 +918,153 @@ class SiteBuilder:
                   'NeutralBay': 'a neutral bay: open to every nation, a safe place to trade and repair',
                   'PirateBay': 'a pirate bay: a haven for pirates, where wanted captains can still trade and repair'}
 
+    def _prepare_world(self):
+        """World positions, shallow waters and trade routes (site_world), plus the map image, for the map and port pages."""
+        import battle_sim, site_world
+        self.world = None; self.shallows = None; self._map_src = None
+        roots = list(battle_sim.texture_roots(self.recovery_dir, self.game_roots))
+        roots += [d / 'Images' / 'LooseFiles' / 'Data' / 'Textures' for d in self._catalog_dirs()]
+        for root in roots:
+            if (root / 'map.png').is_file():
+                self._map_src = root / 'map.png'; break
+        self.shallows = site_world.find_shallows(roots)
+        w = site_world.load(self.db, self.build, self.shallows)
+        self.world = w if w['ports'] else None
+
+    @classmethod
+    def _world_uv(cls, u, v):
+        su, ou, sv, ov = cls.MAP_FIT
+        return (ov - v) * sv, (u - ou) * su          # (x, y) in world units
+
+    def _port_map(self, port, *, radius=1700, size=560):
+        """A picture of the waters around a port: the game map, shallow-water tint, towers, forts, nodes and routes."""
+        if not self._map_src:
+            return None
+        from PIL import Image, ImageDraw
+        import site_world
+        Image.MAX_IMAGE_PIXELS = None
+        if not hasattr(self, '_map_im'):
+            self._map_im = Image.open(self._map_src).convert('RGB')
+        im = self._map_im; W, H = im.size
+        def px(x, y):
+            u, v = self._uv(x, y); return u * W, v * H
+        cx, cy = px(port['x'], port['y']); rx = abs(px(port['x'], port['y'] + radius)[0] - cx)
+        box = (int(cx - rx), int(cy - rx), int(cx + rx), int(cy + rx))
+        crop = im.crop(box).resize((size, size), Image.LANCZOS).convert('RGBA')
+        k = size / (box[2] - box[0])
+        to = lambda x, y: ((px(x, y)[0] - box[0]) * k, (px(x, y)[1] - box[1]) * k)
+        if self.shallows:
+            tint = Image.new('RGBA', (size // 4, size // 4), (0, 0, 0, 0)); tp = tint.load(); n = size // 4
+            for j in range(n):
+                for i in range(n):
+                    u = (box[0] + (i + 0.5) * 4 / k) / W; v = (box[1] + (j + 0.5) * 4 / k) / H
+                    val = self.shallows.get(*self._world_uv(u, v))
+                    if val in site_world.SHALLOW_TINT:
+                        tp[i, j] = site_world.SHALLOW_TINT[val] + (90,)
+            crop = Image.alpha_composite(crop, tint.resize((size, size), Image.NEAREST))
+        d = ImageDraw.Draw(crop)
+        w = self.world
+        for r in w['routes']:
+            pts = [to(x, y) for x, y in r['pts']]
+            for a_, b_ in zip(pts, pts[1:]):
+                d.line([a_, b_], fill=(31, 95, 191, 220), width=3)
+        for n_ in site_world.near(w['nodes'], port['x'], port['y'], radius * 1.5):
+            x, y = to(n_['x'], n_['y']); d.rectangle([x - 5, y - 5, x + 5, y + 5], fill=(95, 106, 106), outline='white')
+        for t in site_world.near(w['towers'], port['x'], port['y'], radius * 1.5):
+            x, y = to(t['x'], t['y']); d.polygon([(x, y - 7), (x - 6, y + 5), (x + 6, y + 5)], fill=(192, 57, 43), outline='white')
+        for f in site_world.near(w['forts'], port['x'], port['y'], radius * 1.5):
+            x, y = to(f['x'], f['y']); d.rectangle([x - 7, y - 7, x + 7, y + 7], fill=(125, 60, 152), outline='white')
+        for o in site_world.near(w['ports'], port['x'], port['y'], radius * 1.5):
+            x, y = to(o['x'], o['y']); big = o is port
+            d.ellipse([x - (11 if big else 7), y - (11 if big else 7), x + (11 if big else 7), y + (11 if big else 7)],
+                      fill=(232, 192, 90) if big else (90, 169, 232), outline='white', width=3 if big else 2)
+            d.text((x + 12, y - 8), o['n'], fill='white', stroke_width=3, stroke_fill='black')
+        rel = f'assets/ports/{_slug(port["n"])}.webp'
+        dst = self.out / rel; dst.parent.mkdir(parents=True, exist_ok=True)
+        crop.convert('RGB').save(dst, 'WEBP', quality=82, method=4)
+        return rel
+
+    PORT_TYPES = {'City': 'a city port, with a shipyard, market, workshops and quests, that guilds fight over in port battles',
+                  'Bay': 'a bay that guilds can capture and hold in port battles',
+                  'NeutralBay': 'a neutral bay that no guild can capture, with a market and services open to everyone',
+                  'PirateBay': 'a pirate bay, home to the pirates of the Archipelago'}
+
+    def _port_world(self, title):
+        w = getattr(self, 'world', None)
+        if not w:
+            return None
+        return next((p for p in w['ports'] if p['n'].casefold() == title.casefold()), None)
+
     def _port_sections(self, rec):
+        import site_world
+        title = rec['_title']; port = self._port_world(title)
         t = self.PORT_TYPES.get(str(rec.get('Type') or ''), 'a port')
-        out = [f'<h2>About the port</h2><p>{_e(rec["_title"])} is {_e(t)}.']
-        if rec.get('BuildShipRangs'):
-            out[0] += f' Its shipyard builds ships up to rate {_e(rec["BuildShipRangs"])}.'
-        if rec.get('Flags'):
-            out[0] += ' Port features: ' + _e(_camel(str(rec['Flags'])).replace(',', ', ')) + '.'
-        out[0] += '</p>'
-        out.append(f'<p><a href="../map.html?port={_e(rec["_title"])}">Show {_e(rec["_title"])} on the world map</a>, with the trade routes, nearby port-battle sites, '
-                   'towers and resource nodes around it.</p>')
+        out = [f'<p><b>{_e(title)}</b> is {_e(t)}.</p>']
+        if not port:
+            out.append(f'<p><a href="../map.html?port={_e(title)}">Show {_e(title)} on the world map</a>.</p>')
+            return out
+        w = self.world
+        facts = []
+        if port['faction']:
+            facts.append(f'<b>Faction:</b> a {_e(port["faction"])} port.')
+        if port['produces']:
+            res_url = self.urls.get(('resource', port['produces'].casefold()))
+            name = f'<a href="../{res_url}">{_e(port["produces"])}</a>' if res_url else _e(port['produces'])
+            facts.append(f'<b>Produces:</b> {name}.' + (' Main trade routes from here carry it.' if any(r['type'] == 'Main' and title in (r['from'], r['to']) for r in w['routes']) else ''))
+        if port['ranks']:
+            facts.append(f'<b>Shipyard:</b> builds rank {port["ranks"]} and smaller ships.')
+        if self.shallows:
+            v = self.shallows.around(port['x'], port['y'], 220)
+            facts.append(f'<b>Waters:</b> the approaches allow {_e(site_world.rank_text(v))}.')
+        if port['pb_limit']:
+            facts.append(f'<b>Port battles:</b> up to {_e(port["pb_limit"])} players per side.')
+        if port['fixed_level']:
+            facts.append(f'<b>Port level:</b> always level {port["fixed_level"]}.')
+        for f in port['flags']:
+            if f in site_world.FLAG_TEXT:
+                facts.append(_e(site_world.FLAG_TEXT[f]))
+        out.append('<h2>At a Glance</h2><ul>' + ''.join(f'<li>{x}</li>' for x in facts) + '</ul>')
+        img = self._port_map(port)
+        if img:
+            out.append(f'<h2>Map</h2><figure class="portmap"><a href="../map.html?port={_e(title)}"><img src="../{img}" alt="Map of the waters around {_e(title)}" loading="lazy" width="560" height="560"></a>'
+                       '<figcaption><span class="lg lg-port"></span>Port <span class="lg lg-tower"></span>Tower <span class="lg lg-fort"></span>Imperial fort '
+                       '<span class="lg lg-node"></span>Resource node <span class="lg lg-route"></span>Trade route'
+                       + (' · tinted water: <span class="lg lg-s2"></span>rank 2+ <span class="lg lg-s3"></span>3+ <span class="lg lg-s4"></span>4+ '
+                          '<span class="lg lg-s5"></span>5+ <span class="lg lg-s6"></span>6+ ships only' if self.shallows else '') +
+                       f'. <a href="../map.html?port={_e(title)}">Open on the world map</a>.</figcaption></figure>')
+        towers = site_world.near(w['towers'], port['x'], port['y'], 1500)
+        forts = site_world.near(w['forts'], port['x'], port['y'], 2500)
+        if towers or forts:
+            from collections import Counter
+            c = Counter(t_['n'] for t_ in towers)
+            out.append('<h2>Defences</h2><p>' + (', '.join(f'{n} {k.lower()}{"s" if n > 1 else ""}' for k, n in c.most_common()) + ' guard the waters near the port.' if towers else '')
+                       + (f' {len(forts)} imperial fort{"s" if len(forts) > 1 else ""} nearby.' if forts else '')
+                       + ' See <a href="../tools/defenses.html">towers, forts &amp; mortars</a> for their damage and range.</p>')
+        mine = [r for r in w['routes'] if title in (r['from'], r['to'])]
+        if mine:
+            rows = []
+            for r in sorted(mine, key=lambda r: (r['type'], r['length'])):
+                other = r['to'] if r['from'] == title else r['from']
+                cargo = 'changes' if r['cargo'] == ['varies'] else ', '.join(r['cargo']) or '—'
+                rows.append([_e(r['type']), _e(other if other != title else '(round trip)'), _e(cargo), f'{r["length"]:,}',
+                             _e(site_world.rank_text(r['shallow'])) if r['shallow'] is not None else '',
+                             f'<a href="../map.html?route={r["id"]}">map</a>'])
+            heads = ['Type', 'Other end', 'Cargo', 'Length', 'Ships that fit', '']
+            if not self.shallows:
+                heads.pop(4); rows = [r_[:4] + r_[5:] for r_ in rows]
+            out.append('<h2>Trade Routes</h2><p>NPC merchant routes that start or end here. Main routes carry the ports\' produce; '
+                       'supply routes carry what a resource node makes.</p>' + _table(heads, rows))
+        nodes = site_world.near(w['nodes'], port['x'], port['y'], 2200)
+        if nodes:
+            from collections import Counter
+            c = Counter(f'{n_["n"]} ({n_["res"]})' for n_ in nodes)
+            out.append('<h2>Resources Nearby</h2><ul>' + ''.join(f'<li>{_e(k)}' + (f' ×{n}' if n > 1 else '') + '</li>' for k, n in sorted(c.items())) + '</ul>')
+        import math
+        nb = sorted((o for o in w['ports'] if o is not port), key=lambda o: math.hypot(o['x'] - port['x'], o['y'] - port['y']))[:4]
+        if nb:
+            out.append('<h2>Neighbouring Ports</h2><ul>' + ''.join(
+                f'<li><a href="../{self.urls.get(("port", o["n"].casefold()), "map.html")}">{_e(o["n"])}</a> · {math.hypot(o["x"] - port["x"], o["y"] - port["y"]):,.0f} away'
+                + (f' · {_e(o["faction"])}' if o['faction'] else '') + '</li>' for o in nb) + '</ul>')
         return out
 
     def _resource_sections(self, rec):
@@ -990,7 +1153,7 @@ class SiteBuilder:
             self.pages += 1
         body = ['<h2>Missions</h2>', _table(['Mission', 'Waves', 'Ships', 'Enemies'], rows)]
         if kinds:
-            body += ['<h2>NPC kinds</h2><p>The kinds of computer-controlled ships the client knows about.</p><ul class="cols">',
+            body += ['<h2>NPC kinds</h2><p>The kinds of computer-controlled ships in the game.</p><ul class="cols">',
                      ''.join(f'<li>{_e(_camel(m).replace("_", " "))}</li>' for _, m in sorted(kinds)), '</ul>']
         self._write('category/missions.html', _page('Missions & NPCs', ''.join(body), depth=1))
         self.search.append({'t': 'Missions & NPCs', 'u': 'category/missions.html', 'c': 'Category', 'k': 'npc missions pve pirates boss'})
@@ -1005,73 +1168,77 @@ class SiteBuilder:
         return round(z / su + ou, 5), round(ov - x / sv, 5)
 
     def _world_map(self):
-        """Interactive world map: the game's map texture with ports, port-battle sites, forts, villages, mines and trade routes."""
-        import battle_sim
+        """Interactive world map: the game's map with ports, port-battle sites, forts, towers, trading posts, resource nodes,
+        trade routes (typed, with cargo) and the shallow waters that limit ship size."""
+        import battle_sim, site_world
+        w = getattr(self, 'world', None)
+        if not w:
+            self._write('map.html', _page('World map', '<p class="note">No map data in this build.</p>')); return
         try:
-            rows = [r for r in battle_sim._records(self.db, 'Map_Objects', self.build) if r.get('SceneName') == 'World']
             sites = battle_sim.port_battles(self.db, models_root=self.recovery_dir, build=self.build)
         except Exception:
-            rows, sites = [], []
-        if not rows:
-            self._write('map.html', _page('World map', '<p class="note">No map data in this build.</p>')); return
-        wports = {}
-        for raw, in self.db.conn.execute("SELECT raw_json FROM records WHERE dataset='WorldPorts' ORDER BY CASE source_root WHEN ? THEN 0 ELSE 1 END", (self.build,)):
-            d = json.loads(raw); wports.setdefault(d.get('PortName'), d)
+            sites = []
         uv = self._uv
-        def pt(r, **kw):
-            u, v = uv(r['Position0'], r['Position1'])
-            return dict(u=u, v=v, **kw)
-        ports, villages, mines, altars, forts, towers = [], [], [], [], [], []
-        for r in rows:
-            path = r.get('Path', ''); model = path.split('\\')[-1]; params = str(r.get('Parameters') or '').replace(',', ' ').split()
-            name = next((t for t in params if t in wports), None)
-            if path.startswith('ports\\') and name:
-                d = wports[name]; n = d.get('EnglishName') or d.get('PortNameEnglish') or name
-                ports.append(pt(r, n=n, type=d.get('Type') or '', ranks=d.get('BuildShipRangs'), flags=_camel(d.get('Flags') or '').replace(',', ' ·'),
-                                url=self.urls.get(('port', n.casefold()))))
-            elif path.startswith('ports\\'):
-                kind = 'Lighthouse' if 'pharos' in model else 'Fishing village' if 'fishing' in model else 'Trading village' if 'village' in model else _camel(model)
-                villages.append(pt(r, n=kind))
-            elif 'worldfort' in path:
-                forts.append(pt(r, n=model))
-            elif 'special\\towers\\t_' in path:
-                towers.append(pt(r, n={'t_mortar': 'Mortar tower', 't_fire': 'Prometheus tower'}.get(re.sub(r'\d+$', '', model), 'Cannon tower')))
-            elif path.startswith('buildings\\factory'):
-                mines.append(pt(r, n=_camel(model.replace('factory_', '')).title() + ' node'))
-            elif path.startswith('buildings\\altar'):
-                altars.append(pt(r, n='Altar'))
-        def nearest(x, z):
-            best = min(ports, key=lambda p: (p['u'] - x) ** 2 + (p['v'] - z) ** 2, default=None)
+        def pt(o, **kw):
+            u, v = uv(o['x'], o['y']); return dict(u=u, v=v, **kw)
+        def nearest(u, v):
+            best = min(w['ports'], key=lambda p: (uv(p['x'], p['y'])[0] - u) ** 2 + (uv(p['x'], p['y'])[1] - v) ** 2, default=None)
             return best['n'] if best else ''
+        ports = []
+        for p_ in w['ports']:
+            info = [x for x in (site_world.TYPE_TEXT.get(p_['type'], p_['type']), (p_['faction'] + ' port') if p_['faction'] else '',
+                                ('Produces ' + p_['produces']) if p_['produces'] else '', f'shipyard: rank {p_["ranks"]}+' if p_['ranks'] else '') if x]
+            if self.shallows:
+                info.append('waters: ' + site_world.rank_text(self.shallows.around(p_['x'], p_['y'], 220)))
+            ports.append(pt(p_, n=p_['n'], type=p_['type'], info=' · '.join(info), url=self.urls.get(('port', p_['n'].casefold()))))
         pb = []
         for s_ in sites:
             u, v = uv(s_['x'], s_['z'])
             pb.append({'id': s_['id'], 'u': u, 'v': v, 'towers': s_['towers'], 'n': nearest(u, v)})
         routes = []
-        for raw, in self.db.conn.execute("SELECT raw_json FROM records WHERE dataset='TradingRoutesInfo' AND source_root=?", (self.build,)):
-            try:
-                routes.append([list(uv(*map(float, p.split()))) for p in json.loads(raw).get('Value') or []])
-            except (ValueError, TypeError):
-                continue
+        for r in w['routes']:
+            routes.append({'id': r['id'], 'type': r['type'], 'from': r['from'], 'to': r['to'], 'cargo': r['cargo'], 'len': r['length'], 'loop': r['loop'],
+                           'ships': site_world.rank_text(r['shallow']) if r['shallow'] is not None else '',
+                           'pts': [list(uv(x, y)) for x, y in r['pts']]})
         image, aspect = self._map_image()
-        data = {'image': image, 'aspect': aspect, 'ports': ports, 'pb': pb, 'towers': towers, 'forts': forts, 'villages': villages,
-                'mines': mines, 'altars': altars, 'routes': [r for r in routes if len(r) > 1],
-                'note': (f'{len(ports)} named ports, {len(pb)} port-battle sites with {len(towers)} towers, {len(forts)} imperial forts, {len(villages)} villages and lighthouses, '
-                         f'{len(mines)} resource nodes and {len(routes)} trade routes, placed from the game client\'s world data on the game\'s own map.')}
+        shallow_img = ''
+        if self.shallows:
+            try:
+                ov = site_world.shallows_overlay(self.shallows, (900, int(900 / aspect)), self._world_uv)
+                dst = self.out / 'assets' / 'map' / 'shallows.webp'; dst.parent.mkdir(parents=True, exist_ok=True)
+                ov.save(dst, 'WEBP', quality=80, method=4); shallow_img = 'assets/map/shallows.webp'
+            except Exception:
+                shallow_img = ''
+        data = {'image': image, 'aspect': aspect, 'shallows': shallow_img, 'ports': ports, 'pb': pb,
+                'towers': [pt(t, n=t['n']) for t in w['towers']], 'forts': [pt(f, n=f['n']) for f in w['forts']],
+                'villages': [pt(v_, n=v_['n']) for v_ in w['posts'] + w['lights']],
+                'mines': [pt(m, n=f'{m["n"]} · {m["res"]}') for m in w['nodes']], 'altars': [pt(a_, n='Altar') for a_ in w['altars']],
+                'routes': routes, 'route_text': site_world.ROUTE_TEXT}
         self._write('assets/world-map.js', 'window.WORLD_MAP=' + json.dumps(data, separators=(',', ':')) + ';\n' +
                     (Path(__file__).resolve().parent / 'viewer' / 'world_map.js').read_text(encoding='utf-8'))
+        from collections import Counter
+        kinds = Counter(r['type'] for r in routes)
+        rrows = [[f'<span class="rt rt-{_e(r["type"].lower())}">{_e(r["type"])}</span>', _e(r['from']), _e(r['to'] if r['to'] != r['from'] else '(round trip)'),
+                  _e('changes' if r['cargo'] == ['varies'] else ', '.join(r['cargo']) or '—'), f'{r["len"]:,}', _e(r['ships']),
+                  f'<a href="map.html?route={r["id"]}">show</a>'] for r in sorted(routes, key=lambda r: (r['type'], r['from'], r['to']))]
         table = _table(['Port battle', 'Towers', 'Simulate'],
                        [[_e(s_['n'] or f'Site {s_["id"] + 1}'), str(s_['towers']),
                          f'<a href="tools/battle-simulator.html?preset=pbfleet&amp;site={s_["id"]}">port battle</a> · '
                          f'<a href="tools/battle-simulator.html?preset=port&amp;site={s_["id"]}">towers only</a> · '
                          f'<a href="map.html?port={_e(s_["n"])}">on the map</a>'] for s_ in sorted(pb, key=lambda x: x['n'])])
-        body = ('<p>Drag to move, scroll or pinch to zoom, double-click to zoom in. Click a marker for details. Port names appear as you zoom in.</p>'
+        body = ('<p>Drag to move, scroll or pinch to zoom, double-click to zoom in. Click a port, marker or trade route for details. Port names appear as you zoom in. '
+                + ('Turn on <b>Shallow waters</b> to see where large ships can\'t sail.' if shallow_img else '') + '</p>'
                 '<div id="wmap"></div><script src="assets/world-map.js"></script><script>WorldMap.mount(document.getElementById("wmap"),window.WORLD_MAP)</script>'
-                '<h2>Port-battle sites</h2>' + table)
+                + (('<h2>Shallow Waters</h2><p>Some waters are too shallow for big ships. On the map, tinted water shows the largest ship allowed: '
+                    '<span class="lg lg-s2"></span>rank 2 and smaller, <span class="lg lg-s3"></span>rank 3 and smaller, <span class="lg lg-s4"></span>rank 4 and smaller, '
+                    '<span class="lg lg-s5"></span>rank 5 and smaller, <span class="lg lg-s6"></span>rank 6 and smaller. Rank 1 is the largest class. '
+                    'Sailing a bigger ship into these waters is blocked in game.</p>') if shallow_img else '')
+                + '<h2>Trade Routes</h2><p>NPC merchants sail these routes. ' + ' '.join(_e(site_world.ROUTE_TEXT[k]) for k in ('Main', 'Supply', 'Coastal', 'Central', 'Smuggling') if kinds.get(k)) + '</p>'
+                + '<p>' + ' · '.join(f'{kinds[k]} {k.lower()}' for k in ('Main', 'Supply', 'Coastal', 'Central', 'Smuggling') if kinds.get(k)) + ' routes.</p>'
+                + _table(['Type', 'From', 'To', 'Cargo', 'Length', 'Ships that fit', ''], rrows)
+                + '<h2>Port-Battle Sites</h2>' + table)
         self._write('map.html', _page('World map', body))
-        self.search.append({'t': 'World map', 'u': 'map.html', 'c': 'Map', 'k': 'map ports forts towers port battle trade routes'})
-        for p_ in ports:
-            self.search.append({'t': p_['n'], 'u': 'map.html?port=' + p_['n'], 'c': 'Map', 'k': 'port map ' + p_['type']})
+        self.search.append({'t': 'World map', 'u': 'map.html', 'c': 'Map', 'k': 'map ports forts towers port battle trade routes shallow waters'})
 
     def _map_image(self):
         """assets/map/world.webp from the game's map texture; a plain sea when the texture wasn't recovered."""
@@ -1280,7 +1447,7 @@ class SiteBuilder:
         classes = sorted({_fmt(r.get('Type'), 'camel') or 'Other' for r in self.entities.get('ship', [])})
         # --- notice + quick navigation (the wiki's "front desk")
         built = datetime.now(timezone.utc).strftime('%B %d, %Y').replace(' 0', ' ')
-        notice = (f'<div class="mp-notice"><b>{_e(SITE_NAME)}</b>: every number comes straight from the game client. '
+        notice = (f'<div class="mp-notice"><b>{_e(SITE_NAME)}</b>: every number comes straight from the game. '
                   f'<span>Data updated {built}.</span> Spotted a mistake? '
                   + '<a href="about.html#contact" data-report="general">Tell us</a>.' + '</div>')
         quick = ('<div class="mp-quick"><p class="mp-quick-main">' + links([('New player guide', art_url('ships-guns-and-consumables')), ('Shipyard', 'category/ships.html'),
@@ -1366,10 +1533,10 @@ class SiteBuilder:
 
     def _about(self):
         body = ('<p>The WoSB Wiki is a free community reference for World of Sea Battle, run by the Band of Misfits guild. Ship, gun, ammo, upgrade, crew, '
-                'port and cosmetic data is read from the game client and refreshed when the game updates, so numbers match what the game itself uses.</p>'
-                '<h2>Where the facts come from</h2><ul><li><b>Game data</b>: the client\'s own tables (stats, prices, recipes, map positions).</li>'
-                '<li><b>Mechanics</b>: the client\'s rules for hit zones, fires, sailing, boarding and port battles, explained in plain words.</li>'
-                '<li><b>Server-side values</b> (exact cannonball damage, fire chances) are not in the client; pages mark them as measured or estimated, and the tools let players measure them.</li></ul>'
+                'port and cosmetic data is taken from the game and refreshed when the game updates, so numbers match what the game itself uses.</p>'
+                '<h2>Where the facts come from</h2><ul><li><b>Game data</b>: the game\'s own tables (stats, prices, recipes, map positions).</li>'
+                '<li><b>Mechanics</b>: the game\'s rules for hit zones, fires, sailing, boarding and port battles, explained in plain words.</li>'
+                '<li><b>Server-side values</b> (exact cannonball damage, fire chances) are decided on the game\'s servers; pages mark them as estimates.</li></ul>'
                 '<h2>Models and artwork</h2><p>Ship models, textures and map art shown in the 3D viewer, simulators and shipyard come from World of Sea Battle and belong to '
                 'Thera Interactive. They are shown for reference on this non-profit community site and are not offered for download; see the <a href="disclaimer.html">copyright disclaimer</a>.</p>'
                 '<h2 id="contact">Contact</h2><p>Found a mistake or want to help? Use <a href="#contact" data-report="general">Tell us</a>, or the '
@@ -1419,7 +1586,7 @@ class SiteBuilder:
                    'Drag to rotate, scroll to zoom.</p>' + (f'<div class="tool"><label>Ship <select id="hbship">{options}</select></label></div>'
                    '<canvas id="hbcanvas" class="hitbox" width="900" height="480"></canvas>'
                    f'<script>window.HITBOXES={payload};</script><script src="../assets/hitboxes.js"></script>'
-                   if hb_ships else '<p class="note">No hit zones in this build yet. In WoSB Workbench run <b>Datamining → Rebuild ship hitboxes</b>, then rebuild the site.</p>'))
+                   if hb_ships else '<p class="note">Hit zones for the ships aren\'t available yet. Check back after the next wiki update.</p>'))
         self._write('tools/hitboxes.html', _page('Hitbox viewer', hb_body, depth=1, crumbs=crumbs, tab='Tool'))
         self._write('assets/wosb_sim.js', (Path(__file__).resolve().parent / 'viewer' / 'wosb_sim.js').read_text(encoding='utf-8'))
         if getattr(self, '_hd', None):
@@ -1486,8 +1653,8 @@ class SiteBuilder:
                 '<li>Each destroyed tower adds <b>10 minutes</b> to the battle (up to 90). Ships respawn instantly from the team\'s respawn pool.</li></ul>'
                 '<p>See also <a href="../guide/port-battle-rules.html">Port battle rules</a> and the <a href="battle-simulator.html?preset=pbfleet">port battle simulator</a>.</p>')
         self._write('tools/defenses.html', _page('Towers, forts & mortars', body, depth=1, crumbs=crumbs, tab='Tool'))
-        body = ('<p>How minor fires turn into a large fire on your ship, and what changes the odds. Rules are read from the game client; the ignition chance per hit is '
-                'rolled by the server, so it has to be measured.</p><img class="infographic" src="../assets/fire-infographic.png" alt="Fire mechanics infographic" loading="lazy">'
+        body = ('<p>How minor fires turn into a large fire on your ship, and what changes the odds. These are the game\'s own rules; the chance per hit to start a fire is '
+                'decided on the game\'s servers, so it is an estimate you can adjust.</p><img class="infographic" src="../assets/fire-infographic.png" alt="Fire mechanics infographic" loading="lazy">'
                 '<div id="ft"></div>' + scripts('fire_tool.js') + '<script>FireTool.mount(document.getElementById("ft"))</script>'
                 '<p>Full explanation: <a href="../wiki/large-and-minor-fires.html">Large and minor fires</a>.</p>')
         self._write('tools/fire-calculator.html', _page('Fire calculator', body, depth=1, crumbs=crumbs, tab='Tool'))
@@ -1867,7 +2034,7 @@ class _Overviews:
         t1 = ''.join(f'<tr><td>Rank {r}+</td>' + ''.join(f'<td>{rnd(t * base[r][0]):,} / {rnd(t * base[r][1]):,}</td>' for _, t in teams) + '</tr>' for r in sorted(base))
         cost = lambda r, cls: ({5: 3, 4: 4, 3: 5, 2: 6, 1: 7}.get(r, 2) + ((1 if r >= 4 else 2) if cls == 'Hardship' else 0) + (1 if cls == 'Battleship' else 0))
         t3 = ''.join(f'<tr><td>Rank {r}</td>' + ''.join(f'<td>{cost(r, c)}</td>' for c in ('CargoShip', 'Destroyer', 'Battleship', 'Hardship')) + '</tr>' for r in range(1, 8))
-        return ('<div class="keyfacts">These are the client\'s port-battle rules. See them play out in the '
+        return ('<div class="keyfacts">These are the game\'s port-battle rules. See them play out in the '
                 '<a href="../tools/battle-simulator.html?preset=pbfleet">battle simulator</a>, or pick a site on the <a href="../map.html">world map</a>.</div>'
                 '<h2>Tower and fort HP (city level 1)</h2><p>Tower / fort strength by the shallows rank limit and the team limit.</p>'
                 '<table class="wikitable"><tr><th>Ships allowed</th>' + ''.join(f'<th>{n} v {n}</th>' for n, _ in teams) + '</tr>' + t1 + '</table>'

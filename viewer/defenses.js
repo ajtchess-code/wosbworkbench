@@ -55,7 +55,7 @@ function mount(el){const D=window.HIT_DATA;if(!D||!D.towers){el.innerHTML='<p cl
  <h2>Mortars and the keg launcher</h2><p class="ha-note">Mortars can't hit anything closer than their minimum range (grey). Damage falls off with distance from the burst: full at the centre, about 10% at the edge of the splash.</p>
  <div class="ha-grid"><canvas class="df-mr" width="620" height="${30+(mortars.length+1)*26}"></canvas><canvas class="df-fo" width="380" height="240"></canvas></div>
  <div class="ha-controls"><label>Against <select data-k="mship">${opt(ships,defShip)}</select></label></div><table class="wikitable df-mt"></table>
- <p class="ha-note">Tower weapons, ranges, capture times and building strength are from the client's port-battle tables (WosbPbs). Ship-vs-building damage uses cast-iron shot against tower armor ${pb.tower_armor} (an estimate).</p></div>`;
+ <p class="ha-note">Tower weapons, ranges, capture times and building strength are from the game's port-battle tables. Ship-vs-building damage uses cast-iron shot against tower armor ${pb.tower_armor} (an estimate).</p></div>`;
  const st={tower:0,ship:defShip,gun:defGun,dist:120,level:1,ships:5,mship:defShip,pb};const q=k=>el.querySelector(`[data-k="${k}"]`);
  function render(){const tw=D.towers[st.tower],ship=D.ships.find(s=>s.n===st.ship),gun=D.cannons.find(c=>c.n===st.gun);el.querySelector('.dv').textContent=st.dist;
   rangeView(el.querySelector('.df-range'),{tw,ship,dist:st.dist,gun,pb});

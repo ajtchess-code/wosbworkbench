@@ -96,7 +96,7 @@ def terms(h):
         f'<p>By using the {_e(site)} you agree to these terms. If you do not agree, please do not use the site.</p>'
         '<h2 id="what">What the site is</h2>'
         f'<p>The {_e(site)} is a free, unofficial, non-profit fan reference for {GAME}. Information is provided "as is", for personal and educational use. '
-        'Game data is read from the public game client and can change with any game update; some values (for example damage rolls and fire chances) are decided by the game '
+        'Game data is taken from the game and can change with any game update; some values (for example damage rolls and fire chances) are decided by the game '
         'server and are estimates. We work to keep things accurate but make no guarantee that anything on the site is complete, current or error-free.</p>'
         '<h2 id="use">Acceptable use</h2><p>You may read, link to and share pages, and quote reasonable short extracts with a link back to the page. You may not:</p><ul>'
         '<li>copy, mirror, re-host or republish the site, its pages, data files, tools or 3D model packs, in whole or in substantial part;</li>'
@@ -137,7 +137,7 @@ def disclaimer(h):
         f'<p>The written guides and explanations, page layouts, interactive tools and simulators, diagrams and the WoSB Wiki logo were made by the {_e(site)} and Band of Misfits '
         'contributors and are © their authors. See the <a href="terms.html">terms of use</a> for how they may be used.</p>'
         '<h2 id="accuracy">Accuracy</h2>'
-        '<p>Values come from the game client and from player measurements, and can change with any game update. Nothing on this site is official game information.</p>'
+        '<p>Values come from the game and from player observations, and can change with any game update. Nothing on this site is official game information.</p>'
         '<h2 id="takedown">Rights holders</h2>'
         f'<p>If you represent {OWNER} or another rights holder and want any material changed or removed, ' + _contact(h) +
         '. We will respond promptly and remove material on request.</p>')

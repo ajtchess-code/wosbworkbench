@@ -28,11 +28,11 @@ function mount(el){const D=window.HIT_DATA||{ships:[]};const ships=D.ships.filte
  <h2>Under fire</h2><div class="ha-controls"><label>Enemy hits per broadside <input type="number" value="12" min="1" max="60" data-k="hits" style="width:60px"></label>
   <label>Broadsides per minute (all enemies) <input type="number" value="4" min="0.5" step="0.5" data-k="rate" style="width:60px"></label>
   <label>Ignition chance per hit % <input type="number" value="10" min="0" max="100" step="0.5" data-k="p" style="width:60px"></label></div>
- <p class="ha-note">The ignition chance is rolled on the server and isn't in the client. 10% is a placeholder: measure your own below and enter it here.</p><div class="fire-out"></div>
+ <p class="ha-note">The chance per hit is decided on the game's servers. 10% is a starting estimate: count your own below and enter it here.</p><div class="fire-out"></div>
  <h2>Large fire strength</h2><div class="ha-controls"><label>Fight it every <input type="number" value="2" min="0" step="0.5" data-k="every" style="width:60px"> s</label><label><input type="checkbox" data-k="bigcrew"> Special crew (large fires +40%)</label></div>
  <canvas class="fire-curve" width="620" height="260"></canvas>
  <p class="ha-note">Finite fires (12 s) come from some events and burn out by themselves. Mendable fires (burning rams) pass a point of no return at 12 s unless fought; repairs put them out. Infinite fires reach full strength in 4 s and repairs can't stop them.</p>
- <h2>Measure the ignition chance</h2><p class="ha-note">Count hits and the minor fires they start (Workbench gameplay capture has Hit, Minor fire and Large fire buttons; Ctrl+Alt+F8 / F9 / F10). About 150 hits pins it down to roughly ±5%.</p>
+ <h2>Work out the ignition chance</h2><p class="ha-note">In your own battles, count your hits and the minor fires they start. About 150 hits pins it down to roughly ±5%.</p>
  <div class="ha-controls"><label>Hits <input type="number" value="0" min="0" data-k="th" style="width:80px"></label><label>Minor fires started <input type="number" value="0" min="0" data-k="tf" style="width:80px"></label></div><div class="fire-tally"></div></div>`;
  const st={ship:def.n,hpPct:60,crew:false,plates:false,extra:0,hits:12,rate:4,p:10,every:2,bigcrew:false,th:0,tf:0};const q=k=>el.querySelector(`[data-k="${k}"]`);
  function render(){const s=ships.find(x=>x.n===st.ship)||def;const k=need(s.hp);const bonus=Math.min(0.95,(st.crew?0.25:0)+(st.plates?0.5:0)+(+st.extra||0)/100);const f=1-bonus;
