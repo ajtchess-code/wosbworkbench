@@ -159,3 +159,34 @@ class BomPublish(unittest.TestCase):
                     bom_publish.publish(site, 'wrong', f'http://127.0.0.1:{srv.server_port}')
             finally:
                 srv.shutdown()
+
+
+class ShipViewer(unittest.TestCase):
+    @unittest.skipUnless(NODE, 'node not installed')
+    def test_script_parses_and_raybox(self):
+        r = subprocess.run([NODE, '-e', "global.window=global;require(process.argv[1]);const t=ShipViewer.rayBox([-10,0,0],[1,0,0],{min:[-1,-1,-1],max:[1,1,1]},100);"
+                            "if(Math.abs(t-9)>1e-9)throw new Error('ray '+t);if(ShipViewer.rayBox([-10,5,0],[1,0,0],{min:[-1,-1,-1],max:[1,1,1]},100)!==null)throw new Error('miss')",
+                            str(ROOT / 'viewer' / 'ship_viewer.js')], capture_output=True, text=True)
+        self.assertEqual(r.returncode, 0, r.stderr)
+
+    def test_design_catalog(self):
+        import battle_sim
+        db = CatalogDB(':memory:') if False else None
+        with tempfile.TemporaryDirectory() as d:
+            import sqlite3
+            con = sqlite3.connect(Path(d) / 'c.sqlite3')
+            con.execute('CREATE TABLE records (dataset TEXT, source_root TEXT, raw_json TEXT)')
+            rows = [{'Name': 'design_1', 'Category': 'ShipFullDesign', 'EnglishName': 'Bellona Black', 'Texture': 'Wood6:Wood13; Vants3:Vants3_dark;'},
+                    {'Name': 'design_2', 'Category': 'SailTexture', 'EnglishName': 'Sun Sail', 'Texture': 'Sail_Sun_'},
+                    {'Name': 'design_3', 'Category': 'Flag', 'EnglishName': 'Death Cross Flag', 'Texture': 'desing_flag7'},
+                    {'Name': 'desBowFigure1', 'Category': 'BowFigure', 'EnglishName': 'Maiden Figurehead', 'Texture': '', 'BonusEffectType': 'PReduceDamageToNose', 'BonusEffectValue': 3}]
+            con.executemany('INSERT INTO records VALUES (?,?,?)', [('ShipDesingElements', 'Steam', json.dumps(r)) for r in rows]); con.commit()
+
+            class DB:
+                conn = con
+            c = battle_sim.design_catalog(DB)
+            self.assertEqual(c['skins'][0]['table'], {'Wood6': 'Wood13', 'Vants3': 'Vants3_dark'})
+            self.assertEqual(c['figures'][0]['mesh'], 'desBowFigure1'); self.assertEqual(c['figures'][0]['bonus']['v'], 3)
+            tex = battle_sim.design_textures(DB)
+            for t in ('Sail_Sun_main', 'Sail_Sun_triangle', 'desing_flag7', 'Wood13'):
+                self.assertIn(t, tex)

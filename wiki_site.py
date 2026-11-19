@@ -87,7 +87,7 @@ NAV = [('Main page', 'index.html'), ('Ships', 'category/ships.html'), ('Cannons'
        ('Guides & mechanics', 'category/articles.html')]
 TOOLS = [('Damage simulator', 'tools/damage-simulator.html'), ('Wind & sailing', 'tools/wind-rose.html'),
          ('Ship comparison', 'tools/compare-ships.html'), ('Hitbox viewer', 'tools/hitboxes.html'),
-         ('Hit analysis', 'tools/hit-analysis.html'), ('Towers, forts & mortars', 'tools/defenses.html'), ('Fire calculator', 'tools/fire-calculator.html'),
+         ('3D ship viewer', 'tools/ship-viewer.html'), ('Hit analysis', 'tools/hit-analysis.html'), ('Towers, forts & mortars', 'tools/defenses.html'), ('Fire calculator', 'tools/fire-calculator.html'),
          ('Battle simulator', 'tools/battle-simulator.html'), ('Boarding simulator', 'tools/boarding-simulator.html')]
 CATEGORY_FILE = {'ship': 'ships', 'cannon': 'cannons', 'ammo': 'ammo', 'upgrade': 'upgrades', 'crew': 'crew',
                  'skill': 'skills', 'resource': 'resources', 'port': 'ports', 'achievement': 'achievements',
@@ -224,6 +224,13 @@ CSS = r'''
 .wm-pop{position:absolute;transform:translate(-50%,calc(-100% - 14px));background:#fff;color:#223;border-radius:8px;padding:8px 26px 8px 10px;box-shadow:0 6px 18px rgba(0,0,0,.35);font-size:13px;display:grid;gap:3px;min-width:180px;z-index:3}
 .wm-pop span{color:#556}.wm-close{position:absolute;right:4px;top:2px;border:0;background:none;font-size:17px;cursor:pointer}
 
+.sv{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:12px}.sv-stage{position:relative;height:620px;border:1px solid #d5dbe2;border-radius:8px;overflow:hidden}
+.sv-gl{width:100%;height:100%;display:block;cursor:crosshair;touch-action:none}.sv-hud{position:absolute;left:10px;top:8px;background:rgba(255,255,255,.85);padding:3px 8px;border-radius:5px;font-size:13px}
+.sv-load{position:absolute;inset:0;display:grid;place-items:center;font-size:15px;color:#345;background:rgba(255,255,255,.4)}.sv-load[hidden]{display:none}
+.sv-side{display:grid;gap:8px;align-content:start;font-size:13px}.sv-side fieldset{border:1px solid #dde3ea;border-radius:6px;padding:6px 8px;display:grid;gap:5px}.sv-side legend{font-weight:600}
+.sv-side select{max-width:100%}.sv-legend{display:flex;gap:6px;align-items:center;font-size:11px;color:#555}.sv-legend i{flex:1;height:8px;background:linear-gradient(90deg,#28325a,#3c6ebe,#5abe78,#f0c83c,#dc3228)}
+.sv-shot{border-top:1px solid #eee;padding:4px 0}.sv-shot small{display:block;color:#667}.sv-fire{padding:5px 8px}
+@media(max-width:900px){.sv{grid-template-columns:1fr}.sv-stage{height:440px}}
 .ha-controls{display:flex;flex-wrap:wrap;gap:12px 18px;margin:8px 0;align-items:center}.ha-controls select,.ha-controls input{font:inherit;padding:3px 5px}
 .ha-grid{display:flex;flex-wrap:wrap;gap:20px;align-items:flex-start}.ha-legend{font-size:12px;color:#555;max-width:600px}.ha-legend i{display:inline-block;width:160px;height:10px;margin:0 6px;vertical-align:middle;background:linear-gradient(90deg,#28325a,#3c6ebe,#5abe78,#f0c83c,#dc3228)}
 .ha-side-col{flex:1;min-width:320px}.ha-note{font-size:12px;color:#555}.ha canvas{max-width:100%;height:auto;border:1px solid #e3e6ea;border-radius:4px;background:#fff}
@@ -467,7 +474,8 @@ class SiteBuilder:
             zones += [{'t': 'mast', 'b': m['box']} for m in d['masts']]
             for z in zones:
                 z['b'] = {'min': [round(v, 3) for v in z['b']['min']], 'max': [round(v, 3) for v in z['b']['max']]}
-            out[f.name.replace('.hitboxes.json', '')] = {'zones': zones, 'sails': len(d['sails']), 'masts': len(d['masts']), 'ports': d.get('port_counts')}
+            out[f.name.replace('.hitboxes.json', '')] = {'zones': zones, 'sails': len(d['sails']), 'masts': len(d['masts']), 'ports': d.get('port_counts'),
+                                                          'fig': d.get('figurehead_mount'), 'half': round((d['corpus']['max'][0] - d['corpus']['min'][0]) / 2, 3)}
         return out
 
     def _model_for(self, ship):
@@ -712,7 +720,7 @@ class SiteBuilder:
             out.append('<h2>Where to hit it</h2><p>Damage per ball from every direction, from this ship\'s real hull box, with every ammo, gun and mortar.</p>'
                        f'<div class="ha-mount" data-ship="{_e(name)}"></div><script src="../assets/hit-data.js"></script><script src="../assets/hit_analysis.js"></script>'
                        '<script>document.querySelectorAll(".ha-mount").forEach(e=>HitAnalysis.mount(e,{ship:e.dataset.ship,compact:true}))</script>'
-                       f'<p><a href="../tools/hit-analysis.html?ship={_e(name)}">Open the full hit analysis</a> · <a href="../tools/fire-calculator.html">Fire calculator</a></p>')
+                       f'<p><a href="../tools/ship-viewer.html?ship={_e(name)}">3D model, hitboxes &amp; designs</a> · <a href="../tools/hit-analysis.html?ship={_e(name)}">Full hit analysis</a> · <a href="../tools/fire-calculator.html">Fire calculator</a></p>')
         out.append('<h2>Try it</h2><p>'
                    f'<a href="../tools/battle-simulator.html?ship={_e(name)}">Battle simulator with the {_e(name)}</a> · '
                    f'<a href="../tools/damage-simulator.html?hp={_e(rec.get("Health"))}">Damage simulator</a> · '
@@ -957,9 +965,39 @@ class SiteBuilder:
                 '<div id="ft"></div>' + scripts('fire_tool.js') + '<script>FireTool.mount(document.getElementById("ft"))</script>'
                 '<p>Full explanation: <a href="../wiki/large-and-minor-fires.html">Large and minor fires</a>.</p>')
         self._write('tools/fire-calculator.html', _page('Fire calculator', body, depth=1, crumbs=crumbs, tab='Tool'))
+        self._ship_viewer(hitboxes, crumbs)
         info = viewer / 'fire_infographic.png'
         if info.is_file():
             dst = self.out / 'assets' / 'fire-infographic.png'; dst.parent.mkdir(parents=True, exist_ok=True); shutil.copyfile(info, dst)
+
+    def _ship_viewer(self, hitboxes, crumbs):
+        """3D ship viewer: model pack + hitboxes + heatmap + firing + in-game designs."""
+        import battle_sim
+        d = battle_sim.catalog_data(self.db, build=self.build)
+        ref = next((hitboxes.get(s_['model'], {}).get('half') for s_ in d['ships'] if str(s_.get('sid')) == '4' and s_.get('model')), None)
+        ships = []
+        for s_ in d['ships']:
+            hb = hitboxes.get(s_.get('model')) or {}
+            ships.append({'n': s_['n'], 'model': s_.get('model'), 'zones': hb.get('zones') or [], 'fig': hb.get('fig'), 'half': hb.get('half'),
+                          'armor': s_['armor'], 'hp': s_['hp'], 'rank': s_['rank']})
+        try:
+            designs = battle_sim.design_catalog(self.db, self.build)
+        except Exception:
+            designs = {}
+        data = {'ships': sorted(ships, key=lambda x: x['n']), 'designs': designs, 'refHalf': ref or 8, 'pack': '../pack/'}
+        self._write('assets/ship-view.js', 'window.SHIP_VIEW=' + json.dumps(data, separators=(',', ':')) + ';\n')
+        self._write('assets/ship_viewer.js', (Path(__file__).resolve().parent / 'viewer' / 'ship_viewer.js').read_text(encoding='utf-8'))
+        body = ('<p>Every ship\'s real model with the game\'s invisible hitboxes. Paint the hull with the damage or impact angle from any direction, '
+                'fire a ball at any spot (click the ship), and try the in-game skins, sails, emblems, flags and figureheads. Drag to turn, '
+                'right-drag or Shift-drag to move, scroll to zoom.</p><div id="sv"></div>'
+                '<script src="../assets/hit-data.js"></script><script src="../assets/hit_analysis.js"></script><script src="../assets/ship-view.js"></script>'
+                '<script src="../assets/ship_viewer.js"></script><script>ShipViewer.mount(document.getElementById("sv"),{ship:new URLSearchParams(location.search).get("ship")})</script>'
+                '<h2>Reading it</h2><ul><li>The blue box is the hull hitbox; it decides every hull hit and also the ship\'s collisions. Brown boxes are masts, orange ones sails.</li>'
+                '<li>Coloured hull: what a ball fired from the chosen direction does where it lands. Dark blue = it glances off; grey = that side faces away.</li>'
+                '<li>Zones come from where the ball crosses the hull box: bow is only the middle of the front face, stern is the whole back face plus the last ~11% of each side.</li>'
+                '<li>Sails and masts are tested separately; a ball can pass through up to three sails.</li></ul>'
+                '<p>See also <a href="hit-analysis.html">Hit analysis</a> and <a href="../wiki/damage-formula.html">Damage formula</a>.</p>')
+        self._write('tools/ship-viewer.html', _page('3D ship viewer', body, depth=1, crumbs=crumbs, tab='Tool'))
 
     def _cannon_vs_ships(self, rec):
         """What this gun can hurt: per-ship damage per ball square on the side, raking the stern, and the glancing limit."""
@@ -1005,7 +1043,7 @@ class SiteBuilder:
         if self.model_pack and self.recovery_dir:
             try:   # lighter LOD and 512 px textures for the public site; rebuilt only for models that changed
                 pack = battle_sim.build_model_pack(self.db, self.out / 'pack', recovery_dir=self.recovery_dir, game_roots=self.game_roots,
-                                                   lod='low', tex_size=512, build=self.build, progress=self.progress)
+                                                   lod='low', tex_size=512, build=self.build, progress=self.progress, designs=True)
             except Exception:
                 pack = {}
         self.pack_info = pack

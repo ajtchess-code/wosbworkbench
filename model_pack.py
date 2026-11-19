@@ -280,7 +280,7 @@ def _old_index(out):
         return {}
 
 
-def build_pack(out_dir, models, *, texture_roots=(), lod='high', tex_size=1024, progress=None, incremental=True):
+def build_pack(out_dir, models, *, texture_roots=(), lod='high', tex_size=1024, progress=None, incremental=True, extra_textures=()):
     """models: {model name: (obj path, kind)} with kind 'ship' | 'world'. Returns the pack index.
 
     With incremental=True a model whose pack file is newer than its OBJ (same LOD) is kept as is.
@@ -316,6 +316,7 @@ def build_pack(out_dir, models, *, texture_roots=(), lod='high', tex_size=1024, 
     for set_ in TERRAIN_SETS.values():
         for t in set_:
             _add_tex(t)
+    index['extra'] = sorted({t.lower() for t in extra_textures if t and _add_tex(t)})   # design textures: sails, flags, decals, skins
     for i, (name, (obj, kind)) in enumerate(sorted(models.items())):
         if progress:
             progress(i, len(models), name)
@@ -325,7 +326,8 @@ def build_pack(out_dir, models, *, texture_roots=(), lod='high', tex_size=1024, 
             index['models'][name] = prev
             continue
         try:
-            m = pack_model(obj, kind=kind, lod=lod)
+            m = pack_model(obj, kind='world' if kind == 'decor' else kind, lod=lod)
+            m.pop('foot', None) if kind == 'decor' else None
         except (OSError, ValueError) as exc:
             index['models'][name] = {'error': type(exc).__name__}
             continue
@@ -346,17 +348,19 @@ def build_pack(out_dir, models, *, texture_roots=(), lod='high', tex_size=1024, 
     return index
 
 
-def collect_models(recovery_dir, *, ship_models=(), world_models=()):
+def collect_models(recovery_dir, *, ship_models=(), world_models=(), decor_models=()):
     """Find recovered OBJs for the wanted model names under a Full Recovery folder."""
     found = {}
     root = Path(recovery_dir) if recovery_dir else None
     if not root or not root.is_dir():
         return found
-    want_s = {m.lower(): m for m in ship_models}; want_w = {m.lower(): m for m in world_models}
+    want_s = {m.lower(): m for m in ship_models}; want_w = {m.lower(): m for m in world_models}; want_d = {m.lower(): m for m in decor_models}
     for obj in root.rglob('*.obj'):
         k = obj.stem.lower()
         if k in want_s and want_s[k] not in found:
             found[want_s[k]] = (obj, 'ship')
         elif k in want_w and want_w[k] not in found:
             found[want_w[k]] = (obj, 'world')
+        elif k in want_d and want_d[k] not in found:
+            found[want_d[k]] = (obj, 'decor')
     return found

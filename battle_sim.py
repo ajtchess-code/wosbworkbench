@@ -319,7 +319,46 @@ def texture_roots(recovery_dir=None, game_roots=()):
     return roots
 
 
-def build_model_pack(db, pack_dir, *, recovery_dir, game_roots=(), lod='high', tex_size=1024, build='Steam', progress=None):
+SAIL_PARTS = ('main', 'mini', 'side', 'triangle')
+
+
+def design_catalog(db, build='Steam'):
+    """In-game ship designs (ShipDesingElements): skins, sail textures, sail emblems, flags, figureheads and lanterns."""
+    rows = {}
+    for raw, in db.conn.execute("SELECT raw_json FROM records WHERE dataset='ShipDesingElements' ORDER BY CASE source_root WHEN ? THEN 0 ELSE 1 END", (build,)):
+        d = json.loads(raw); rows.setdefault(d.get('Name'), d)
+    out = {'skins': [], 'sails': [], 'decals': [], 'flags': [], 'figures': [], 'lanterns': []}
+    for d in rows.values():
+        cat, tex = d.get('Category'), (d.get('Texture') or '').strip()
+        n = d.get('EnglishName') or d.get('NameEnglish') or d.get('Name')
+        bonus = {'fx': d.get('BonusEffectType'), 'v': d.get('BonusEffectValue')} if d.get('BonusEffectType') else None
+        e = {'id': d.get('Name'), 'n': n, 'shop': d.get('InShop') or '', 'bonus': bonus}
+        if cat == 'ShipFullDesign' and tex:
+            e['table'] = dict(p.split(':', 1) for p in re.sub(r'\s', '', tex).split(';') if ':' in p); out['skins'].append(e)
+        elif cat == 'SailTexture' and tex:
+            e['prefix'] = tex; out['sails'].append(e)
+        elif cat in ('Decal1', 'Decal2') and tex:
+            e['tex'] = tex; e['slot'] = cat; out['decals'].append(e)
+        elif cat == 'Flag' and tex:
+            e['tex'] = tex; out['flags'].append(e)
+        elif cat == 'BowFigure':
+            e['mesh'] = d.get('Name'); out['figures'].append(e)
+        elif cat == 'Satellite':
+            out['lanterns'].append(e)
+    for v in out.values():
+        v.sort(key=lambda e: e['n'])
+    return out
+
+
+def design_textures(db, build='Steam'):
+    c = design_catalog(db, build)
+    names = {t for e in c['skins'] for t in e['table'].values()}
+    names |= {e['prefix'] + part for e in c['sails'] for part in SAIL_PARTS}
+    names |= {e['tex'] for e in c['decals'] + c['flags']}
+    return sorted(names)
+
+
+def build_model_pack(db, pack_dir, *, recovery_dir, game_roots=(), lod='high', tex_size=1024, build='Steam', progress=None, designs=False):
     """Real ship, tower, fort and island meshes (with textures) for the battle simulator."""
     import model_pack
     data = catalog_data(db, build=build)
@@ -331,10 +370,12 @@ def build_model_pack(db, pack_dir, *, recovery_dir, game_roots=(), lod='high', t
     except Exception:
         pass
     world.update(fort_data(recovery_dir).keys() if recovery_dir else ())
-    found = model_pack.collect_models(recovery_dir, ship_models=ships, world_models=world)
+    found = model_pack.collect_models(recovery_dir, ship_models=ships, world_models=world, decor_models=('BowFigures',) if designs else ())
     if not found:
         return {'models': 0, 'textures': 0, 'missing': len(ships | world), 'note': 'no recovered OBJ files found — run Full Recovery first'}
-    idx = model_pack.build_pack(pack_dir, found, texture_roots=texture_roots(recovery_dir, game_roots), lod=lod, tex_size=tex_size, progress=progress)
+    extra = design_textures(db, build) if designs else ()
+    idx = model_pack.build_pack(pack_dir, found, texture_roots=texture_roots(recovery_dir, game_roots), lod=lod, tex_size=tex_size, progress=progress,
+                                extra_textures=extra)
     ok = sum(1 for v in idx['models'].values() if v.get('file'))
     return {'models': ok, 'textures': len(idx['textures']), 'missing': len(ships | world) - ok, 'pack': str(pack_dir)}
 
