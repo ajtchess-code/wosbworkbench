@@ -27,7 +27,7 @@ SHIP_LOW_SKIP = re.compile(r'Connection\w*Control|AverageBox|DeckStuff|ShipMin|^
 WORLD_SKIP = re.compile(r'shape|hitbox|collision|dummy|^SPAWN_|^ConnectionNpc', re.I)
 
 
-PACK_FORMAT = 3   # 2: terrain groups, environment textures; 3: island footprints for collisions
+PACK_FORMAT = 5   # 5: items grouped across their material parts, Personal Island at full detail; 4: item sheets (weapons, figureheads, decorations) at full detail with per-item texture crops; 2: terrain groups, environment textures; 3: island footprints for collisions
 TERRAIN_MAT = re.compile(r'^TERRAIN\d+$', re.I)
 # Terrain materials are drawn by the game's terrain shader from up to three ground textures. The material-to-texture
 # table isn't recoverable as plain data, so the simulator blends the game's own ground textures by height and
@@ -183,8 +183,8 @@ def footprint(obj_path, *, n=48, sea_level=0.0):
             'bits': base64.b64encode(bytes(grid)).decode('ascii')}
 
 
-def pack_model(obj_path, *, kind='ship', lod='high', max_tris=60000):
-    skip = (SHIP_LOW_SKIP if lod == 'low' else SHIP_SKIP) if kind == 'ship' else WORLD_SKIP
+def pack_model(obj_path, *, kind='ship', lod='high', max_tris=60000, skip=None):
+    skip = skip or ((SHIP_LOW_SKIP if lod == 'low' else SHIP_SKIP) if kind == 'ship' else WORLD_SKIP)
     groups = read_obj(obj_path, skip=skip)
     if kind == 'ship' and lod == 'low' and not any(m == 'ShipLowCorpus' for m, _ in groups):
         groups = read_obj(obj_path, skip=SHIP_SKIP)           # model has no low hull: use the full one
@@ -247,16 +247,57 @@ class TextureIndex:
         return None
 
 
-def encode_texture(path, *, max_size=1024):
+# the Personal Island: terrain, the starting village and every building (Connection<Building>_level1/2), without decoration slots
+ISLE_SKIP = re.compile(r'shape|collision|dummy|^SPAWN_|Connection_Decor|NpcFence|PointLight|ConnectionRealShop', re.I)
+DECOR_SKIP = re.compile(r'shape|hitbox|collision|dummy|^SPAWN_|^ConnectionNpc|_lod\d*(_part\d+)?$', re.I)   # item sheets: keep the detailed mesh only
+
+
+def item_key(mesh):
+    """An item's name in a sheet: the mesh name without the exporter's _partN suffix (one part per material)."""
+    return re.sub(r'_part\d+$', '', mesh or '').lower()
+
+
+def _open_image(path):
     from PIL import Image
     if path.suffix.lower() == '.xnb':
         import sys
         sys.path.insert(0, str(Path(__file__).resolve().parent / 'engine'))
         from xnb_images import texture
-        im = texture(path.read_bytes())[0]
+        return texture(path.read_bytes())[0].convert('RGBA')
+    return Image.open(path).convert('RGBA')
+
+
+def crop_uv(img, umin, usc, *, pad_px=4, max_size=1024):
+    """Cut one item's patch out of a shared texture sheet. Returns (image, new umin, new usc) so the item keeps its full resolution."""
+    from PIL import Image
+    W, H = img.size
+    u0, v0 = umin; u1, v1 = umin[0] + usc[0] * 65534, umin[1] + usc[1] * 65534
+    if u0 < -0.001 or v0 < -0.001 or u1 > 1.001 or v1 > 1.001:      # tiling UVs: keep the whole sheet
+        return None
+    x0, y0 = max(0, int(u0 * W) - pad_px), max(0, int(v0 * H) - pad_px)
+    x1, y1 = min(W, int(u1 * W + 0.999) + pad_px), min(H, int(v1 * H + 0.999) + pad_px)
+    if x1 - x0 < 4 or y1 - y0 < 4:
+        return None
+    im = img.crop((x0, y0, x1, y1))
+    if max(im.size) > max_size:
+        r = max_size / max(im.size); im = im.resize((max(1, int(im.width * r)), max(1, int(im.height * r))), Image.LANCZOS)
+    cu0, cv0, cdu, cdv = x0 / W, y0 / H, (x1 - x0) / W, (y1 - y0) / H
+    return im, [(u0 - cu0) / cdu, (v0 - cv0) / cdv], [usc[0] / cdu, usc[1] / cdv]
+
+
+def encode_image(im):
+    alpha = im.getchannel('A').getextrema()[0] < 250
+    buf = io.BytesIO()
+    if alpha:
+        im.save(buf, 'WEBP', quality=86, method=4)
     else:
-        im = Image.open(path)
-    im = im.convert('RGBA')
+        im.convert('RGB').save(buf, 'WEBP', quality=86, method=4)
+    return 'data:image/webp;base64,' + base64.b64encode(buf.getvalue()).decode('ascii'), alpha
+
+
+def encode_texture(path, *, max_size=1024):
+    from PIL import Image
+    im = _open_image(path)
     if max(im.size) > max_size:
         r = max_size / max(im.size); im = im.resize((max(1, int(im.width * r)), max(1, int(im.height * r))), Image.LANCZOS)
     alpha = im.getchannel('A').getextrema()[0] < 250
@@ -324,12 +365,55 @@ def build_pack(out_dir, models, *, texture_roots=(), lod='high', tex_size=1024, 
         target = out / 'models' / f'{name}.js'
         if prev and prev.get('file') and target.is_file() and target.stat().st_mtime >= Path(obj).stat().st_mtime:
             index['models'][name] = prev
+            if name in old.get('items', {}):
+                index.setdefault('items', {})[name] = old['items'][name]
             continue
         try:
-            m = pack_model(obj, kind='world' if kind == 'decor' else kind, lod=lod)
-            m.pop('foot', None) if kind == 'decor' else None
+            if kind == 'decor':      # weapons, figureheads, island decorations: every item at full detail, no shrinking
+                m = pack_model(obj, kind='world', lod=lod, max_tris=10 ** 9, skip=DECOR_SKIP)
+                m.pop('foot', None)
+            elif kind == 'isle':
+                m = pack_model(obj, kind='world', lod=lod, max_tris=10 ** 9, skip=ISLE_SKIP)
+                m.pop('foot', None)
+            else:
+                m = pack_model(obj, kind=kind, lod=lod)
         except (OSError, ValueError) as exc:
             index['models'][name] = {'error': type(exc).__name__}
+            continue
+        if kind == 'decor':
+            sheets = {}
+            for g in m['groups']:
+                if g.get('kind') == 'terrain':      # the patch of ground under a decoration: drawn with the island's ground textures
+                    g['terrain'] = [t.lower() for t in TERRAIN_SETS['green']]
+                    g['tex'] = None; continue
+                src = texidx.find(g['mat'])
+                if not src:
+                    g['tex'] = None; continue
+                try:
+                    sheet = sheets.get(src) or sheets.setdefault(src, _open_image(src))
+                    cut = crop_uv(sheet, g['umin'], g['usc'])
+                except Exception:
+                    cut = None
+                if not cut:
+                    key = g['mat'].lower(); _add_tex(g['mat'], size=max(tex_size, 2048)); g['tex'] = key if done_tex.get(key) else None
+                    continue
+                im, g['umin'], g['usc'] = cut
+                key = f"{g['mat']}@{g['mesh']}".lower(); safe = re.sub(r'[^a-z0-9_.-]', '_', key)
+                uri, alpha = encode_image(im)
+                (out / 'textures' / f'{safe}.js').write_text(_jsonp('WOSB_TEX', key, uri), encoding='utf-8')
+                done_tex[key] = index['textures'][key] = {'file': f'textures/{safe}.js', 'alpha': alpha}
+                g['tex'] = key
+            (out / 'models' / f'{name}.js').write_text(_jsonp('WOSB_MODEL', name, m), encoding='utf-8')
+            index['models'][name] = {'file': f'models/{name}.js', 'tris': m['tris'], 'kind': kind,
+                                     'textured': sum(1 for g in m['groups'] if g['tex']), 'groups': len(m['groups'])}
+            # one small file per item, so a page with one cannon or one decoration loads only that
+            items = index.setdefault('items', {}).setdefault(name, {})
+            (out / 'models' / name).mkdir(exist_ok=True)
+            for mk in sorted({item_key(g['mesh']) for g in m['groups']}):
+                safe = re.sub(r'[^a-z0-9_.-]', '_', mk)
+                one = {'min': m['min'], 'scale': m['scale'], 'groups': [x for x in m['groups'] if item_key(x['mesh']) == mk]}
+                (out / 'models' / name / f'{safe}.js').write_text(_jsonp('WOSB_MODEL', f'{name}@{mk}', one), encoding='utf-8')
+                items[mk] = f'models/{name}/{safe}.js'
             continue
         for g in m['groups']:
             if g['kind'] == 'terrain':
@@ -339,7 +423,7 @@ def build_pack(out_dir, models, *, texture_roots=(), lod='high', tex_size=1024, 
                 g['tex'] = None
                 continue
             key = g['mat'].lower()
-            _add_tex(g['mat'])
+            _add_tex(g['mat'], size=max(tex_size, 1024) if kind == 'isle' else None)
             g['tex'] = key if done_tex.get(key) else None
         (out / 'models' / f'{name}.js').write_text(_jsonp('WOSB_MODEL', name, m), encoding='utf-8')
         index['models'][name] = {'file': f'models/{name}.js', 'tris': m['tris'], 'kind': kind,
@@ -348,13 +432,14 @@ def build_pack(out_dir, models, *, texture_roots=(), lod='high', tex_size=1024, 
     return index
 
 
-def collect_models(recovery_dir, *, ship_models=(), world_models=(), decor_models=()):
+def collect_models(recovery_dir, *, ship_models=(), world_models=(), decor_models=(), isle_models=()):
     """Find recovered OBJs for the wanted model names under a Full Recovery folder."""
     found = {}
     root = Path(recovery_dir) if recovery_dir else None
     if not root or not root.is_dir():
         return found
     want_s = {m.lower(): m for m in ship_models}; want_w = {m.lower(): m for m in world_models}; want_d = {m.lower(): m for m in decor_models}
+    want_i = {m.lower(): m for m in isle_models}
     for obj in root.rglob('*.obj'):
         k = obj.stem.lower()
         if k in want_s and want_s[k] not in found:
@@ -363,4 +448,6 @@ def collect_models(recovery_dir, *, ship_models=(), world_models=(), decor_model
             found[want_w[k]] = (obj, 'world')
         elif k in want_d and want_d[k] not in found:
             found[want_d[k]] = (obj, 'decor')
+        elif k in want_i and want_i[k] not in found:
+            found[want_i[k]] = (obj, 'isle')
     return found

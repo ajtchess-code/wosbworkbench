@@ -370,7 +370,9 @@ def build_model_pack(db, pack_dir, *, recovery_dir, game_roots=(), lod='high', t
     except Exception:
         pass
     world.update(fort_data(recovery_dir).keys() if recovery_dir else ())
-    found = model_pack.collect_models(recovery_dir, ship_models=ships, world_models=world, decor_models=('BowFigures', 'weapons') if designs else ())
+    found = model_pack.collect_models(recovery_dir, ship_models=ships, world_models=world,
+                                      decor_models=('BowFigures', 'weapons', 'EnvDecorElements') if designs else (),
+                                      isle_models=('personal_isle',) if designs else ())
     if not found:
         return {'models': 0, 'textures': 0, 'missing': len(ships | world), 'note': 'no recovered OBJ files found — run Full Recovery first'}
     extra = design_textures(db, build) if designs else ()

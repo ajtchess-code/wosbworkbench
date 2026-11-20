@@ -360,7 +360,7 @@ h2{font:400 21px/1.3 Georgia,serif;border-bottom:1px solid var(--border);margin:
 .portmap{margin:8px 0;max-width:560px}.portmap img{width:100%;height:auto;border:1px solid var(--border);border-radius:6px}.portmap figcaption{font-size:12px;color:var(--muted)}
 .lg{display:inline-block;width:11px;height:11px;margin:0 3px 0 8px;vertical-align:-1px;border-radius:2px}.lg-port{background:#e8c05a;border-radius:50%}.lg-tower{background:#c0392b}.lg-fort{background:#7d3c98}
 .lg-node{background:#5f6a6a}.lg-route{background:#1f5fbf;height:3px;vertical-align:3px}.lg-s2{background:#dc2828}.lg-s3{background:#f08c1e}.lg-s4{background:#ebd228}.lg-s5{background:#5ac85a}.lg-s6{background:#3c6ee6}
-.iv{border:1px solid var(--border);border-radius:6px;background:#eef2f6;padding:10px;max-width:640px}.iv-gl{display:block;width:100%;height:340px;border:0;background:#eef2f6;touch-action:none;cursor:grab}.iv-go{background:var(--accent);color:#fff;border:0;border-radius:4px;padding:8px 14px;font:inherit;cursor:pointer}.iv-msg{display:block;color:var(--muted);margin-top:4px}
+.iv{border:1px solid var(--border);border-radius:6px;background:#eef2f6;padding:10px;max-width:640px}.iv-gl{display:block;width:100%;height:340px;border:0;background:#eef2f6;touch-action:none;cursor:grab}.iv-go{background:var(--accent);color:#fff;border:0;border-radius:4px;padding:8px 14px;font:inherit;cursor:pointer}.iv-msg{display:block;color:var(--muted);margin-top:4px}.ip-iv{max-width:900px}.ip-iv .iv-gl{height:480px}
 .infobox th{text-align:left;padding:4px 8px;vertical-align:top;width:45%;background:var(--head)}.infobox td{padding:4px 8px}
 table.wikitable{border-collapse:collapse;background:#f8f9fa;margin:10px 0;font-size:13px}
 .wikitable th,.wikitable td{border:1px solid var(--border);padding:4px 8px}.wikitable th{background:var(--head);cursor:pointer;white-space:nowrap}
@@ -944,6 +944,10 @@ class SiteBuilder:
                 body.append(f'<h2>3D model</h2><div class="iv" data-model="weapons" data-mesh="{_e(rec["Model"])}" data-pack="../pack/"></div>'
                             '<script src="../assets/item_viewer.js" defer></script>')
             body += self._cannon_vs_ships(rec)
+        if kind == 'decoration' and rec.get('Name') and self.model_pack and self.recovery_dir:
+            body.append(f'<h2>3D model</h2><div class="iv" data-model="EnvDecorElements" data-mesh="{_e(str(rec["Name"]).lower())}" data-pack="../pack/"></div>'
+                        '<script src="../assets/item_viewer.js" defer></script>'
+                        '<p class="note">Plan where it goes with the <a href="../tools/island-planner.html">Personal Island planner</a>.</p>')
         if kind == 'recipe':
             body += self._recipe_sections(rec)
         if kind == 'cosmetic':

@@ -106,8 +106,25 @@
       let st = Object.assign({ rank: 20, isles: [{ b: [], d: [] }] }, saved || {});
       el.innerHTML = `<div class="pl"><div class="pl-row"><label>Captain rank <input type="number" min="1" max="30" data-k="rank" value="${esc(st.rank)}"></label>
         <label>Islands <select data-k="n">${[1, 2, 3].map((i) => `<option value="${i}"${st.isles.length === i ? ' selected' : ''}>${i}</option>`).join('')}</select></label></div>
-        <div class="ip-out"></div><div class="pl-tools"><button type="button" class="ip-share">Share plan</button><span class="pl-msg"></span></div></div>`;
+        <div class="ip-out"></div><div class="pl-tools"><button type="button" class="ip-share">Share plan</button><span class="pl-msg"></span></div>
+        ${D.models ? `<section class="ip-3d"><h3>See your island</h3>
+          <div class="pl-row"><label>Island <select data-k="view"></select></label>
+          <label><input type="checkbox" data-k="look"> Third Island look</label></div>
+          <div class="iv ip-iv" data-model="personal_isle" data-isle="1" data-pack="../pack/" data-label="Show the island in 3D"></div>
+          <p class="pl-sub">Shows the buildings you have planned for the chosen island. With the captain skill <b>${esc(D.skills[1].n)}</b> every building on all your islands gets its bigger look.</p>
+          <h3>Decorations in 3D</h3><div class="pl-row"><select data-k="deco3d"><option value="">Choose a decoration…</option>${D.decor.filter((d) => d.m).map((d) => `<option value="${esc(d.m)}">${esc(d.n)}</option>`).join('')}</select></div>
+          <div class="ip-deco"></div></section>` : ''}</div>`;
       const $ = (s) => el.querySelector(s);
+      st.view = Math.min(st.view || 0, st.isles.length - 1);
+      function isle3d() {
+        const box = $('.ip-iv'); if (!box) return;
+        const vs = $('[data-k="view"]'); vs.innerHTML = st.isles.map((_, i) => `<option value="${i}"${i === st.view ? ' selected' : ''}>${i + 1}</option>`).join('');
+        const look = st.look == null ? st.isles.length >= 3 : !!st.look; $('[data-k="look"]').checked = look;
+        const lv = look ? 2 : 1, isle = st.isles[st.view] || st.isles[0];
+        const want = new Set(['terrain', 'initial_level' + lv]);
+        isle.b.forEach((id) => { const b = D.buildings.find((x) => x.id === id); if (b && b.g) want.add(('connection' + b.g + '_level' + lv).toLowerCase()); });
+        box.ivFilter = (mesh) => want.has(mesh); if (box.ivRedraw) box.ivRedraw();
+      }
       function render() {
         store.set('wosb-isle', st);
         const rank = Math.max(1, Math.min(30, +st.rank || 1));
@@ -143,11 +160,18 @@
           <details><summary>What each building does</summary><ul>${D.buildings.map((b) => `<li><b>${esc(b.n)}</b>: ${esc(b.d)}${b.labor ? ` <span class="pl-sub">(labour limit +${b.labor})</span>` : ''}</li>`).join('')}</ul></details>
           <p class="pl-sub">The first building on an island costs gold only; later ones also need Plates, Wreckage and Wood, and get dearer with every building. Abandoning an island does not refund building costs.</p>`;
         $('.ip-out').innerHTML = html;
+        isle3d();
       }
       el.addEventListener('change', (e) => {
         const d = e.target.dataset;
         if (d.k === 'rank') { st.rank = +e.target.value || 1; render(); }
-        else if (d.k === 'n') { const n = +e.target.value; while (st.isles.length < n) st.isles.push({ b: [], d: [] }); st.isles = st.isles.slice(0, n); render(); }
+        else if (d.k === 'n') { const n = +e.target.value; while (st.isles.length < n) st.isles.push({ b: [], d: [] }); st.isles = st.isles.slice(0, n); st.view = Math.min(st.view || 0, n - 1); render(); }
+        else if (d.k === 'view') { st.view = +e.target.value; render(); }
+        else if (d.k === 'look') { st.look = e.target.checked; render(); }
+        else if (d.k === 'deco3d') {
+          const box = $('.ip-deco'); box.innerHTML = '';
+          if (e.target.value) { const v = document.createElement('div'); v.className = 'iv'; Object.assign(v.dataset, { model: 'EnvDecorElements', mesh: e.target.value, pack: '../pack/', auto: '1' }); box.appendChild(v); window.ItemViewer && window.ItemViewer.mount(v); }
+        }
       });
       el.addEventListener('click', (e) => {
         const d = e.target.dataset; const ix = (s) => s.split(':').map(Number);
@@ -160,6 +184,7 @@
         render();
       });
       $('.ip-share').onclick = () => share(st, (u) => copy(u, $('.pl-msg')));
+      if (window.ItemViewer && $('.ip-iv')) window.ItemViewer.mount($('.ip-iv'));
       render();
     }).catch(() => { el.innerHTML = '<p class="note">The island data could not be loaded.</p>'; });
   }

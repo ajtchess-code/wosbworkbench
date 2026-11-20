@@ -174,3 +174,62 @@ def test_three_fort_types():
     fd = _j.loads((Path(__file__).resolve().parents[1] / 'data' / 'forts.json').read_text())
     assert set(fd['types']) == {'1', '2', '3'} and len(fd['types']['3']['guns']) == 30
     assert sum(1 for p in fd['placements'] if p['m'] == 'worldfort2') == 2
+
+
+ITEM_OBJ = """o Cannon_a_part0
+v 0 0 0
+v 1 0 0
+v 0 1 0
+vt 0.0 0.0
+vt 0.25 0.0
+vt 0.0 0.25
+vn 0 0 1
+usemtl Sheet
+f 1/1/1 2/2/1 3/3/1
+o Cannon_a_part1
+v 0 0 1
+v 1 0 1
+v 0 1 1
+vt 0.5 0.5
+vt 0.75 0.5
+vt 0.5 0.75
+vn 0 0 1
+usemtl Sheet
+f 4/4/1 5/5/1 6/6/1
+o Cannon_a_lod_part0
+v 0 0 0
+v 1 0 0
+v 0 1 0
+vt 0 0
+vt 1 0
+vt 0 1
+vn 0 0 1
+usemtl Sheet
+f 7/7/1 8/8/1 9/9/1
+"""
+
+
+def test_item_sheet_pack_groups_parts_and_crops_textures(tmp_path):
+    import model_pack
+    from PIL import Image
+    obj = tmp_path / 'weapons.obj'; obj.write_text(ITEM_OBJ)
+    tex = tmp_path / 'tex'; tex.mkdir(); Image.new('RGBA', (1024, 1024), (90, 70, 50, 255)).save(tex / 'Sheet.png')
+    idx = model_pack.build_pack(tmp_path / 'pack', {'weapons': (obj, 'decor')}, texture_roots=[tex], tex_size=512)
+    assert model_pack.item_key('Env_Mill_part3') == 'env_mill'
+    assert list(idx['items']['weapons']) == ['cannon_a']                 # both material parts in one item, the low-detail copy left out
+    body = (tmp_path / 'pack' / idx['items']['weapons']['cannon_a']).read_text()
+    m = json.loads(body[body.index(',') + 1:body.rindex(')')])
+    assert sum(g['n'] for g in m['groups']) == 2 and all('@' in g['tex'] for g in m['groups'])
+    im, umin, usc = model_pack.crop_uv(Image.new('RGBA', (4096, 4096)), [0.0, 0.0], [0.25 / 65534, 0.25 / 65534])
+    assert im.size[0] <= 1024 and im.size[0] >= 1000                   # a quarter of a 4096 sheet kept at full resolution
+
+
+def test_island_planner_has_3d_island_and_decorations():
+    import site_tools
+    from pathlib import Path
+    assert site_tools.ISLE_GROUPS['Pub'] == 'Trader' and site_tools.ISLE_GROUPS['Avanpost'] == 'Tower'
+    js = (Path(__file__).resolve().parents[1] / 'viewer' / 'planners.js').read_text()
+    assert 'data-model="personal_isle"' in js and "'initial_level' + lv" in js and 'EnvDecorElements' in js
+    iv = (Path(__file__).resolve().parents[1] / 'viewer' / 'item_viewer.js').read_text()
+    assert 'ivFilter' in iv and 'terr' in iv
+    assert 'item_viewer.js' in site_tools.PLANNER_PAGES['island-planner'][1]

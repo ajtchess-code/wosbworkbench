@@ -277,12 +277,17 @@ def builder_data(b):
             'slot_costs': {str(rk): site_extras.slot_costs(rk) for rk in range(1, 8)}}
 
 
+# building → its model on the Personal Island (Connection<group>_level1/2; level 2 is the Third Island look)
+ISLE_GROUPS = {'Dok': 'Dok', 'Shipbuilder': 'Ship', 'Workshop': 'Workshop', 'BigStorage': 'Storage', 'Avanpost': 'Tower',
+               'Factory': 'Factory', 'Pub': 'Trader', 'Lighthouse': 'Lighthouse'}
+
+
 def island_data(b):
     t = b.texts
     keys = [('BigStorage', 4), ('Workshop', 3), ('Dok', 1), ('Shipbuilder', 2), ('Avanpost', 5), ('Pub', 7), ('Factory', 6), ('Lighthouse', 8)]
     labor = {'Workshop': 100, 'Pub': 20, 'Dok': 20, 'Factory': 10}
     buildings = [{'id': k, 'n': t.get(f'personal_isle_b{n}_name', k), 'd': (t.get(f'personal_isle_b{n}_tt') or '').replace('{0}', '7,000').replace('#', ''),
-                  'labor': labor.get(k, 0)} for k, n in keys]
+                  'labor': labor.get(k, 0), 'g': ISLE_GROUPS.get(k)} for k, n in keys]
     buildings = [x for x in buildings if x['d'] and x['d'] != '???']
     decor = []
     for r in b.entities.get('decoration', []):
@@ -292,8 +297,10 @@ def island_data(b):
         decor.append({'n': r['_title'], 'cur': ('gold' if m.group(1) == 'Gold' else 'coins') if m else None, 'p': int(m.group(2)) if m else None,
                       'bonus': site_effects.describe_all(bonus)[0] if bonus else '', 'code': (str(bonus).split() or [''])[0] if bonus else '',
                       'v': float((_re.findall(r'[+-]?\d+(?:\.\d+)?', str(bonus or '')) or [0])[0]),
-                      'i': b.icons.get(('decoration', r['_title'].casefold())), 'u': b.urls.get(('decoration', r['_title'].casefold()))})
+                      'i': b.icons.get(('decoration', r['_title'].casefold())), 'u': b.urls.get(('decoration', r['_title'].casefold())),
+                      'm': str(r.get('Name') or '').lower() or None})
     return {'buildings': buildings, 'decor': sorted(decor, key=lambda d: d['n']), 'min_rank': 9,
+            'models': bool(getattr(b, 'model_pack', False) and getattr(b, 'recovery_dir', None)),
             'storage': [50, 500], 'labor_base': 50, 'labor_per_hour': 1,
             'skills': [{'n': 'Personal Islands', 'pts': 1, 'd': 'A second island, and travel between islands.'},
                        {'n': 'Third Island', 'pts': 0, 'd': 'A third island; travel every 2 hours instead of 4, and a new look for the buildings on all your islands.'}]}
@@ -362,7 +369,7 @@ PLANNER_PAGES = {
                      'Captain skills, guild and port bonuses are not included.</p>'),
     'island-planner': ('Personal Island planner', '<p>Plan your Personal Islands: what each building costs at your captain rank and in the order you build them, '
                        'what decorations cost in gold or Coins and what they add, and what the island\'s labour and warehouse come to.</p>'
-                       '<div id="ip"></div><script src="../assets/planners.js"></script><script>Planners.islandPlanner(document.getElementById("ip"),"../data/islands.json")</script>'),
+                       '<div id="ip"></div><script src="../assets/item_viewer.js"></script><script src="../assets/planners.js"></script><script>Planners.islandPlanner(document.getElementById("ip"),"../data/islands.json")</script>'),
     'chest-simulator': ('Chest simulator', '<p>Open chests as many times as you like without spending a Coin. The odds are the game\'s own reward tables; '
                         'the simulator also shows the chance of each reward and what a number of opens costs.</p>'
                         '<div id="cs"></div><script src="../assets/planners.js"></script><script>Planners.chestSim(document.getElementById("cs"),"../data/chests.json")</script>'),
