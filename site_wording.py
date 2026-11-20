@@ -15,6 +15,8 @@ PHRASES = [
     (r"\bisn't in the client\b", "isn't shown by the game"), (r"\bin the client\b", 'in the game'), (r"\bby the client\b", 'by the game'),
     (r"\bfrom the client's\b", "from the game's"), (r"\bthe client's\b", "the game's"), (r"\bThe client's\b", "The game's"),
     (r"\bthe client\b", 'the game'), (r"\bThe client\b", 'The game'), (r"\bclient-side\b", 'in-game'), (r"\bthe Compendium's\b", "the wiki's"),
+    (r"\bBy Monets (\d[\d,]*)", lambda m: f"{int(m.group(1).replace(',', '')):,} Coins"), (r"\bBy Gold (\d[\d,]*)", lambda m: f"{int(m.group(1).replace(',', '')):,} gold"),
+    (r"\bMonets\b", 'Coins'), (r"\bmonets\b", 'Coins'),
     (r"\bdatamined\b", 'game'), (r"\bDatamined\b", 'Game'), (r"\bread straight from the game\b", 'taken from the game'),
 ]
 TOOLING = re.compile(r'\b(?:WoSB Workbench|Workbench|datamin\w*|Full Recovery|recovery run|gameplay capture|capture hotkeys?|run a scan|scan report)\b', re.I)

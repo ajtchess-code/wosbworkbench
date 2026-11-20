@@ -152,3 +152,17 @@ console.log('ok');""")
     shutil.copy(root / 'viewer' / 'planners.js', tmp_path / 'p.js')
     r = subprocess.run(['node', str(test), (tmp_path / 'p.js').as_uri()], capture_output=True, text=True, timeout=60)
     assert r.returncode == 0, r.stderr[-1500:]
+
+
+def test_store_prices_events_and_wording():
+    import site_tools, site_wording, json as _j
+    from pathlib import Path
+    assert site_tools.design_price({'Category': 'ShipFullDesign', 'InShop': 'true Tier3'}) == (690, None)
+    assert site_tools.design_price({'Category': 'ShipFullDesign', 'InShop': 'true Tier3'}, ship_rank=6) == (455, None)   # rank 5-7 skins: -34%
+    assert site_tools.design_price({'Category': 'Flag', 'InShop': 'true'}) == (77, None)
+    assert site_tools.design_price({'Category': 'BowFigure', 'InShop': 'ByGold 2000'}) == (None, 2000)
+    assert site_tools.design_price({'Category': 'Flag', 'InShop': 'false'}) == (None, None)
+    ev = _j.loads((Path(__file__).resolve().parents[1] / 'data' / 'events.json').read_text())
+    assert set(ev) == {'Halloween', 'NewYear', 'Anniversary', 'Spring'} and all(len(e['days']) == 14 for e in ev.values())
+    assert site_tools._quest_text('KillAnyNpc(15)') == 'Sink 15 NPC ships'
+    assert site_wording.clean_text('By Monets 890') == '890 Coins'

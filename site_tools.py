@@ -11,8 +11,10 @@ Data sources (all read from the catalog):
 """
 from __future__ import annotations
 
+import html as _html
 import json
 import math
+import re
 from collections import defaultdict
 
 import site_extras
@@ -179,8 +181,13 @@ def write_pages(b, crumbs, page):
     """Write the crafting calculator (data + page). ``page`` is wiki_site._page."""
     data = crafting_data(b)
     b._write('data/crafting.json', json.dumps(data, separators=(',', ':')))
+    b.search.append({'t': 'Crafting calculator', 'u': 'tools/crafting-calculator.html', 'c': 'Tool', 'k': 'craft recipe materials cost plan'})
     b._write('tools/crafting-calculator.html', page('Crafting calculator', CRAFT_PAGE, depth=1, crumbs=crumbs, tab='Tool'))
     write_planners(b, crumbs, page)
+    events_pages(b, crumbs, page)
+    world_pages(b, crumbs, page)
+    shop_page(b, crumbs, page)
+    npc_ships_page(b, crumbs, page)
     return len(data['recipes'])
 
 
@@ -312,6 +319,8 @@ def chest_data(b):
     def label(r):
         k, q = r['t'], r.get('q', 1)
         if k == 'res':
+            if r['id'] == 69:
+                return f'{q:,} × {res.get(69) or "Golden Fish"} (the event currency)'
             return f'{q:,} × {res.get(r["id"]) or extra.get(r["id"], "item " + str(r["id"]))}'
         if k == 'gold':
             return f'{q:,}–{r["qmax"]:,} gold' if r.get('qmax') else f'{q:,} gold'
@@ -369,4 +378,323 @@ def write_planners(b, crumbs, page):
     for slug, (title, body) in PLANNER_PAGES.items():
         if slug == 'chest-simulator' and not chests:
             continue
+        b.search.append({'t': title, 'u': f'tools/{slug}.html', 'c': 'Tool', 'k': {'ship-builder': 'fit upgrades crew lantern build',
+                         'island-planner': 'personal island buildings decorations', 'chest-simulator': 'chest loot odds open altar'}.get(slug, '')})
         b._write(f'tools/{slug}.html', page(title, body, depth=1, crumbs=crumbs, tab='Tool'))
+
+
+# ================================================================================================ events
+QUESTS = {
+    'KillAnyNpc': 'Sink {0} NPC ships', 'BoardingAnyNpc': 'Board and capture {0} NPC ships', 'RamDamage': 'Deal {0} ramming damage',
+    'BuyAndSell': 'Trade {0} goods: buy in the south or Arab region, sell in the north', 'KillEmpireNpcInSeamlessSea': 'Sink {0} Empire ships in the open sea',
+    'CollectAndSellFish': 'Catch and sell {0} fish', 'CollectKeys': 'Collect {0} chest keys', 'ArenaNotTraining': 'Play {0} arena battles (not training)',
+    'FortDamage': 'Deal {0} damage to forts', 'CollectEmpireDrop': 'Pick up {0} Empire cargo drops', 'WhaleDamage': 'Deal {0} damage to whales',
+    'FalkonetDamage': 'Deal {0} damage with swivel guns', 'FireAreaDamage': 'Deal {0} fire damage', 'KillNamedEmpireShips': 'Sink {0} named Empire ship(s)',
+    'CollectSpecialUnits': 'Hire {0} special crew', 'KillEmpireLegend': 'Sink {0} Empire legendary ships', 'PassingMapEpic': 'Complete an epic-difficulty map',
+    'KillWhale': 'Kill {0} whales', 'KillAnyNpcByMortar': 'Sink {0} NPC ships with mortars',
+}
+FLAGS = {
+    'GoldFishingEnabled': 'Golden fish can be caught while fishing, to spend at the event trader.',
+    'PumpkinLootEnabled': 'Ships and loot drop pumpkins.', 'RandomizedQuestDays': 'The daily quests come in a different order for each player.',
+    'FastFortRespawnEnabled': 'Forts come back faster after they are captured.', 'EventMapDropEnabled': 'Event treasure maps drop.',
+    'AltarGoldFishEnabled': 'Altars can give golden fish.', 'SnowballEnabled': 'Snowball shot is available.', 'IceBallsDropEnabled': 'Ice shot drops.',
+    'AmberChestEnabled': 'Amber chests can be found.', 'IcebergEnabled': 'Icebergs appear at sea.',
+}
+EVENT_NAMES = {'Halloween': 'Halloween', 'NewYear': 'New Year', 'Anniversary': 'Anniversary', 'Spring': 'Spring Festival'}
+
+
+_esc = _html.escape
+
+
+def _quest_text(q):
+    m = re.match(r'(\w+)\((.*)\)$', q)
+    if not m:
+        return q
+    name, args = m.group(1), [a.strip() for a in m.group(2).split(',')]
+    nums = [a for a in args if re.fullmatch(r'\d+', a)]
+    tpl = QUESTS.get(name)
+    if tpl:
+        return tpl.format(*([f'{int(n):,}' for n in nums] or ['']))
+    return re.sub(r'(?<!^)(?=[A-Z])', ' ', name).capitalize() + (f' ({", ".join(nums)})' if nums else '')
+
+
+def events_pages(b, crumbs, page):
+    crumbs = [('Main page', 'index.html'), ('Guides & mechanics', 'category/articles.html'), ('Events', 'guide/events.html')]
+    try:
+        events = json.loads((site_extras.DATA / 'events.json').read_text(encoding='utf-8'))
+    except (OSError, ValueError):
+        return 0
+    res = site_extras.resource_names(b.db, b.build)
+    designs = {int(d.get('SourceRecord') or -1): d for d in b.entities.get('cosmetic', [])}
+    decor = {int(d.get('SourceRecord') or -1): d for d in b.entities.get('decoration', [])}
+    ships = {str(s.get('ID')): s['_title'] for s in b.entities.get('ship', [])}
+    cans = {int(c.get('SourceRecord') or -1): c['_title'] for c in b.entities.get('cannon', [])}
+    ammo = {int(a.get('SourceRecord') or -1): a.get('EnglishName') for a in site_extras.records(b.db, 'CannonBalls', b.build)}
+    fish = 'the event currency' + (f' (in the game files now: {res[69]})' if res.get(69) else '')
+
+    def dlink(i, kind='cosmetic'):
+        d = (designs if kind == 'cosmetic' else decor).get(i)
+        if not d:
+            return f'design #{i}' if kind == 'cosmetic' else f'decoration #{i}'
+        u = b.urls.get((kind, d['_title'].casefold())); ic = b.icons.get((kind, d['_title'].casefold()))
+        img = f'<img class="ticon" src="../{ic}" alt="" width="28" height="28" loading="lazy">' if ic else ''
+        return img + (f'<a href="../{u}">{_esc(d["_title"])}</a>' if u else _esc(d['_title']))
+
+    def offer(o):
+        if o.get('ship'):
+            return 'Ship: ' + _esc(ships.get(str(o['ship']), f'ship #{o["ship"]}'))
+        if o.get('design') is not None:
+            return dlink(o['design'])
+        if o.get('res'):
+            rid, q, kind = o['res']
+            n = ammo.get(rid) if kind == 'Ammo' else res.get(rid)
+            return f'{q:,} × {_esc(n or ("item " + str(rid)))}'
+        if o.get('cannon') is not None:
+            return f'Cannon: {_esc(cans.get(o["cannon"], "#" + str(o["cannon"])))}'
+        if o.get('gold'):
+            return f'{o["gold"]:,} gold'
+        if o.get('monets'):
+            return f'{o["monets"]:,} Coins'
+        if o.get('premium'):
+            return f'{o["premium"]} days of Premium'
+        if o.get('xp'):
+            return f'{o["xp"]:,} XP for all ships'
+        if o.get('flag'):
+            return f'Legendary flag for {o["flag"]} days'
+        return '—'
+
+    rows, n = [], 0
+    for key, ev in sorted(events.items(), key=lambda kv: kv[1]['start'][5:]):
+        name = EVENT_NAMES.get(key, key)
+        slug = 'event-' + re.sub(r'[^a-z0-9]+', '-', name.lower()).strip('-')
+        days = ''.join(f'<li>{_esc(_quest_text(q))}</li>' for q in ev['days'])
+        ms = []
+        for d, c in sorted(ev['milestones'].items(), key=lambda kv: int(kv[0])):
+            parts = []
+            if c.get('coins'): parts.append(f'{c["coins"]} Coins')
+            parts += [dlink(i) for i in c.get('designs', [])] + [dlink(i, 'decoration') for i in c.get('decor', [])]
+            if c.get('premium'): parts.append(f'{c["premium"][0]} days of Premium (or {c["premium"][1]} Coins if you already have it)')
+            parts += [f'{int(q):,} more {_esc(res.get(int(r), "item " + r))}' for r, q in c.get('items', {}).items()]
+            parts += [f'the achievement “{_esc(re.sub(r"(?<!^)(?=[A-Z])", " ", a))}”' for a in c.get('achievement', [])]
+            ms.append([str(d), ', '.join(parts)])
+        daily = ', '.join([f'{q:,} {_esc(res.get(int(r), "item " + r))}' for r, q in ev['daily'].get('items', {}).items()]
+                          + [f'{q:,} {_esc(ammo.get(int(r), "ammo " + r))}' for r, q in ev['daily'].get('balls', {}).items()])
+        first = ', '.join([dlink(i) for i in ev['first_open'].get('designs', [])] + [dlink(i, 'decoration') for i in ev['first_open'].get('decor', [])])
+        npc = ships.get(str(ev.get('npc_ship'))) if ev.get('npc_ship') else None
+        body = (f'<p>The {_esc(name)} event lasts <b>{len(ev["days"])} days</b>. The last time the game set it up, it started on <b>{ev["start"]}</b>; '
+                'it comes back every year around the same date. The event currency stays usable for 3 days after the end.</p>'
+                + (f'<p>Opening the event the first time gives you {first}.</p>' if first else '')
+                + '<h2 id="features">What changes during the event</h2><ul>' + ''.join(f'<li>{_esc(FLAGS.get(f, f))}</li>' for f in ev['flags'])
+                + (f'<li>An event ship sails the seas: <b>{_esc(npc)}</b>.</li>' if npc else '')
+                + (f'<li>All ships are {ev["ship_discount"] * 100:.0f}% cheaper.</li>' if ev.get('ship_discount') else '') + '</ul>'
+                + f'<h2 id="quests">Daily quests</h2><p>One quest a day. Each one you finish gives <b>{daily}</b> (the event currency changes its name and look from event to event). '
+                + ('The order is different for every player. ' if 'RandomizedQuestDays' in ev['flags'] else '')
+                + f'A quest you do not want can be skipped for 89 Coins.</p><ol>{days}</ol>'
+                + '<h2 id="milestones">Rewards for days completed</h2><p>Extra rewards for the number of days you have finished, in any order:</p>'
+                + site_extras._table(['Days finished', 'Reward'], ms)
+                + (f'<h2 id="trader">Event trader</h2><p>Prices are in {_esc(fish)}. Offers marked “once per event” can be bought one time.</p>' + site_extras._table(['Offer', 'Price'], [
+                    [offer(o) + (' <span class="pl-sub">(once per event)</span>' if o.get('once') else ''), f'{o["price"]:,}'] for o in ev.get('trader', [])]) if ev.get('trader') else ''))
+        b._write(f'guide/{slug}.html', page(f'{name} event', body, depth=1, crumbs=crumbs, tab='Guide'))
+        b.search.append({'t': f'{name} event', 'u': f'guide/{slug}.html', 'c': 'Event', 'k': 'event quests rewards trader ' + ' '.join(ev['flags'])})
+        rows.append([f'<a href="{slug}.html">{_esc(name)}</a>', ev['start'][5:].replace('-', '/') + ' (month/day)', f'{len(ev["days"])} days',
+                     _esc('; '.join(FLAGS.get(f, f).rstrip('.') for f in ev['flags'] if f not in ('RandomizedQuestDays', 'GoldFishingEnabled')))])
+        n += 1
+    over = ('<p>The game runs four yearly events. Each has 14 daily quests, rewards for the days you finish, event-only features at sea and a trader '
+            'who takes golden fish.</p>' + site_extras._table(['Event', 'Usually starts', 'Length', 'Highlights'], rows))
+    b._write('guide/events.html', page('Events', over, depth=1, crumbs=crumbs[:2], tab='Guide'))
+    b.search.append({'t': 'Events', 'u': 'guide/events.html', 'c': 'Guide', 'k': 'events halloween new year anniversary spring festival'})
+    return n
+
+
+# ================================================================================================ forts, altars, weather
+def _sector_table(guns, half_arc=45):
+    def d(a, b):
+        return abs((a - b + 180) % 360 - 180)
+    rows = []
+    for t in range(0, 360, 30):
+        n = sum(1 for g in guns if d(g['f'], t) < half_arc)
+        rows.append([f'{t}°', str(n), '■' * n])
+    return rows
+
+
+def world_pages(b, crumbs, page):
+    import shutil
+    crumbs = [('Main page', 'index.html'), ('Guides & mechanics', 'category/articles.html')]
+    altar = None
+    try:
+        chests = json.loads((b.out / 'data' / 'chests.json').read_text(encoding='utf-8'))
+        altar = chests['chests'].get('altar')
+    except (OSError, ValueError, KeyError):
+        pass
+    # ---- Imperial forts
+    try:
+        guns = json.loads((site_extras.DATA / 'worldfort_guns.json').read_text(encoding='utf-8'))['guns']
+    except (OSError, ValueError):
+        guns = []
+    pic = site_extras.DATA / 'worldfort-coverage.webp'
+    img = ''
+    if pic.is_file():
+        (b.out / 'assets' / 'img').mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(pic, b.out / 'assets' / 'img' / 'worldfort-coverage.webp')
+        img = ('<figure class="fig-right"><img src="../assets/img/worldfort-coverage.webp" alt="Imperial fort seen from above with its guns and how many can fire in each direction" '
+               'width="500" height="500" loading="lazy"><figcaption>The fort from above. Red dots are guns, the black line shows where each one faces. '
+               'The ring: red where many guns can reach you, green where few can.</figcaption></figure>')
+    nforts = len(getattr(b, 'world', {}).get('forts', []) or []) if isinstance(getattr(b, 'world', None), dict) else 0
+    sect = _sector_table(guns)
+    end_a = min((r for r in sect if int(r[0][:-1]) in (300, 330, 0, 30, 60)), key=lambda r: int(r[1]))
+    end_b = min((r for r in sect if int(r[0][:-1]) in (120, 150, 180, 210, 240)), key=lambda r: int(r[1]))
+    body = (img + '<p><b>Imperial forts</b> are the Empire\'s strongholds on the open sea'
+            + (f' ({nforts} on the world map)' if nforts else '') + '. Sink their defences, and the fort drops a loot crate for whoever can grab it.</p>'
+            '<h2 id="guns">Guns and the safest angles</h2>'
+            f'<p>Every Imperial fort is the same building with <b>{len(guns)} guns</b> set around its walls, each facing outwards. '
+            'A gun only fires at ships inside its arc, so how many guns can hit you depends on which side you attack from. '
+            'The table counts the guns that can bear on each direction, assuming each gun can swing 45° either way (the exact arc is set by the server, '
+            'not stored in the game files). 0° is the fort\'s right-hand end in the picture, 90° the top.</p>'
+            + site_extras._table(['Direction', 'Guns that can bear', ''], sect)
+            + f'<p><b>Safest approach:</b> the two narrow ends: around {end_a[0]} on the right, where only {end_a[1]} guns reach, and around {end_b[0]} on the left ({end_b[1]} guns). '
+            'The long walls are the most dangerous: up to a dozen guns can fire at once. Guns also have a short dead zone right under the walls.</p>'
+            '<h2 id="loot">Loot</h2><ul><li>The fort shows its current reward before you attack; it changes from fort to fort and over time (the server decides it).</li>'
+            '<li>When the fort falls it drops a <b>loot crate that floats for 15 minutes</b>. Sail right up to it to pick it up; anyone can take it.</li>'
+            '<li>“Deal damage to forts” is a common event quest.</li></ul>'
+            '<h2 id="respawn">Respawn</h2><p>A captured fort comes back after a while. The timer is kept on the server, so it is not in the game files; '
+            'during the <a href="event-halloween.html">Halloween event</a> forts come back faster.</p>'
+            '<p>See them on the <a href="../map.html">world map</a> (Forts layer), and the <a href="../tools/defenses.html">Towers, Forts &amp; Mortars</a> tool for port-battle defences.</p>')
+    b._write('guide/imperial-forts.html', page('Imperial forts', body, depth=1, crumbs=crumbs, tab='Guide'))
+    b.search.append({'t': 'Imperial forts', 'u': 'guide/imperial-forts.html', 'c': 'Guide', 'k': 'fort empire loot respawn angles guns'})
+    # ---- altars
+    if altar:
+        rows = [[_esc(r['label']), f'{r["pct"]:.1f}%'] for r in sorted(altar['rewards'], key=lambda r: -r['w'])]
+        nalt = len(getattr(b, 'world', {}).get('altars', []) or []) if isinstance(getattr(b, 'world', None), dict) else 0
+        body = ('<p><b>Altars</b> are small shrines on islands around the world' + (f' ({nalt} on the world map)' if nalt else '') + '. '
+                'Make an offering and the altar gives one reward, drawn from the table below with the game\'s own weights.</p>'
+                + site_extras._table(['Reward', 'Chance'], rows)
+                + '<p>During some events (Anniversary, Spring Festival, New Year) altars can also give the event currency. '
+                'Try your luck without sailing out in the <a href="../tools/chest-simulator.html">chest simulator</a> (choose “Altar offering”), '
+                'and find altars on the <a href="../map.html">world map</a>.</p>')
+        b._write('guide/altars.html', page('Altars', body, depth=1, crumbs=crumbs, tab='Guide'))
+        b.search.append({'t': 'Altars', 'u': 'guide/altars.html', 'c': 'Guide', 'k': 'altar offering loot rewards skull'})
+    # ---- wind and weather
+    body = ('<p>How the game decides the wind, the weather and the sea, from the game\'s weather rules. For how much speed a ship gets at each angle to the wind, '
+            'see <a href="../tools/wind-rose.html">Wind &amp; Sailing</a>.</p>'
+            '<h2 id="wind">Wind direction</h2><ul>'
+            '<li>There is <b>one wind for the whole open sea</b>: every ship feels the same direction. The server picks it and changes it from time to time.</li>'
+            '<li>A change is not instant: the wind <b>turns smoothly to the new direction over 20 seconds</b>.</li>'
+            '<li>Arena battles use a fixed wind from one diagonal, so every match starts the same.</li></ul>'
+            '<h2 id="sea">Sea state and wind strength</h2><p>The sea has four states. Changes blend in over 60 seconds.</p>'
+            + site_extras._table(['Sea', 'Wave height', 'Wind strength'], [['Calm', '0.3', '15%'], ['Restless', '0.7', '40%'], ['Storm', '1.1', '70%'], ['Dangerous storm', '3.5', '100%']])
+            + '<p>Waves are lower over shallow water (down to 60% of the sea state\'s height) and higher over deep water (up to about twice it).</p>'
+            '<h2 id="storms">Storms and fog banks</h2><ul>'
+            '<li>At most <b>one storm</b> and <b>two fog banks</b> are at sea at a time.</li>'
+            '<li>A storm forms at the edge of the world on the side the wind blows from, then drifts downwind and crosses the whole map in about <b>23 minutes</b>. '
+            'Fog banks drift at half that speed.</li>'
+            '<li>A storm is huge: its outer edge reaches about a third of the map\'s width from its centre, and its violent core about a sixth. Sizes vary by up to 30%. Fog banks are 40% of that size.</li>'
+            '<li>Inside a storm the waves rise towards the dangerous-storm height and the wind blows harder. The edges of the world are always stormy.</li>'
+            '<li>The volcano is wrapped in its own fog, out to about a tenth of the map\'s width.</li></ul>'
+            '<h2 id="whirlpool">The whirlpool (sea current)</h2><p>The only current in the game is the <b>whirlpool</b>:</p><ul>'
+            '<li>It appears somewhere new about <b>every 12 hours</b>, grows to full size quickly, stays, then fades away before moving.</li>'
+            '<li>At full size it reaches about four or five large-ship lengths from its centre. Inside, it both <b>pulls ships towards the centre</b> and <b>swings them around it</b>, '
+            'gently at the edge and hardest near the middle.</li>'
+            '<li>The sea surface sinks into a funnel towards the centre.</li></ul>')
+    b._write('guide/wind-and-weather.html', page('Wind, weather and currents', body, depth=1, crumbs=crumbs, tab='Guide'))
+    b.search.append({'t': 'Wind, weather and currents', 'u': 'guide/wind-and-weather.html', 'c': 'Guide', 'k': 'wind direction weather storm fog whirlpool current waves'})
+
+
+# ================================================================================================ store
+TIER_PRICES = {  # DonateShopApply.GetDesignPriceByTier (Coins)
+    'ShipFullDesign': {1: 390, 2: 490, 3: 690, 4: 990, 5: 1290, 'U': 9779}, 'SailTexture': {1: 137, 2: 370, 3: 590},
+    'Decal1': {1: 137, 2: 370, 3: 590, 4: 900}, 'Decal2': {1: 137, 2: 370, 3: 590, 4: 900}, 'Flag': {1: 77, 2: 170},
+    'Satellite': {1: 259, 2: 370, 3: 579, 4: 757}, 'BowFigure': {1: 127, 2: 290, 3: 370}}
+KIND_NAMES = {'ShipFullDesign': 'Ship skin', 'SailTexture': 'Sail cloth', 'Decal1': 'Paint', 'Decal2': 'Sail pattern', 'Flag': 'Flag',
+              'Satellite': 'Lantern', 'BowFigure': 'Figurehead'}
+
+
+def design_price(rec, ship_rank=None):
+    """(coins, gold) for a ship design, or (None, None) when it is not sold. Skins for rank 5-7 ships cost 34% less."""
+    shop = str(rec.get('InShop') or '')
+    m = re.match(r'ByGold\s+(\d+)', shop)
+    if m:
+        return None, int(m.group(1))
+    if not shop.lower().startswith('true'):
+        return None, None
+    t = re.search(r'Tier(\w+)', shop)
+    tier = (int(t.group(1)) if t.group(1).isdigit() else t.group(1)) if t else 1
+    price = TIER_PRICES.get(rec.get('Category'), {}).get(tier)
+    if price and ship_rank is not None and ship_rank >= 5:
+        price = int(price * 0.66)
+    return price, None
+
+
+def shop_page(b, crumbs, page):
+    crumbs = [('Main page', 'index.html'), ('Guides & mechanics', 'category/articles.html')]
+    ranks = {str(s.get('ID')): s.get('ShipRank') for s in b.entities.get('ship', [])}
+    rows = []
+    for r in b.entities.get('cosmetic', []):
+        try:
+            rk = int(ranks.get(str(r.get('ShipId')))) if r.get('ShipId') not in (None, '', -1, '-1') and ranks.get(str(r.get('ShipId'))) else None
+        except (TypeError, ValueError):
+            rk = None
+        coins, gold = design_price(r, rk)
+        if coins is None and gold is None:
+            continue
+        u = b.urls.get(('cosmetic', r['_title'].casefold())); ic = b.icons.get(('cosmetic', r['_title'].casefold()))
+        img = f'<img class="ticon" src="../{ic}" alt="" width="28" height="28" loading="lazy">' if ic else ''
+        rows.append([img + (f'<a href="../{u}">{_esc(r["_title"])}</a>' if u else _esc(r['_title'])), KIND_NAMES.get(r.get('Category'), r.get('Category') or ''),
+                     f'{coins:,} Coins' if coins else f'{gold:,} gold', _esc(r.get('_bonus') or '')])
+    rows.sort(key=lambda x: (x[1], x[0]))
+    try:
+        ch = json.loads((site_extras.DATA / 'chests.json').read_text(encoding='utf-8'))
+        cp = ch['prices']
+    except (OSError, ValueError, KeyError):
+        cp = {}
+    seal = [('3 days', 99), ('7 days', 155), ('30 days', 535), ('90 days', 1390), ('180 days', 2590), ('Permanent', 4770)]
+    body = ('<p>What the in-game Store sells for <b>Coins</b>, what it costs, and the sales that come round. Prices are the game\'s own; '
+            'real-money packages and Coin bundles are priced by the platform and are not listed here.</p>'
+            '<h2 id="sales">Sales and discounts</h2><p>The Store runs timed sales, announced in the game\'s news. The kinds of sale the game knows:</p>'
+            + site_extras._table(['Sale', 'Discount'], [
+                ['Hold Restocking', '15% off items and designs bought with Coins'], ['Victory Hour', '20% off items and designs bought with Coins'],
+                ['Hour of Privileges', '10% off any Captain\'s Seal'], ['Treasure Vault', '15% off large chests and treasures'],
+                ['Season: Ships', '10% off building ships of one class for the season'], ['Opening 10 chests at once', '5% off, always']])
+            + '<p>When a sale runs and how long it lasts are decided by the developers on the server, so they are not in the game files. '
+            'Several sales of the same kind add together. Some events also make every ship cheaper to build.</p>'
+            '<h2 id="seal">Captain\'s Seal (Premium)</h2>' + site_extras._table(['Length', 'Price'], [[a, f'{p:,} Coins'] for a, p in seal])
+            + '<p>The Arena Store also sells 2, 4 or 6 days of Premium for 500, 1,000 or 1,500 arena points, and a 7-day Legendary Flag for 2,000.</p>'
+            '<h2 id="services">Services</h2>' + site_extras._table(['Service', 'Price'], [
+                ['Peace Treaty: 4 hours of Peace Flags everywhere, no extra mooring fee', '127 Coins'],
+                ['Hired Miners: 7 days of +50% crafting time and +50% mine and manufactory speed', '297 Coins'],
+                ['Hold Insurance: 1 hour at sea with your hold hidden and safe', '40 Scrolls'], ['Port slot for one more ship', '75 Coins (or Voodoo Skulls up to a limit)']])
+            + ('<h2 id="chests">Chests</h2>' + site_extras._table(['Chest', 'Price'], [
+                ['Large Chest', f'{cp["single"]} Coins'], ['3 Large Chests (three different rewards)', f'{cp["triple"]} Coins'],
+                ['Elite (Imperial) Chest', f'{cp["elite"]} Coins'], ['Inca Treasure Chest', f'{cp["incas"]} Coins'],
+                ['New Year Chest', f'{cp["newyear"]} Coins'], ['Specialists: 5 random special crew of a category', f'{cp["crew"]} Coins']])
+                + '<p>Chest keys found in the game open a chest for free. See every reward and its odds in the <a href="../tools/chest-simulator.html">chest simulator</a>.</p>'
+                if cp else '')
+            + '<h2 id="designs">Designs</h2><p>Every design the Store sells, at its full price. Skins for rank 5–7 ships cost 34% less than for bigger ships.</p>'
+            '<p><input class="tfilter" type="search" placeholder="Filter designs…" aria-label="Filter designs"></p>'
+            + site_extras._table(['Design', 'Kind', 'Price', 'Bonus'], rows))
+    b._write('guide/store.html', page('Store', body, depth=1, crumbs=crumbs, tab='Guide'))
+    b.search.append({'t': 'Store', 'u': 'guide/store.html', 'c': 'Guide', 'k': 'shop store coins prices discounts sale premium seal chest designs'})
+
+
+def npc_ships_page(b, crumbs, page):
+    crumbs = [('Main page', 'index.html'), ('Missions & NPCs', 'category/missions.html')]
+    def row(s):
+        u = b.urls.get(('ship', s['_title'].casefold())); ic = b.icons.get(('ship', s['_title'].casefold()))
+        img = f'<img class="ticon" src="../{ic}" alt="" width="40" height="40" loading="lazy">' if ic else ''
+        name = img + (f'<a href="../{u}">{_esc(s["_title"])}</a>' if u else _esc(s['_title']))
+        return [name, str(s.get('ShipRank') or ''), _esc(s.get('TypeEnglish') or s.get('Type') or ''), f'{int(s.get("Health") or 0):,}',
+                f'<a href="../tools/ship-viewer.html?ship={_esc(s["_title"])}">3D model</a>']
+    ships = b.entities.get('ship', [])
+    empire = [s for s in ships if str(s.get('Coolness', '')).startswith('Empire')]
+    npc = [s for s in ships if str(s.get('CanBeUsedForNpc')).lower() == 'true' and s not in empire]
+    if not empire and not npc:
+        return
+    head = ['Ship', 'Rank', 'Class', 'Hull HP', 'Model']
+    key = lambda s: (int(s.get('ShipRank') or 9), s['_title'])
+    body = ('<p>NPC captains sail the same ships players do, so every NPC ship has its own page, picture and 3D model. '
+            'Event bosses and the Empire\'s fleet use ships players cannot normally build.</p>'
+            + (f'<h2 id="empire">Empire and event ships</h2>' + site_extras._table(head, [row(s) for s in sorted(empire, key=key)]) if empire else '')
+            + (f'<h2 id="npc">Ships NPCs sail</h2><p>{len(npc)} player ships can turn up under an NPC flag: pirates, traders and Empire patrols.</p>'
+               + site_extras._table(head, [row(s) for s in sorted(npc, key=key)]) if npc else '')
+            + '<p>Where they appear: the <a href="../category/missions.html">PvE missions</a> list the NPC waves of each map, and event pages name each event\'s special ship.</p>')
+    b._write('guide/npc-ships.html', page('NPC ships', body, depth=1, crumbs=crumbs, tab='Guide'))
+    b.search.append({'t': 'NPC ships', 'u': 'guide/npc-ships.html', 'c': 'Guide', 'k': 'npc ships empire pirates traders models ghost ship'})

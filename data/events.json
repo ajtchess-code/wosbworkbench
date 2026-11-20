@@ -1,0 +1,968 @@
+{
+ "Halloween": {
+  "key": "Halloween",
+  "first_open": {
+   "designs": [
+    586
+   ],
+   "decor": []
+  },
+  "daily": {
+   "items": {
+    "69": 40
+   },
+   "balls": {}
+  },
+  "milestones": {
+   "3": {
+    "coins": 150,
+    "raw": "complexBonus.Monets = (Amount: 150, Reason: CurrencyReason.EventReward, Subject: S);"
+   },
+   "5": {
+    "designs": [
+     587
+    ],
+    "raw": "complexBonus.DesignElements[587]++;"
+   },
+   "7": {
+    "decor": [
+     48
+    ],
+    "raw": "complexBonus.EnvDecorElements[48]++;"
+   },
+   "9": {
+    "premium": [
+     14,
+     200
+    ],
+    "raw": "CalendarEvents.AddPremiumOrMonets(complexBonus, P_0, 14, 200, S);"
+   },
+   "12": {
+    "items": {
+     "69": 400
+    },
+    "raw": "complexBonus.Items[69] += 400;"
+   }
+  },
+  "start": "2026-10-24",
+  "flags": [
+   "GoldFishingEnabled",
+   "PumpkinLootEnabled",
+   "RandomizedQuestDays",
+   "FastFortRespawnEnabled",
+   "EventMapDropEnabled"
+  ],
+  "ship_discount": 0,
+  "npc_ship": 89,
+  "days": [
+   "KillAnyNpc(15)",
+   "BoardingAnyNpc(5)",
+   "RamDamage(3000)",
+   "BuyAndSell(100, new EconomyRegion[2] { EconomyRegion.South, EconomyRegion.Arab }, new EconomyRegion[1] { EconomyRegion.North })",
+   "KillEmpireNpcInSeamlessSea(5)",
+   "CollectAndSellFish(1200)",
+   "CollectKeys(3)",
+   "ArenaNotTraining(10)",
+   "FortDamage(3000)",
+   "CollectEmpireDrop(2)",
+   "WhaleDamage(3000)",
+   "FalkonetDamage(2000)",
+   "FireAreaDamage(8000)",
+   "KillNamedEmpireShips(1, S, S)"
+  ],
+  "all_days_quest": null,
+  "trader": [
+   {
+    "price": 2100,
+    "ship": 85
+   },
+   {
+    "price": 2000,
+    "res": [
+     78,
+     3,
+     "Resource"
+    ],
+    "once": 3
+   },
+   {
+    "price": 1550,
+    "design": 404
+   },
+   {
+    "price": 1350,
+    "res": [
+     37,
+     20000,
+     "Resource"
+    ]
+   },
+   {
+    "price": 1200,
+    "res": [
+     72,
+     75000,
+     "Resource"
+    ]
+   },
+   {
+    "price": 1000,
+    "res": [
+     15,
+     1500,
+     "Resource"
+    ]
+   },
+   {
+    "price": 750,
+    "res": [
+     78,
+     1,
+     "Resource"
+    ],
+    "once": 4
+   },
+   {
+    "price": 600,
+    "design": 593
+   },
+   {
+    "price": 400,
+    "design": 590
+   },
+   {
+    "price": 400,
+    "design": 591
+   },
+   {
+    "price": 400,
+    "design": 592
+   },
+   {
+    "price": 600,
+    "premium": 30
+   },
+   {
+    "price": 400,
+    "res": [
+     68,
+     1,
+     "Resource"
+    ]
+   },
+   {
+    "price": 300,
+    "res": [
+     72,
+     15500,
+     "Resource"
+    ]
+   },
+   {
+    "price": 275,
+    "design": 588
+   },
+   {
+    "price": 250,
+    "monets": 125
+   },
+   {
+    "price": 200,
+    "design": 594
+   },
+   {
+    "price": 200,
+    "premium": 7,
+    "once": 1
+   },
+   {
+    "price": 155,
+    "design": 589
+   },
+   {
+    "price": 145,
+    "res": [
+     23,
+     3000,
+     "Resource"
+    ]
+   },
+   {
+    "price": 120,
+    "res": [
+     15,
+     150,
+     "Resource"
+    ]
+   },
+   {
+    "price": 100,
+    "res": [
+     37,
+     1200,
+     "Resource"
+    ]
+   },
+   {
+    "price": 80,
+    "res": [
+     43,
+     10,
+     "Resource"
+    ]
+   },
+   {
+    "price": 75,
+    "premium": 3,
+    "once": 2
+   },
+   {
+    "price": 40,
+    "res": [
+     5,
+     6000,
+     "Ammo"
+    ]
+   },
+   {
+    "price": 25,
+    "res": [
+     7,
+     8000,
+     "Ammo"
+    ]
+   },
+   {
+    "price": 13,
+    "gold": 75000
+   },
+   {
+    "price": 9,
+    "res": [
+     43,
+     1,
+     "Resource"
+    ]
+   },
+   {
+    "price": 1,
+    "res": [
+     15,
+     1,
+     "Resource"
+    ]
+   },
+   {
+    "price": 1,
+    "res": [
+     72,
+     44,
+     "Resource"
+    ]
+   },
+   {
+    "price": 1,
+    "res": [
+     37,
+     11,
+     "Resource"
+    ]
+   }
+  ]
+ },
+ "NewYear": {
+  "key": "NewYear",
+  "first_open": {
+   "designs": [
+    528
+   ],
+   "decor": [
+    3
+   ]
+  },
+  "daily": {
+   "items": {
+    "69": 40
+   },
+   "balls": {
+    "21": 2000
+   }
+  },
+  "milestones": {
+   "3": {
+    "coins": 150,
+    "raw": "complexBonus.Monets = (Amount: 150, Reason: CurrencyReason.EventReward, Subject: S);"
+   },
+   "5": {
+    "designs": [
+     525
+    ],
+    "raw": "complexBonus.DesignElements[525]++;"
+   },
+   "6": {
+    "designs": [
+     530
+    ],
+    "raw": "complexBonus.DesignElements[530]++;"
+   },
+   "9": {
+    "premium": [
+     14,
+     200
+    ],
+    "raw": "CalendarEvents.AddPremiumOrMonets(complexBonus, P_0, 14, 200, S);"
+   },
+   "12": {
+    "items": {
+     "69": 400
+    },
+    "raw": "complexBonus.Items[69] += 400;"
+   }
+  },
+  "start": "2025-12-23",
+  "flags": [
+   "GoldFishingEnabled",
+   "RandomizedQuestDays",
+   "AltarGoldFishEnabled",
+   "SnowballEnabled"
+  ],
+  "ship_discount": 0,
+  "npc_ship": 76,
+  "days": [
+   "KillAnyNpc(15)",
+   "CollectSpecialUnits(3)",
+   "BoardingAnyNpc(5)",
+   "CollectEmpireDrop(3)",
+   "KillEmpireNpcInSeamlessSea(5)",
+   "KillEmpireLegend(5)",
+   "CollectKeys(3)",
+   "ArenaNotTraining(10)",
+   "FortDamage(3000)",
+   "PassingMapEpic()",
+   "KillWhale(10)",
+   "FalkonetDamage(2000)",
+   "FireAreaDamage(10000)",
+   "ArenaNotTraining(10)"
+  ],
+  "all_days_quest": null,
+  "trader": [
+   {
+    "price": 2500,
+    "design": 468
+   },
+   {
+    "price": 2000,
+    "design": 537
+   },
+   {
+    "price": 1750,
+    "design": 404
+   },
+   {
+    "price": 1500,
+    "res": [
+     72,
+     75000,
+     "Resource"
+    ]
+   },
+   {
+    "price": 1250,
+    "design": 536
+   },
+   {
+    "price": 1000,
+    "design": 531
+   },
+   {
+    "price": 900,
+    "design": 534
+   },
+   {
+    "price": 600,
+    "design": 535
+   },
+   {
+    "price": 600,
+    "design": 532
+   },
+   {
+    "price": 600,
+    "design": 562
+   },
+   {
+    "price": 420,
+    "res": [
+     68,
+     1,
+     "Resource"
+    ]
+   },
+   {
+    "price": 300,
+    "res": [
+     72,
+     12000,
+     "Resource"
+    ]
+   },
+   {
+    "price": 250,
+    "monets": 125
+   },
+   {
+    "price": 200,
+    "design": 524
+   },
+   {
+    "price": 150,
+    "res": [
+     23,
+     3000,
+     "Resource"
+    ]
+   },
+   {
+    "price": 150,
+    "design": 529
+   },
+   {
+    "price": 100,
+    "design": 527
+   },
+   {
+    "price": 100,
+    "res": [
+     37,
+     1500,
+     "Resource"
+    ]
+   },
+   {
+    "price": 100,
+    "res": [
+     15,
+     150,
+     "Resource"
+    ]
+   },
+   {
+    "price": 40,
+    "res": [
+     5,
+     6000,
+     "Ammo"
+    ]
+   },
+   {
+    "price": 20,
+    "res": [
+     7,
+     8000,
+     "Ammo"
+    ]
+   },
+   {
+    "price": 10,
+    "gold": 75000
+   },
+   {
+    "price": 5,
+    "res": [
+     43,
+     1,
+     "Resource"
+    ]
+   },
+   {
+    "price": 1,
+    "res": [
+     15,
+     1,
+     "Resource"
+    ]
+   },
+   {
+    "price": 1,
+    "res": [
+     72,
+     30,
+     "Resource"
+    ]
+   },
+   {
+    "price": 1,
+    "res": [
+     37,
+     10,
+     "Resource"
+    ]
+   }
+  ]
+ },
+ "Anniversary": {
+  "key": "Anniversary",
+  "first_open": {
+   "designs": [
+    583
+   ],
+   "decor": []
+  },
+  "daily": {
+   "items": {
+    "69": 40
+   },
+   "balls": {}
+  },
+  "milestones": {
+   "3": {
+    "coins": 150,
+    "raw": "complexBonus.Monets = (Amount: 150, Reason: CurrencyReason.EventReward, Subject: S);"
+   },
+   "5": {
+    "designs": [
+     585
+    ],
+    "raw": "complexBonus.DesignElements[585]++;"
+   },
+   "9": {
+    "premium": [
+     14,
+     200
+    ],
+    "raw": "CalendarEvents.AddPremiumOrMonets(complexBonus, P_0, 14, 200, S);"
+   },
+   "12": {
+    "items": {
+     "69": 400
+    },
+    "achievement": [
+     "GuestOfHonor"
+    ],
+    "raw": "complexBonus.Items[69] += 400; complexBonus.AchievementsServer = new Tlist<AchievementEnum>(1).AddFirst(AchievementEnum.GuestOfHonor);"
+   }
+  },
+  "start": "2026-07-12",
+  "flags": [
+   "GoldFishingEnabled",
+   "AltarGoldFishEnabled",
+   "RandomizedQuestDays"
+  ],
+  "ship_discount": 0,
+  "npc_ship": null,
+  "days": [
+   "KillAnyNpc(15)",
+   "KillAnyNpcByMortar(10)",
+   "BoardingAnyNpc(5)",
+   "BuyAndSell(100, new EconomyRegion[2] { EconomyRegion.South, EconomyRegion.Arab }, new EconomyRegion[1] { EconomyRegion.North })",
+   "KillEmpireNpcInSeamlessSea(5)",
+   "CollectAndSellFish(1200)",
+   "CollectKeys(3)",
+   "ArenaNotTraining(10)",
+   "FortDamage(3000)",
+   "CollectEmpireDrop(5)",
+   "WhaleDamage(3000)",
+   "FalkonetDamage(2000)",
+   "FireAreaDamage(8000)",
+   "KillNamedEmpireShips(1, S, S)"
+  ],
+  "all_days_quest": null,
+  "trader": [
+   {
+    "price": 2100,
+    "ship": 77
+   },
+   {
+    "price": 1550,
+    "design": 404
+   },
+   {
+    "price": 1500,
+    "design": 467
+   },
+   {
+    "price": 1350,
+    "res": [
+     37,
+     20000,
+     "Resource"
+    ]
+   },
+   {
+    "price": 1200,
+    "res": [
+     72,
+     75000,
+     "Resource"
+    ]
+   },
+   {
+    "price": 1000,
+    "res": [
+     15,
+     1500,
+     "Resource"
+    ]
+   },
+   {
+    "price": 750,
+    "design": 581
+   },
+   {
+    "price": 600,
+    "design": 578
+   },
+   {
+    "price": 600,
+    "design": 580
+   },
+   {
+    "price": 500,
+    "design": 579
+   },
+   {
+    "price": 400,
+    "res": [
+     68,
+     1,
+     "Resource"
+    ]
+   },
+   {
+    "price": 300,
+    "res": [
+     72,
+     15500,
+     "Resource"
+    ]
+   },
+   {
+    "price": 275,
+    "design": 584
+   },
+   {
+    "price": 250,
+    "monets": 125
+   },
+   {
+    "price": 155,
+    "design": 582
+   },
+   {
+    "price": 145,
+    "res": [
+     23,
+     3000,
+     "Resource"
+    ]
+   },
+   {
+    "price": 120,
+    "res": [
+     15,
+     150,
+     "Resource"
+    ]
+   },
+   {
+    "price": 100,
+    "res": [
+     37,
+     1200,
+     "Resource"
+    ]
+   },
+   {
+    "price": 80,
+    "res": [
+     43,
+     10,
+     "Resource"
+    ]
+   },
+   {
+    "price": 40,
+    "res": [
+     5,
+     6000,
+     "Ammo"
+    ]
+   },
+   {
+    "price": 25,
+    "res": [
+     7,
+     8000,
+     "Ammo"
+    ]
+   },
+   {
+    "price": 13,
+    "gold": 75000
+   },
+   {
+    "price": 9,
+    "res": [
+     43,
+     1,
+     "Resource"
+    ]
+   },
+   {
+    "price": 1,
+    "res": [
+     15,
+     1,
+     "Resource"
+    ]
+   },
+   {
+    "price": 1,
+    "res": [
+     72,
+     44,
+     "Resource"
+    ]
+   },
+   {
+    "price": 1,
+    "res": [
+     37,
+     11,
+     "Resource"
+    ]
+   }
+  ]
+ },
+ "Spring": {
+  "key": "Spring",
+  "first_open": {
+   "designs": [],
+   "decor": [
+    47
+   ]
+  },
+  "daily": {
+   "items": {
+    "69": 40
+   },
+   "balls": {}
+  },
+  "milestones": {
+   "3": {
+    "coins": 150,
+    "designs": [
+     568
+    ],
+    "raw": "complexBonus.Monets = (Amount: 150, Reason: CurrencyReason.EventReward, Subject: S); complexBonus.DesignElements[568]++;"
+   },
+   "5": {
+    "designs": [
+     570
+    ],
+    "raw": "complexBonus.DesignElements[570]++;"
+   },
+   "6": {
+    "designs": [
+     563
+    ],
+    "raw": "complexBonus.DesignElements[563]++;"
+   },
+   "9": {
+    "premium": [
+     14,
+     200
+    ],
+    "raw": "CalendarEvents.AddPremiumOrMonets(complexBonus, P_0, 14, 200, S);"
+   },
+   "12": {
+    "items": {
+     "69": 400
+    },
+    "achievement": [
+     "GuestOfHonor"
+    ],
+    "raw": "complexBonus.Items[69] += 400; complexBonus.AchievementsServer = new Tlist<AchievementEnum>(1).AddFirst(AchievementEnum.GuestOfHonor);"
+   }
+  },
+  "start": "2026-04-04",
+  "flags": [
+   "GoldFishingEnabled",
+   "RandomizedQuestDays",
+   "AltarGoldFishEnabled"
+  ],
+  "ship_discount": 0,
+  "npc_ship": null,
+  "days": [
+   "KillNamedEmpireShips(2, S, S)",
+   "CollectSpecialUnits(3)",
+   "BoardingAnyNpc(8)",
+   "CollectEmpireDrop(3)",
+   "KillEmpireNpcInSeamlessSea(5)",
+   "KillEmpireLegend(5)",
+   "CollectKeys(3)",
+   "ArenaNotTraining(10)",
+   "FortDamage(3000)",
+   "PassingMapEpic()",
+   "KillWhale(10)",
+   "FalkonetDamage(2000)",
+   "FireAreaDamage(8000)",
+   "ArenaNotTraining(10)"
+  ],
+  "all_days_quest": "QuestPresets.IcebergDamage(100000), OnQuestForAllDaysCompleted = [b(1)] () => { ComplexBonus complexBonus = new ComplexBonus()",
+  "trader": [
+   {
+    "price": 2100,
+    "ship": 77
+   },
+   {
+    "price": 2500,
+    "design": 468
+   },
+   {
+    "price": 1550,
+    "design": 404
+   },
+   {
+    "price": 1350,
+    "res": [
+     37,
+     20000,
+     "Resource"
+    ]
+   },
+   {
+    "price": 1200,
+    "res": [
+     72,
+     75000,
+     "Resource"
+    ]
+   },
+   {
+    "price": 1000,
+    "res": [
+     15,
+     1500,
+     "Resource"
+    ]
+   },
+   {
+    "price": 900,
+    "design": 564
+   },
+   {
+    "price": 800,
+    "design": 566
+   },
+   {
+    "price": 400,
+    "res": [
+     68,
+     1,
+     "Resource"
+    ]
+   },
+   {
+    "price": 300,
+    "res": [
+     72,
+     15500,
+     "Resource"
+    ]
+   },
+   {
+    "price": 250,
+    "monets": 125
+   },
+   {
+    "price": 155,
+    "design": 569
+   },
+   {
+    "price": 145,
+    "res": [
+     23,
+     3000,
+     "Resource"
+    ]
+   },
+   {
+    "price": 120,
+    "res": [
+     15,
+     150,
+     "Resource"
+    ]
+   },
+   {
+    "price": 100,
+    "res": [
+     37,
+     1200,
+     "Resource"
+    ]
+   },
+   {
+    "price": 80,
+    "res": [
+     43,
+     10,
+     "Resource"
+    ]
+   },
+   {
+    "price": 40,
+    "res": [
+     5,
+     6000,
+     "Ammo"
+    ]
+   },
+   {
+    "price": 25,
+    "res": [
+     7,
+     8000,
+     "Ammo"
+    ]
+   },
+   {
+    "price": 13,
+    "gold": 75000
+   },
+   {
+    "price": 9,
+    "res": [
+     43,
+     1,
+     "Resource"
+    ]
+   },
+   {
+    "price": 1,
+    "res": [
+     15,
+     1,
+     "Resource"
+    ]
+   },
+   {
+    "price": 1,
+    "res": [
+     72,
+     44,
+     "Resource"
+    ]
+   },
+   {
+    "price": 1,
+    "res": [
+     37,
+     11,
+     "Resource"
+    ]
+   }
+  ]
+ }
+}

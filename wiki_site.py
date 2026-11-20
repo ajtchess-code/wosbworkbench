@@ -80,8 +80,8 @@ ENTITIES = {
         ('Effects', 'Effects', 'effects')],
         ['Damage factor', 'Penetration bonus', 'Range factor', 'Sail damage', 'Crew damage', 'Reload factor']),
     'upgrade': ('ShipUpgradesNew', 'Ship upgrades', [
-        ('Category', 'Slot', 'category'), ('EffectsBoost', 'Effect', 'effects'), ('WearType', 'Wear', 'none'),
-        ('LowCost', 'Budget version', 'bool')], ['Slot', 'Effect']),
+        ('Category', 'Slot', 'category'), ('_range', 'Effect (rank 7 ship, then rank 1)', None), ('_budget', 'Version', None), ('WearType', 'Wear', 'none')],
+        ['Slot', 'Effect (rank 7 ship, then rank 1)', 'Version']),
     'crew': ('UnitsInfo', 'Crew', [
         ('TypeEnglish', 'Type', 'crewtype'), ('Options', 'Group', 'crewgroup'), ('Cost', 'Cost', 'int'), ('DHealth', 'Health', None),
         ('DDamage', 'Damage', None), ('DCapacity', 'Capacity', None), ('Effect', 'Effect', 'effects'),
@@ -102,8 +102,8 @@ ENTITIES = {
         ('UiCategory', 'Category', None), ('_medal', 'Title medal', None), ('_reward', 'Reward', None), ('_unlocks', 'Unlocks ship', None),
         ('CommonRatingWeight', 'Rating weight', None)], ['Category', 'Title medal', 'Reward', 'Rating weight']),
     'cosmetic': ('ShipDesingElements', 'Ship cosmetics', [
-        ('Category', 'Kind', 'cosmetic'), ('InShop', 'In shop', 'shop'), ('_bonus', 'Bonus', None),
-        ('EnglishDescription', 'Description', None)], ['Kind', 'In shop', 'Bonus']),
+        ('Category', 'Kind', 'cosmetic'), ('_store', 'Store price', None), ('_bonus', 'Bonus', None),
+        ('EnglishDescription', 'Description', None)], ['Kind', 'Store price', 'Bonus']),
     'decoration': ('EnvDesingElements', 'Island decorations', [
         ('InShop', 'How to get', 'shop'), ('EnglishDescription', 'Description', None)], ['How to get']),
     'recipe': ('Crafting_Recipes', 'Crafting recipes', [
@@ -116,7 +116,7 @@ NAV = [('Main page', 'index.html'), ('Ships', 'category/ships.html'), ('Cannons'
        ('Captain skills', 'category/skills.html'), ('Resources', 'category/resources.html'), ('Ports', 'category/ports.html'),
        ('Achievements', 'category/achievements.html'), ('Ship cosmetics', 'category/cosmetics.html'),
        ('Lanterns', 'guide/lanterns.html'), ('Island decorations', 'category/decorations.html'), ('Captain ranks', 'guide/captain-ranks.html'),
-       ('Elite status', 'guide/elite-status.html'), ('Upgrade slots', 'guide/upgrade-slots.html'), ('Crafting', 'category/recipes.html'), ('Missions & NPCs', 'category/missions.html'),
+       ('Elite status', 'guide/elite-status.html'), ('Events', 'guide/events.html'), ('Imperial forts', 'guide/imperial-forts.html'), ('Altars', 'guide/altars.html'), ('Wind & weather', 'guide/wind-and-weather.html'), ('Store', 'guide/store.html'), ('Upgrade slots', 'guide/upgrade-slots.html'), ('Crafting', 'category/recipes.html'), ('Missions & NPCs', 'category/missions.html'),
        ('World map', 'map.html'),
        ('Guides & mechanics', 'category/articles.html')]
 TOOLS = [('Damage simulator', 'tools/damage-simulator.html'), ('Wind & sailing', 'tools/wind-rose.html'),
@@ -356,7 +356,7 @@ h1{font:400 28px/1.3 Georgia,"Linux Libertine",serif;margin:0 0 4px;border-botto
 h2{font:400 21px/1.3 Georgia,serif;border-bottom:1px solid var(--border);margin:22px 0 8px}h3{font-size:16px;margin:16px 0 6px}
 .crumbs{font-size:12px;color:var(--muted);margin-bottom:10px}
 .infobox{float:right;clear:right;width:300px;margin:0 0 14px 18px;border:1px solid var(--border);background:#f8f9fa;font-size:13px;border-collapse:collapse}
-.infobox caption{font-weight:700;font-size:15px;padding:6px;background:var(--accent);color:#fff}.infobox td.ibimg{text-align:center;background:#fff;padding:8px}.infobox td.ibimg img{max-width:100%;max-height:220px;object-fit:contain}.entry .infobox td.ibimg img{max-height:72px}img.ticon{width:28px;height:28px;object-fit:contain;vertical-align:middle;margin-right:6px}img.medal{object-fit:contain;vertical-align:middle;margin-right:4px}.medal-row{display:flex;gap:18px;flex-wrap:wrap;margin:8px 0}.medal-lvl{margin:0;text-align:center;font-size:13px}img.cicon{width:40px;height:40px;object-fit:contain;vertical-align:middle;margin-right:8px}.cc h3{margin:18px 0 6px}.cc-add{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0}.cc-pick{flex:1;min-width:240px;padding:6px}.cc-q{width:80px;padding:6px}.cc-t{display:flex;align-items:center;gap:6px;margin:4px 0}.cc-t input{width:80px}.cc label{display:block;margin:4px 0}.cc-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;margin:12px 0}.cc-cards div{background:var(--panel,#f4f7fb);border:1px solid var(--line,#d5dde8);border-radius:8px;padding:10px}.cc-cards b{display:block;font-size:20px}.cc-cards span{font-size:12px;opacity:.8}.cc-tools{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:8px 0}.cc-msg{font-size:13px;opacity:.85}.cc-sub{font-size:12px;opacity:.7;display:inline-block;margin-left:4px}.cc-table input[type=number]{width:90px}.cc-table input[type=text]{width:120px}.cc-table select{max-width:220px}.cc-table td{vertical-align:top}.cc-steps li{margin:4px 0}.pl h3{margin:16px 0 6px}.pl-row{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin:6px 0}.pl-row input[type=number]{width:80px}.pl-cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px}@media(max-width:860px){.pl-cols{grid-template-columns:1fr}}.pl-sub{font-size:12px;opacity:.75}.pl-tools{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:10px 0}.pl-msg{font-size:12px;opacity:.85;word-break:break-all}.sb-slot{display:flex;justify-content:space-between;gap:8px;align-items:center;margin:3px 0}.sb-slot select{max-width:60%}.pl label{margin-right:8px}.ip-isle{border:1px solid var(--line,#d5dde8);border-radius:8px;padding:6px 12px;margin:10px 0}.cs-log{max-height:520px;overflow:auto}.cs-t2 td:first-child,li.cs-t2{color:#1f5fbf;font-weight:600}.cs-t3 td:first-child,li.cs-t3{color:#9b30c2;font-weight:700}@media(max-width:700px){.cc-table{display:block;overflow-x:auto}}.rt{display:inline-block;border-radius:999px;padding:0 8px;font-size:12px;font-weight:600;color:#fff}.rt-main{background:#1f5fbf}.rt-supply{background:#2e8b57}.rt-coastal{background:#b8860b}.rt-central{background:#7d3c98}.rt-smuggling{background:#333}
+.infobox caption{font-weight:700;font-size:15px;padding:6px;background:var(--accent);color:#fff}.infobox td.ibimg{text-align:center;background:#fff;padding:8px}.infobox td.ibimg img{max-width:100%;max-height:220px;object-fit:contain}.entry .infobox td.ibimg img{max-height:72px}img.ticon{width:28px;height:28px;object-fit:contain;vertical-align:middle;margin-right:6px}img.medal{object-fit:contain;vertical-align:middle;margin-right:4px}.medal-row{display:flex;gap:18px;flex-wrap:wrap;margin:8px 0}.medal-lvl{margin:0;text-align:center;font-size:13px}img.cicon{width:40px;height:40px;object-fit:contain;vertical-align:middle;margin-right:8px}.cc h3{margin:18px 0 6px}.cc-add{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0}.cc-pick{flex:1;min-width:240px;padding:6px}.cc-q{width:80px;padding:6px}.cc-t{display:flex;align-items:center;gap:6px;margin:4px 0}.cc-t input{width:80px}.cc label{display:block;margin:4px 0}.cc-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;margin:12px 0}.cc-cards div{background:var(--panel,#f4f7fb);border:1px solid var(--line,#d5dde8);border-radius:8px;padding:10px}.cc-cards b{display:block;font-size:20px}.cc-cards span{font-size:12px;opacity:.8}.cc-tools{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:8px 0}.cc-msg{font-size:13px;opacity:.85}.cc-sub{font-size:12px;opacity:.7;display:inline-block;margin-left:4px}.cc-table input[type=number]{width:90px}.cc-table input[type=text]{width:120px}.cc-table select{max-width:220px}.cc-table td{vertical-align:top}.cc-steps li{margin:4px 0}.fig-right{float:right;max-width:min(420px,45%);margin:0 0 12px 18px}.fig-right img{width:100%;height:auto}.fig-right figcaption{font-size:12px;opacity:.8}@media(max-width:700px){.fig-right{float:none;max-width:100%;margin:8px 0}}.pl h3{margin:16px 0 6px}.pl-row{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin:6px 0}.pl-row input[type=number]{width:80px}.pl-cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px}@media(max-width:860px){.pl-cols{grid-template-columns:1fr}}.pl-sub{font-size:12px;opacity:.75}.pl-tools{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:10px 0}.pl-msg{font-size:12px;opacity:.85;word-break:break-all}.sb-slot{display:flex;justify-content:space-between;gap:8px;align-items:center;margin:3px 0}.sb-slot select{max-width:60%}.pl label{margin-right:8px}.ip-isle{border:1px solid var(--line,#d5dde8);border-radius:8px;padding:6px 12px;margin:10px 0}.cs-log{max-height:520px;overflow:auto}.cs-t2 td:first-child,li.cs-t2{color:#1f5fbf;font-weight:600}.cs-t3 td:first-child,li.cs-t3{color:#9b30c2;font-weight:700}@media(max-width:700px){.cc-table{display:block;overflow-x:auto}}.rt{display:inline-block;border-radius:999px;padding:0 8px;font-size:12px;font-weight:600;color:#fff}.rt-main{background:#1f5fbf}.rt-supply{background:#2e8b57}.rt-coastal{background:#b8860b}.rt-central{background:#7d3c98}.rt-smuggling{background:#333}
 .portmap{margin:8px 0;max-width:560px}.portmap img{width:100%;height:auto;border:1px solid var(--border);border-radius:6px}.portmap figcaption{font-size:12px;color:var(--muted)}
 .lg{display:inline-block;width:11px;height:11px;margin:0 3px 0 8px;vertical-align:-1px;border-radius:2px}.lg-port{background:#e8c05a;border-radius:50%}.lg-tower{background:#c0392b}.lg-fort{background:#7d3c98}
 .lg-node{background:#5f6a6a}.lg-route{background:#1f5fbf;height:3px;vertical-align:3px}.lg-s2{background:#dc2828}.lg-s3{background:#f08c1e}.lg-s4{background:#ebd228}.lg-s5{background:#5ac85a}.lg-s6{background:#3c6ee6}
@@ -555,6 +555,27 @@ class SiteBuilder:
                 r['_minp'], r['_maxp'] = p_.get('ClientMinUnitPrice'), p_.get('ClientMaxUnitPrice')
         site_extras.enrich_achievements(self)
         import site_effects
+        import site_tools
+        import site_effects as _fx
+        for r in self.entities.get('upgrade', []):       # each effect from a rank 7 ship to a rank 1 ship
+            lo, hi = site_tools._fx_list(r.get('EffectsBoost'), 7), site_tools._fx_list(r.get('EffectsBoost'), 1)
+            parts = []
+            for (c, v7), (_c, v1) in zip(lo, hi):
+                if c.startswith('B') or v7 == v1:
+                    parts.append(_fx.describe(c, v7))
+                else:
+                    t1 = _fx.describe(c, v1); num = re.search(r'[+\-−]?\d[\d.,]*%?', t1)
+                    parts.append(_fx.describe(c, v7) + (f' (rank 1 ship: {num.group(0)})' if num else ''))
+            r['_range'] = '; '.join(parts)
+            r['_budget'] = 'Budget' if str(r.get('LowCost')).lower() == 'true' else 'Standard'
+        ranks = {str(x.get('ID')): x.get('ShipRank') for x in self.entities.get('ship', [])}
+        for r in self.entities.get('cosmetic', []):
+            try:
+                rk = int(ranks[str(r.get('ShipId'))]) if str(r.get('ShipId')) in ranks else None
+            except (TypeError, ValueError):
+                rk = None
+            coins, gold = site_tools.design_price(r, rk)
+            r['_store'] = f'{coins:,} Coins' if coins else f'{gold:,} gold' if gold else 'Not sold'
         for r in self.entities.get('cosmetic', []):
             if r.get('BonusEffectType') not in (None, '', 'None'):
                 r['_bonus'] = site_effects.describe_pair(r['BonusEffectType'], r.get('BonusEffectValue'))
@@ -1200,7 +1221,7 @@ class SiteBuilder:
                 acc[(w, src)] += n
             for (w, src), n in sorted(acc.items()):
                 by_wave[w].append((src, n))
-            body = [f'<p>A PvE mission with <b>{len(by_wave)}</b> waves of NPC ships.</p>',
+            body = [f'<p>A PvE mission with <b>{len(by_wave)}</b> waves of NPC ships. See <a href="../guide/npc-ships.html">NPC ships</a> for the ships they sail.</p>',
                     _table(['Wave', 'Ships'], [[str(w), ', '.join(f'{n} × {_e(label.get(src, _camel(src)))}' for src, n in grp)] for w, grp in sorted(by_wave.items())]),
                     '<p class="note">Counts are per spawn entry in the mission definition; named bosses appear as single ships.</p>']
             self._write(slug, _page(name, ''.join(body), depth=1, crumbs=[('Main page', 'index.html'), ('Missions & NPCs', 'category/missions.html'), (name, None)]))
