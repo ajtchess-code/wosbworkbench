@@ -186,6 +186,11 @@ def write_pages(b, crumbs, page):
     write_planners(b, crumbs, page)
     events_pages(b, crumbs, page)
     world_pages(b, crumbs, page)
+    try:
+        import site_trade
+        site_trade.write_pages(b, crumbs, page)
+    except Exception as exc:
+        b.progress and b.progress(f'Trade and dig-site pages skipped: {exc}')
     shop_page(b, crumbs, page)
     npc_ships_page(b, crumbs, page)
     return len(data['recipes'])

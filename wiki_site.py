@@ -116,7 +116,7 @@ NAV = [('Main page', 'index.html'), ('Ships', 'category/ships.html'), ('Cannons'
        ('Captain skills', 'category/skills.html'), ('Resources', 'category/resources.html'), ('Ports', 'category/ports.html'),
        ('Achievements', 'category/achievements.html'), ('Ship cosmetics', 'category/cosmetics.html'),
        ('Lanterns', 'guide/lanterns.html'), ('Island decorations', 'category/decorations.html'), ('Captain ranks', 'guide/captain-ranks.html'),
-       ('Elite status', 'guide/elite-status.html'), ('Events', 'guide/events.html'), ('Imperial forts', 'guide/imperial-forts.html'), ('Altars', 'guide/altars.html'), ('Wind & weather', 'guide/wind-and-weather.html'), ('Store', 'guide/store.html'), ('Upgrade slots', 'guide/upgrade-slots.html'), ('Crafting', 'category/recipes.html'), ('Missions & NPCs', 'category/missions.html'),
+       ('Elite status', 'guide/elite-status.html'), ('Events', 'guide/events.html'), ('Imperial forts', 'guide/imperial-forts.html'), ('Trade goods', 'guide/trade-goods.html'), ('Dig sites', 'guide/dig-sites.html'), ('Altars', 'guide/altars.html'), ('Wind & weather', 'guide/wind-and-weather.html'), ('Store', 'guide/store.html'), ('Upgrade slots', 'guide/upgrade-slots.html'), ('Crafting', 'category/recipes.html'), ('Missions & NPCs', 'category/missions.html'),
        ('World map', 'map.html'),
        ('Guides & mechanics', 'category/articles.html')]
 TOOLS = [('Damage simulator', 'tools/damage-simulator.html'), ('Wind & sailing', 'tools/wind-rose.html'),
@@ -1115,6 +1115,11 @@ class SiteBuilder:
                        + (' · tinted water: <span class="lg lg-s2"></span>rank 2+ <span class="lg lg-s3"></span>3+ <span class="lg lg-s4"></span>4+ '
                           '<span class="lg lg-s5"></span>5+ <span class="lg lg-s6"></span>6+ ships only' if self.shallows else '') +
                        f'. <a href="../map.html?port={_e(title)}">Open on the world map</a>.</figcaption></figure>')
+        try:
+            import site_trade
+            out += site_trade.port_html(self, title)
+        except Exception as exc:
+            self.progress and self.progress(f'Port trade goods skipped: {exc}')
         towers = site_world.near(w['towers'], port['x'], port['y'], 1500)
         forts = site_world.near(w['forts'], port['x'], port['y'], 2500)
         if towers or forts:

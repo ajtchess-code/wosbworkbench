@@ -36,7 +36,7 @@ class DesktopStartupSyntaxTests(unittest.TestCase):
     def test_version_and_packaging_consistent(self):
         """v4.3.6: workbench_db.VERSION is the single source; packaging reads it instead of hard-coding."""
         version=re.search(r"VERSION = '([0-9.]+)'",(ROOT/'workbench_db.py').read_text(encoding='utf-8')).group(1)
-        self.assertEqual(version,'4.16.0')
+        self.assertEqual(version,'4.17.0')
         for filename in ['Build-Update.cmd','packaging/Build-Windows.ps1','packaging/WoSBWorkbench.iss','.github/workflows/build-and-release.yml']:
             content=(ROOT/filename).read_text(encoding='utf-8')
             self.assertIsNone(re.search(r"\b4\.\d+\.\d+\b",content),filename+' hard-codes a version')

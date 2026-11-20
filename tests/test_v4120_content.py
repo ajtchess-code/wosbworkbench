@@ -233,3 +233,14 @@ def test_island_planner_has_3d_island_and_decorations():
     iv = (Path(__file__).resolve().parents[1] / 'viewer' / 'item_viewer.js').read_text()
     assert 'ivFilter' in iv and 'terr' in iv
     assert 'item_viewer.js' in site_tools.PLANNER_PAGES['island-planner'][1]
+
+
+def test_trade_rules_and_regions():
+    import site_trade
+    from PIL import Image
+    assert site_trade.ECONOMY[12] == 'Arab' and site_trade.ECONOMY[5] == 'North' and 0 not in site_trade.ECONOMY
+    assert site_trade.sell_price(52, 0) == 55 and site_trade.sell_price(52, 1e6) == 88      # +5% close by, +69% far away (rounded up)
+    assert site_trade.lot(52, 1.0, False)[0] == 200 and site_trade.lot(5, 1.0, True)[0] == 1100        # 9000 gold worth, neutral bays 60%
+    assert abs(site_trade.leveling(1, 6) - 1.0) < 1e-9 and abs(site_trade.leveling(2, 2) - 1.0) < 1e-9  # shallow ports count one rank smaller
+    reg = site_trade.Regions(Image.open(site_trade.DATA / 'world-regions.png'))
+    assert {k for row in reg.grid for k in row} == set(range(16))
