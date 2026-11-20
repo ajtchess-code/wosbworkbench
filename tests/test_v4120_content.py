@@ -244,3 +244,10 @@ def test_trade_rules_and_regions():
     assert abs(site_trade.leveling(1, 6) - 1.0) < 1e-9 and abs(site_trade.leveling(2, 2) - 1.0) < 1e-9  # shallow ports count one rank smaller
     reg = site_trade.Regions(Image.open(site_trade.DATA / 'world-regions.png'))
     assert {k for row in reg.grid for k in row} == set(range(16))
+
+
+def test_trade_union_rules():
+    import site_trade
+    assert site_trade.MISSION_PRICE[1] == 4 and site_trade.MISSION_PRICE[7] == 48
+    assert site_trade.MISSION_DAYS == 7 and site_trade.VIZIER_DAYS == 10
+    assert any(g[0] == 'Ambergris Harvest' and g[2] == '300' for g in site_trade.UNION_GOALS)

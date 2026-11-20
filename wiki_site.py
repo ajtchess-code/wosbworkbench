@@ -116,7 +116,7 @@ NAV = [('Main page', 'index.html'), ('Ships', 'category/ships.html'), ('Cannons'
        ('Captain skills', 'category/skills.html'), ('Resources', 'category/resources.html'), ('Ports', 'category/ports.html'),
        ('Achievements', 'category/achievements.html'), ('Ship cosmetics', 'category/cosmetics.html'),
        ('Lanterns', 'guide/lanterns.html'), ('Island decorations', 'category/decorations.html'), ('Captain ranks', 'guide/captain-ranks.html'),
-       ('Elite status', 'guide/elite-status.html'), ('Events', 'guide/events.html'), ('Imperial forts', 'guide/imperial-forts.html'), ('Trade goods', 'guide/trade-goods.html'), ('Dig sites', 'guide/dig-sites.html'), ('Altars', 'guide/altars.html'), ('Wind & weather', 'guide/wind-and-weather.html'), ('Store', 'guide/store.html'), ('Upgrade slots', 'guide/upgrade-slots.html'), ('Crafting', 'category/recipes.html'), ('Missions & NPCs', 'category/missions.html'),
+       ('Elite status', 'guide/elite-status.html'), ('Events', 'guide/events.html'), ('Imperial forts', 'guide/imperial-forts.html'), ('Trade goods', 'guide/trade-goods.html'), ('Trade Union', 'guide/trade-union.html'), ('Dig sites', 'guide/dig-sites.html'), ('Altars', 'guide/altars.html'), ('Wind & weather', 'guide/wind-and-weather.html'), ('Store', 'guide/store.html'), ('Upgrade slots', 'guide/upgrade-slots.html'), ('Crafting', 'category/recipes.html'), ('Missions & NPCs', 'category/missions.html'),
        ('World map', 'map.html'),
        ('Guides & mechanics', 'category/articles.html')]
 TOOLS = [('Damage simulator', 'tools/damage-simulator.html'), ('Wind & sailing', 'tools/wind-rose.html'),

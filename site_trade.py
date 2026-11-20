@@ -209,6 +209,9 @@ def port_html(b, title):
             out.append('<p>No regional trade goods are offered here' + ('' if p['econ'] else ', because the port is outside every trading economy') + '.</p>')
         if any(o['always'] for o in p['offers']):
             out.append(f'<p>Plus a small lot of {link(d["names"].get(AMBERGRIS, "Ambergris"))} (10).</p>')
+    if p['arab']:
+        out.append('<p>This is an <b>Arab port</b> of the Khanfar Caliphate: it can\'t be captured. The Trade Union guild that wins the Tender here becomes its '
+                   '<a href="../guide/trade-union.html#vizier">Sea Vizier</a>, and only Trade Union guilds can sell Ambergris here during the Tender.</p>')
     if p['basic']:
         out.append('<p><b>Always on sale:</b> ' + ', '.join(link(n) for n in p['basic']) + '.</p>')
     far = sorted(((g, d['goods'][g]) for g in p['pays'] if d['goods'][g]['econ'] != p['econ'] and g != AMBERGRIS), key=lambda kv: -p['pays'][kv[0]] / kv[1]['cost'])
@@ -307,7 +310,98 @@ def dig_page(b, crumbs, page):
     b.search.append({'t': 'Dig sites', 'u': 'guide/dig-sites.html', 'c': 'Guide', 'k': 'dig site shovel islet island search ruins buried treasure chest voodoo skull'})
 
 
+# ------------------------------------------------------------------------------------------- Trade Union
+# PortDevelopment.GetTradeHqPrice: Influence Points and chests (each) to open or renew a Trade Mission, by town level
+MISSION_PRICE = {1: 4, 2: 8, 3: 12, 4: 20, 5: 28, 6: 40, 7: 48}
+MISSION_DAYS = 7                     # GuildCommon: a Trade Mission lasts 7 days
+VIZIER_DAYS = 10                     # the Tender's prize: Sea Vizier for 10 days and 10 nights
+# GuildQuests: Trade Union guild goals; each full target earns the guild 1 Influence Point (progress counts in fractions)
+UNION_GOALS = [('Trade', 'Trade turnover on the Exchange', '7,500,000 gold'), ('Shipbuilding', 'Build rate 1 or 2 ships', '2 ships'),
+               ('Production', 'Crafting time used in ports and on Personal Islands', '15,000'),
+               ('Active Defense', 'Damage dealt to members of pirate guilds', '75,000'),
+               ('Ambergris Harvest', 'Ambergris sold in ports during the Tender', '300'),
+               ('Experience', 'XP earned by members', '150,000'), ('Quests', 'Quests completed by members', '25'),
+               ('Ranks', 'Captain ranks gained by members', '2'), ('Achievements', 'Achievements earned by members', '60')]
+# IslePortInfo.InternalTradingTax
+EXCHANGE_TAX = [('Towns of the states (cities and bays)', '8%'), ('Arab ports', '6%'), ('Pirate ports', '4%'),
+                ('Neutral bays', '12% (8% in starting bays)')]
+
+
+def union_page(b, crumbs, page):
+    import site_extras
+    build = getattr(b, 'build', 'Steam')
+    plink = lambda n: (f'<a href="../{b.urls[("port", n.casefold())]}">{_e(n)}</a>' if ('port', n.casefold()) in b.urls else _e(n))
+    bonuses = []
+    for r in site_extras.records(b.db, 'PortLevelBonuses', build):
+        rec = str(r.get('Receiver') or '')
+        if 'TradeHqInNation' in rec or 'TraderOwnerAndTrusted' in rec:
+            vals = [v.strip() for v in str(r.get('LevelValues') or '').split(',')]
+            if len(vals) == 7:
+                bonuses.append((r.get('EnglishName') or r.get('Type'), vals, str(r.get('Type') or '')))
+    bonuses = sorted({b_[0]: b_ for b_ in bonuses}.values(), key=lambda x: x[0])
+    def cell(v, kind):
+        if kind.startswith('B'):
+            return '✓' if v not in ('0', '') else '–'
+        if kind.startswith('P'):
+            return f'{v}%' if v not in ('0', '') else '–'
+        return v if v not in ('0', '') else '–'
+    arab = [r for r in site_extras.records(b.db, 'WorldPorts', build) if 'Arab' in str(r.get('Flags') or '').split()]
+    body = ['<p>The <b>Trade Union</b> is the guild faction of the Khanfar Caliphate\'s trading colonies. It never captures towns. Instead it trades, '
+            'opens <b>Trade Missions</b> in the states\' towns to share their town bonuses, and competes in the <b>Tender</b> to make one of its guilds '
+            '<b>Sea Vizier</b> of an Arab port. Everything here comes from the game\'s own rules.</p>',
+            '<h2 id="rules">Faction rules</h2><ul>'
+            '<li><b>Neutral to everyone except pirates.</b> The states and the Empire treat the Trade Union as neutral; pirates are its enemies. All Trade Union guilds are allies of each other.</li>'
+            '<li><b>Can\'t capture towns.</b> Trade Union guilds hold no territory of their own.</li>'
+            '<li><b>Safety tribute:</b> in every town except pirate ones, entering port costs 1/200 of the value of your hold, on top of any mooring fee.</li>'
+            '<li><b>Reputation:</b> members must stay at neutral or better with the Archipelago states, or they are expelled from the guild. '
+            'Sinking a state\'s player ship costs 3 reputation with that state and a fine (unless they fired first); sinking a pirate guild\'s ship gives +1 with the Trade Union; '
+            'sinking a state\'s port patrol costs 0.5 Trade Union reputation.</li>'
+            '<li><b>Escorts:</b> NPC warships protect Trade Union players sailing along the main trade routes.</li>'
+            '<li><b>Faction flag:</b> under the War flag a Trade Union player gets <b>+50% XP and rewards on delivery quests</b> instead of the +30% loot other factions get.</li>'
+            '<li>Pirate guilds have their own guild goal for boarding Trade Union players.</li></ul>']
+    body.append('<h2 id="missions">Trade Missions</h2><p>A Trade Union guild can open a <b>Trade Mission</b> in any town held by one of the three states (not in pirate-held or Empire-held towns, Arab ports, neutral bays or pirate coves). '
+                f'While it is open, every member of the guild gets that town\'s trader bonuses, up to the town\'s current level. A mission lasts <b>{MISSION_DAYS} days</b>; '
+                'renewing it costs the fee again. The fee is paid from the guild in <b>Influence Points and chests</b> (the same number of each) and depends on the town\'s level:</p>'
+                + site_extras._table(['Town level'] + [str(k) for k in MISSION_PRICE], [['Influence Points + chests'] + [str(v) for v in MISSION_PRICE.values()]], cls='wikitable')
+                + '<p>Unlike a state\'s own guilds, which unlock a town\'s bonuses step by step through supply missions, a Trade Mission gives the full set for the town\'s level straight away. '
+                'Other players see how many Trade Missions a guild has on its guild page.</p>')
+    if bonuses:
+        rows = [[_e(n)] + [cell(v, k) for v in vals] for n, vals, k in bonuses]
+        body.append('<h3 id="bonuses">Trader bonuses by town level</h3><p>What a Trade Mission (or a Vizier port) gives, by the town\'s level:</p>'
+                    + site_extras._table(['Bonus'] + [f'Level {i}' for i in range(1, 8)], rows))
+    body.append('<h2 id="influence">Influence Points: guild goals</h2><p>Trade Union guilds earn Influence Points from their own guild goals instead of capturing towns. '
+                'Progress counts as members play; every time the guild reaches the target it earns <b>1 Influence Point</b> (part-way progress already counts as a fraction).</p>'
+                + site_extras._table(['Goal', 'What counts', 'Target per point'], [[f'<b>{_e(a)}</b>', _e(b_), _e(c)] for a, b_, c in UNION_GOALS], cls='wikitable')
+                + '<p>Chests come from the guild vault, which members top up themselves.</p>')
+    alist = ', '.join(f'{plink(r.get("EnglishName") or r.get("PortNameEnglish"))} (level {r.get("FixedLevel")})' for r in sorted(arab, key=lambda r: -int(r.get('FixedLevel') or 0)))
+    body.append('<h2 id="vizier">The Tender and Sea Viziers</h2>'
+                f'<p>The Caliphate\'s own towns, the <b>Arab ports</b>{": " + alist if alist else ""}, can\'t be captured. Instead, the Great Sultan names a <b>Sea Vizier</b> for each through the <b>Tender</b>:</p><ul>'
+                '<li>The Tender is a 24-hour event. During it, ports with a goods market offer small lots of <b>Ambergris</b> (except the Arab ports themselves).</li>'
+                '<li>Only <b>Trade Union guilds can sell Ambergris</b> in the Arab ports, and every one sold earns the guild Tender points in that port. Each Arab port keeps its own points table (the top five are shown in port).</li>'
+                f'<li>The guild with the most points in a port becomes its <b>Vizier for {VIZIER_DAYS} days</b>.</li>'
+                '<li>When the Tender ends, <b>all Ambergris disappears</b> from every hold and warehouse, so sell it while the event lasts.</li>'
+                '<li>Selling Ambergris during the Tender also counts towards the guild\'s Ambergris Harvest goal (300 per Influence Point), and taking part earns the Trade Wars Medal.</li></ul>'
+                '<h3>What being Vizier does</h3><ul>'
+                '<li>The Vizier guild and its <b>trusted guilds</b> count as <b>allies</b> in that port; everyone else is neutral there.</li>'
+                '<li>They get the port\'s full set of <b>trader bonuses</b> (the table above) at the port\'s fixed level, with no Trade Mission fee.</li>'
+                '<li>Arab ports sell the Arab trade goods and charge a <b>6%</b> port tax on trading (state towns charge 8%).</li>'
+                '<li>If no guild holds a port, nobody gets its bonuses.</li></ul>')
+    body.append('<h2 id="quests">Delivery quests</h2><p>Every captain can take delivery orders in port; they matter most to traders because of the War-flag bonus above. How the game sets them:</p><ul>'
+                '<li><b>Cargo:</b> about a third of orders carry a trade good of the local economy; the rest carry everyday goods. The load is 300–2,400 weight in the safest waters and grows with the danger level.</li>'
+                '<li><b>Reward:</b> grows with the danger level of the start and destination, with the distance (roughly with distance to the power 1.3), and with the cargo size. '
+                'It is <b>+40%</b> if the route crosses the hazard zone from outside it, and <b>+20%</b> for smuggling or a destination closed to peaceful flags.</li>'
+                '<li><b>XP</b> is 80% of the reward\'s worth in XP. Premium adds 40%, and the Trade Union\'s War flag adds 50%.</li>'
+                '<li><b>Time limit:</b> 1.4 times the sailing time plus a minute and a half, times 0.9–1.3, plus 2 minutes.</li>'
+                '<li><b>Smuggling</b> orders (captives) pay more and can go further.</li></ul>')
+    body.append('<h2 id="taxes">Port tax on trading</h2>' + site_extras._table(['Port', 'Port tax'], EXCHANGE_TAX, cls='wikitable') + '<p>Selling for Coins doubles the tax.</p>'
+                + '<p>See <a href="trade-goods.html">Trade goods</a> for what each port sells and pays.</p>')
+    b._write('guide/trade-union.html', page('Trade Union, Trade Missions and Viziers', ''.join(body), depth=1, crumbs=crumbs, tab='Guide'))
+    b.search.append({'t': 'Trade Union', 'u': 'guide/trade-union.html', 'c': 'Guide',
+                     'k': 'trade union faction trade mission vizier tender ambergris arab port caliphate influence points delivery quest'})
+
+
 def write_pages(b, crumbs, page):
     crumbs = [('Main page', 'index.html'), ('Guides & mechanics', 'category/articles.html')]
     trade_page(b, crumbs, page)
     dig_page(b, crumbs, page)
+    union_page(b, crumbs, page)
