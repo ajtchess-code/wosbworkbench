@@ -172,7 +172,8 @@ def load(db, build='Steam', shallows=None):
         elif path.startswith('ports\\'):
             (lights if 'pharos' in model else posts).append({'x': x, 'y': y, 'n': 'Lighthouse' if 'pharos' in model else 'Fishing village' if 'fishing' in model else 'Trading post'})
         elif 'worldfort' in path:
-            forts.append({'x': x, 'y': y, 'n': 'Imperial fort'})
+            m = re.search(r'worldfort(\d)', path)
+            forts.append({'x': x, 'y': y, 'n': f'Imperial fort, type {m.group(1)}' if m else 'Imperial fort'})
         elif 'special\\towers\\t_' in path:
             towers.append({'x': x, 'y': y, 'n': {'t_mortar': 'Mortar tower', 't_fire': 'Prometheus tower'}.get(re.sub(r'\d+$', '', model), 'Cannon tower')})
         elif path.startswith('buildings\\factory'):

@@ -507,7 +507,7 @@ def events_pages(b, crumbs, page):
 
 
 # ================================================================================================ forts, altars, weather
-def _sector_table(guns, half_arc=45):
+def _unused_sector_table(guns, half_arc=45):
     def d(a, b):
         return abs((a - b + 180) % 360 - 180)
     rows = []
@@ -526,34 +526,52 @@ def world_pages(b, crumbs, page):
         altar = chests['chests'].get('altar')
     except (OSError, ValueError, KeyError):
         pass
-    # ---- Imperial forts
+    # ---- Imperial forts: three different buildings
     try:
-        guns = json.loads((site_extras.DATA / 'worldfort_guns.json').read_text(encoding='utf-8'))['guns']
+        fd = json.loads((site_extras.DATA / 'forts.json').read_text(encoding='utf-8'))
     except (OSError, ValueError):
-        guns = []
-    pic = site_extras.DATA / 'worldfort-coverage.webp'
-    img = ''
-    if pic.is_file():
-        (b.out / 'assets' / 'img').mkdir(parents=True, exist_ok=True)
-        shutil.copyfile(pic, b.out / 'assets' / 'img' / 'worldfort-coverage.webp')
-        img = ('<figure class="fig-right"><img src="../assets/img/worldfort-coverage.webp" alt="Imperial fort seen from above with its guns and how many can fire in each direction" '
-               'width="500" height="500" loading="lazy"><figcaption>The fort from above. Red dots are guns, the black line shows where each one faces. '
-               'The ring: red where many guns can reach you, green where few can.</figcaption></figure>')
-    nforts = len(getattr(b, 'world', {}).get('forts', []) or []) if isinstance(getattr(b, 'world', None), dict) else 0
-    sect = _sector_table(guns)
-    end_a = min((r for r in sect if int(r[0][:-1]) in (300, 330, 0, 30, 60)), key=lambda r: int(r[1]))
-    end_b = min((r for r in sect if int(r[0][:-1]) in (120, 150, 180, 210, 240)), key=lambda r: int(r[1]))
-    body = (img + '<p><b>Imperial forts</b> are the Empire\'s strongholds on the open sea'
-            + (f' ({nforts} on the world map)' if nforts else '') + '. Sink their defences, and the fort drops a loot crate for whoever can grab it.</p>'
-            '<h2 id="guns">Guns and the safest angles</h2>'
-            f'<p>Every Imperial fort is the same building with <b>{len(guns)} guns</b> set around its walls, each facing outwards. '
-            'A gun only fires at ships inside its arc, so how many guns can hit you depends on which side you attack from. '
-            'The table counts the guns that can bear on each direction, assuming each gun can swing 45° either way (the exact arc is set by the server, '
-            'not stored in the game files). 0° is the fort\'s right-hand end in the picture, 90° the top.</p>'
-            + site_extras._table(['Direction', 'Guns that can bear', ''], sect)
-            + f'<p><b>Safest approach:</b> the two narrow ends: around {end_a[0]} on the right, where only {end_a[1]} guns reach, and around {end_b[0]} on the left ({end_b[1]} guns). '
-            'The long walls are the most dangerous: up to a dozen guns can fire at once. Guns also have a short dead zone right under the walls.</p>'
-            '<h2 id="loot">Loot</h2><ul><li>The fort shows its current reward before you attack; it changes from fort to fort and over time (the server decides it).</li>'
+        fd = {'types': {}, 'placements': []}
+    (b.out / 'assets' / 'img').mkdir(parents=True, exist_ok=True)
+    ports = (getattr(b, 'world', None) or {}).get('ports', []) if isinstance(getattr(b, 'world', None), dict) else []
+    def near(px, py):
+        if not ports:
+            return None
+        pt = min(ports, key=lambda q: (q['x'] - px) ** 2 + (q['y'] - py) ** 2)
+        return pt.get('n')
+    count = {}
+    for pl in fd.get('placements', []):
+        count[pl['m'][-1]] = count.get(pl['m'][-1], 0) + 1
+    half = fd.get('half_arc', 45)
+    sections, summary = [], []
+    for n, t in sorted(fd.get('types', {}).items()):
+        pic = site_extras.DATA / f'worldfort{n}-coverage.webp'
+        img = ''
+        if pic.is_file():
+            shutil.copyfile(pic, b.out / 'assets' / 'img' / f'worldfort{n}-coverage.webp')
+            img = (f'<figure class="fig-right"><img src="../assets/img/worldfort{n}-coverage.webp" alt="Imperial fort type {n} from above with its guns" '
+                   'width="500" height="500" loading="lazy"><figcaption>Red dots are guns, the black line shows where each faces. '
+                   'Ring: red where many guns reach you, green where few do.</figcaption></figure>')
+        sect = t['sectors']; dirs = list(range(0, 360, 30))
+        lo = min(sect); hi = max(sect)
+        safest = [f'{dirs[k]}°' for k, v in enumerate(sect) if v == lo]
+        where = [near(pl['x'], pl['y']) for pl in fd.get('placements', []) if pl['m'][-1] == n]
+        where_txt = (f'<p><b>{count.get(n, 0)} on the world map</b>' + (f', near {", ".join(sorted({w for w in where if w}))}' if where and count.get(n, 0) <= 6 and any(where) else '') + '.</p>'
+                     if count.get(n) else '<p>Not placed on the open-sea map in the current game files (it may be used elsewhere or later).</p>')
+        rows = [[f'{dd}°', str(v), '■' * v] for dd, v in zip(dirs, sect)]
+        sections.append(f'<h2 id="type{n}">Fort type {n}: {len(t["guns"])} guns</h2>' + img + where_txt
+                        + f'<p>Safest: <b>{", ".join(safest)}</b> ({lo} guns can bear). Most dangerous: up to {hi} guns at once.</p>'
+                        + site_extras._table(['Direction', 'Guns that can bear', ''], rows) + '<div style="clear:both"></div>')
+        summary.append([f'<a href="#type{n}">Type {n}</a>', str(len(t['guns'])), str(count.get(n, 0)), ', '.join(safest), str(lo), str(hi)])
+    total = sum(count.values())
+    body = ('<p><b>Imperial forts</b> are the Empire\'s strongholds on the open sea' + (f' ({total} on the world map)' if total else '') + '. '
+            'They are not all the same: the game has <b>three fort buildings</b>, each with its own layout of guns, so the safe side differs from fort to fort. '
+            'Recognise the type by its shape from above, then come in from its weak side.</p>'
+            + site_extras._table(['Fort', 'Guns', 'On the map', 'Safest directions', 'Guns there', 'Most guns'], summary)
+            + f'<p>How to read it: every gun faces outwards and only fires at ships inside its arc. The counts assume each gun can swing {half}° either way '
+            '(the exact arc is set by the server, not stored in the game files). Directions are measured around the fort as drawn: 0° is the right-hand side '
+            'of the picture, 90° the top, 180° the left, 270° the bottom (the side with the curved wall). Guns also have a short dead zone right under the walls.</p>'
+            + ''.join(sections)
+            + '<h2 id="loot">Loot</h2><ul><li>The fort shows its current reward before you attack; it changes from fort to fort and over time (the server decides it).</li>'
             '<li>When the fort falls it drops a <b>loot crate that floats for 15 minutes</b>. Sail right up to it to pick it up; anyone can take it.</li>'
             '<li>“Deal damage to forts” is a common event quest.</li></ul>'
             '<h2 id="respawn">Respawn</h2><p>A captured fort comes back after a while. The timer is kept on the server, so it is not in the game files; '

@@ -28,7 +28,7 @@ function mount(el,M){if(!M){el.innerHTML='<p class="note">No map data in this bu
  for(const p of M.ports)add('ports',p,'wm-port',`<b>${esc(p.n)}</b><span>${esc(p.info||p.type)}</span>${p.url?`<a href="${rel}${p.url}">Port page</a>`:''}`,p.n,p.n);
  for(const s of M.pb)add('pb',s,'wm-pb',`<b>Port battle: ${esc(s.n)}</b><span>${s.towers} towers · guild fort</span><a href="${rel}tools/battle-simulator.html?preset=pbfleet&site=${s.id}">Simulate the port battle</a><a href="${rel}tools/battle-simulator.html?preset=port&site=${s.id}">Towers only</a>`,'',`Port battle: ${s.n}`);
  for(const t of M.towers)add('towers',t,'wm-tower',`<b>${esc(t.n)}</b><a href="${rel}tools/defenses.html">Damage and range</a>`,'',t.n);
- for(const f of M.forts)add('forts',f,'wm-fort',`<b>Imperial fort</b>`,'','Imperial fort');
+ for(const f of M.forts)add('forts',f,'wm-fort',`<b>${f.n||'Imperial fort'}</b><br><a href="guide/imperial-forts.html">Safest angles</a>`,'',f.n||'Imperial fort');
  for(const v of M.villages)add('villages',v,'wm-village',`<b>${esc(v.n)}</b>`,'',v.n);
  for(const m of M.mines)add('mines',m,'wm-mine',`<b>${esc(m.n)}</b>`,'',m.n);
  for(const a of M.altars)add('altars',a,'wm-altar',`<b>Altar</b>`,'','Altar');

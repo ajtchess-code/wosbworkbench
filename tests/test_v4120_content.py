@@ -166,3 +166,11 @@ def test_store_prices_events_and_wording():
     assert set(ev) == {'Halloween', 'NewYear', 'Anniversary', 'Spring'} and all(len(e['days']) == 14 for e in ev.values())
     assert site_tools._quest_text('KillAnyNpc(15)') == 'Sink 15 NPC ships'
     assert site_wording.clean_text('By Monets 890') == '890 Coins'
+
+
+def test_three_fort_types():
+    import json as _j
+    from pathlib import Path
+    fd = _j.loads((Path(__file__).resolve().parents[1] / 'data' / 'forts.json').read_text())
+    assert set(fd['types']) == {'1', '2', '3'} and len(fd['types']['3']['guns']) == 30
+    assert sum(1 for p in fd['placements'] if p['m'] == 'worldfort2') == 2
